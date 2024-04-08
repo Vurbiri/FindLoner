@@ -1,13 +1,12 @@
-using Cysharp.Threading.Tasks;
 using System;
 
 public partial class YMoney
 {
-    private UniTaskCompletionSource<bool> taskEndShowFullscreenAdv;
-    private UniTaskCompletionSource<bool> taskRewardRewardedVideo;
-    private UniTaskCompletionSource<bool> taskCloseRewardedVideo;
+    private WaitResult<bool> _waitEndShowFullscreenAdv = new();
+    private WaitResult<bool> _waitRewardRewardedVideo = new();
+    private WaitResult<bool> _waitCloseRewardedVideo = new();
 
-    public void OnEndShowFullscreenAdv(int result) => taskEndShowFullscreenAdv?.TrySetResult(Convert.ToBoolean(result));
-    public void OnRewardRewardedVideo(int result) => taskRewardRewardedVideo?.TrySetResult(Convert.ToBoolean(result));
-    public void OnCloseRewardedVideo(int result) => taskCloseRewardedVideo?.TrySetResult(Convert.ToBoolean(result));
+    public void OnEndShowFullscreenAdv(int result) => _waitEndShowFullscreenAdv.SetResult(Convert.ToBoolean(result));
+    public void OnRewardRewardedVideo(int result) => _waitRewardRewardedVideo.SetResult(Convert.ToBoolean(result));
+    public void OnCloseRewardedVideo(int result) => _waitCloseRewardedVideo.SetResult(Convert.ToBoolean(result));
 }

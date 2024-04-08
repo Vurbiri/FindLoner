@@ -1,22 +1,22 @@
-using Cysharp.Threading.Tasks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
-public class JsonToYandex : ASaveLoadJsonTo
+public class JsonToCookies : ASaveLoadJsonTo
 {
     private string _key;
-    private YandexSDK YSDK => YandexSDK.Instance;
 
-    public override bool IsValid => YSDK.IsLogOn;
+    public override bool IsValid => UtilityJS.IsCookies();
 
-    public async override UniTask<bool> Initialize(string key)
+    public override IEnumerator InitializeCoroutine(string key, Action<bool> callback)
     {
         _key = key;
+
         string json;
 
         try
         {
-            json = await YSDK.Load(_key);
+            json = UtilityJS.GetCookies(_key);
         }
         catch (Exception ex)
         {
@@ -31,34 +31,30 @@ public class JsonToYandex : ASaveLoadJsonTo
             if (d.Result)
             {
                 _saved = d.Value;
-                return true;
+                callback?.Invoke(true);
+                return null;
             }
         }
 
         _saved = new();
-        return false;
+        callback?.Invoke(false);
+        return null;
     }
 
-    public override void Save(string key, object data, bool isSaveHard, Action<bool> callback)
+    public override IEnumerator SaveCoroutine(string key, object data, bool isSaveHard, Action<bool> callback)
     {
         bool result;
-        if (!((result = SaveSoft(key, data)) && isSaveHard && _dictModified))
+        if (!(result = SaveSoft(key, data)) || !isSaveHard)
         {
             callback?.Invoke(result);
-            return;
+            return null;
         }
 
-        SaveToFileAsync(callback).Forget();
-    }
-
-    public async UniTaskVoid SaveToFileAsync(Action<bool> callback)
-    {
-        bool result = true;
         try
         {
             string json = Serialize(_saved);
-            result = await YSDK.Save(_key, json);
-            _dictModified = !result;
+            result = UtilityJS.SetCookies(_key, json);
+
         }
         catch (Exception ex)
         {
@@ -69,5 +65,7 @@ public class JsonToYandex : ASaveLoadJsonTo
         {
             callback?.Invoke(result);
         }
+
+        return null;
     }
 }

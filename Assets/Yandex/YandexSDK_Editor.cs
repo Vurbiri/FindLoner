@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
 
-using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using System.Collections.Generic;
 using System.IO;
@@ -34,21 +33,20 @@ public partial class YandexSDK
     public bool IsLogOn => _isLogOn;
     public string Lang => _lang;
 
-    public UniTask<bool> InitYsdk() => UniTask.RunOnThreadPool(() => _isInitialize);
+    public WaitResult<bool> InitYsdk() => new(_isInitialize);
     public void LoadingAPI_Ready() { }
-    public UniTask<bool> InitPlayer() => UniTask.RunOnThreadPool(() => _isPlayer);
-    public async UniTask<bool> LogOn()
+    public WaitResult<bool> InitPlayer() => new(_isPlayer);
+    public WaitResult<bool> LogOn()
     {
-        await UniTask.Delay(1000, true);
         _isLogOn = true;
-        return true;
+        return new(_isLogOn); ;
     }
-    public UniTask<bool> InitLeaderboards() => UniTask.RunOnThreadPool(() => IsLeaderboard);
+    public WaitResult<bool> InitLeaderboards() => new(IsLeaderboard);
     public string GetPlayerAvatarURL(AvatarSize size) => string.Empty;
 
-    public UniTask<Return<PlayerRecord>> GetPlayerResult() => UniTask.RunOnThreadPool(() => new Return<PlayerRecord>(new PlayerRecord(6, 1)));
-    public UniTask<bool> SetScore(long score) => UniTask.RunOnThreadPool(() => true);
-    public UniTask<Return<Leaderboard>> GetLeaderboard(int quantityTop, bool includeUser = false, int quantityAround = 0, AvatarSize size = AvatarSize.Small)
+    public WaitResult<Return<PlayerRecord>> GetPlayerResult() => new(new Return<PlayerRecord>(new PlayerRecord(6, 1)));
+    public WaitResult<bool> SetScore(long score) => new(true);
+    public WaitResult<Return<Leaderboard>> GetLeaderboard(int quantityTop, bool includeUser = false, int quantityAround = 0, AvatarSize size = AvatarSize.Small)
     {
         Debug.Log(_lbName);
 
@@ -69,10 +67,10 @@ public partial class YandexSDK
 
         Leaderboard l = new(2, list.ToArray());
 
-        return UniTask.RunOnThreadPool(() => new Return<Leaderboard>(l));
+        return new(new Return<Leaderboard>(l));
     }
 
-    public UniTask<Return<Leaderboard>> GetLeaderboardTest()
+    public WaitResult<Return<Leaderboard>> GetLeaderboardTest()
     {
         List<LeaderboardRecord> list = new()
         {
@@ -89,32 +87,32 @@ public partial class YandexSDK
 
         Leaderboard l = new(2, list.ToArray());
 
-        return UniTask.RunOnThreadPool(() => new Return<Leaderboard>(l));
+        return new(new Return<Leaderboard>(l));
     }
 
-    public async UniTask<bool> Save(string key, string data)
+    public WaitResult<bool> Save(string key, string data)
     {
         using StreamWriter sw = new(Path.Combine(Application.persistentDataPath, key));
-        await sw.WriteAsync(data);
+        sw.Write(data);
 
-        return true;
+        return new(true);
     }
-    public async UniTask<string> Load(string key)
+    public WaitResult<string> Load(string key)
     {
         string path = Path.Combine(Application.persistentDataPath, key);
         if (File.Exists(path))
         {
             using StreamReader sr = new(path);
-            return await sr.ReadToEndAsync();
+            return new(sr.ReadToEnd());
         }
         return null;
     }
 
-    public UniTask<bool> CanReview() => UniTask.RunOnThreadPool(() => _isLogOn);
-    public async UniTaskVoid RequestReview() => await UniTask.Delay(1); 
+    public WaitResult<bool> CanReview() => new(_isLogOn);
+    public WaitResult<bool> RequestReview() => new(true); 
 
-    public UniTask<bool> CanShortcut() => UniTask.RunOnThreadPool(() => _isLogOn);
-    public UniTask<bool> CreateShortcut() => UniTask.RunOnThreadPool(() => _isLogOn);
+    public WaitResult<bool> CanShortcut() => new(_isLogOn);
+    public WaitResult<bool> CreateShortcut() => new(_isLogOn);
 
 }
 #endif

@@ -1,5 +1,5 @@
-using Cysharp.Threading.Tasks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,28 +30,29 @@ public class LeaderboardUI : MonoBehaviour
     private void Start()
     {
         if (_rect.content.childCount == 0)
-            InitializeAsync().Forget();
+            StartCoroutine(InitializeCoroutine());
     }
 
-    public async UniTaskVoid SetScore(long score)
+    public IEnumerator SetScore(long score)
     {
-        if (!YSDK.IsLeaderboard) return;
+        if (!YSDK.IsLeaderboard) yield break;
 
-        if (!await YandexSDK.Instance.SetScore(score))
-            return;
+        WaitResult<bool> waitResult = YandexSDK.Instance.SetScore(score);
+        yield return waitResult;
+        if (!waitResult.Result) yield break;
 
         if (_rect.content.childCount != 0)
-            ReInitializeAsync().Forget();
+            StartCoroutine(ReInitializeCoroutine());
     }
 
-    private async UniTask InitializeAsync()
+    private IEnumerator InitializeCoroutine()
     {
-        if (!YSDK.IsLeaderboard) return;
+        if (!YSDK.IsLeaderboard) yield break;
 
-        var leaderboard = await GetLeaderboard();
-        if (leaderboard == null)
-            return;
-        
+        Leaderboard leaderboard = null;
+        yield return StartCoroutine(GetLeaderboard((l) => leaderboard = l));
+        if (leaderboard == null) yield break;
+
         int userRank = leaderboard.UserRank;
 
         CreateTable();
@@ -85,17 +86,17 @@ public class LeaderboardUI : MonoBehaviour
         #endregion
     }
 
-    private async UniTask ReInitializeAsync()
+    private IEnumerator ReInitializeCoroutine()
     {
         if (_rect.content.childCount == 0)
         {
-            await InitializeAsync();
-            return;
+            yield return StartCoroutine(InitializeCoroutine());
+            yield break;
         }
 
-        var leaderboard = await GetLeaderboard();
-        if (leaderboard == null)
-            return;
+        Leaderboard leaderboard = null;
+        yield return StartCoroutine(GetLeaderboard((l) => leaderboard = l));
+        if (leaderboard == null) yield break;
 
         int userRank = leaderboard.UserRank;
 
@@ -153,11 +154,13 @@ public class LeaderboardUI : MonoBehaviour
         #endregion
     }
 
-    private async UniTask<Leaderboard> GetLeaderboard()
+    private IEnumerator GetLeaderboard(Action<Leaderboard> action)
     {
         int userRank = 0;
 
-        var player = await YSDK.GetPlayerResult();
+        var waitResult = YSDK.GetPlayerResult();
+        yield return waitResult;
+        var player = waitResult.Result;
         if (player.Result)
             userRank = player.Value.Rank;
 
@@ -166,14 +169,16 @@ public class LeaderboardUI : MonoBehaviour
             if (userRank <= (_maxTop - _maxAround))
                 playerInTable = false;
 
-        var leaderboard = await YSDK.GetLeaderboard(_maxTop, playerInTable, _maxAround, _avatarSize);
+        var waitLeaderboard = YSDK.GetLeaderboard(_maxTop, playerInTable, _maxAround, _avatarSize);
+        yield return waitLeaderboard;
+        var leaderboard = waitLeaderboard.Result;
         if (!leaderboard.Result)
-            return null;
+            action?.Invoke(null);
 
         if (!playerInTable)
             leaderboard.Value.UserRank = userRank;
 
-        return leaderboard.Value;
+        action?.Invoke(leaderboard.Value);
     }
 
     private void ScrollToPlayer()

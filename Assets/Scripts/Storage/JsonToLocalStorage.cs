@@ -1,23 +1,22 @@
-using Cysharp.Threading.Tasks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
-public class JsonToCookies : ASaveLoadJsonTo
+public class JsonToLocalStorage : ASaveLoadJsonTo
 {
     private string _key;
 
-    public override bool IsValid => UtilityJS.IsCookies();
+    public override bool IsValid => UtilityJS.IsStorage();
 
-    public async override UniTask<bool> Initialize(string key)
+    public override IEnumerator InitializeCoroutine(string key, Action<bool> callback)
     {
         _key = key;
 
         string json;
 
-        await UniTask.Delay(0, true);
         try
         {
-            json = UtilityJS.GetCookies(_key);
+            json = UtilityJS.GetStorage(_key);
         }
         catch (Exception ex)
         {
@@ -32,27 +31,29 @@ public class JsonToCookies : ASaveLoadJsonTo
             if (d.Result)
             {
                 _saved = d.Value;
-                return true;
+                callback?.Invoke(true);
+                return null;
             }
         }
 
         _saved = new();
-        return false;
+        callback?.Invoke(false);
+        return null;
     }
 
-    public override void Save(string key, object data, bool isSaveHard, Action<bool> callback)
+    public override IEnumerator SaveCoroutine(string key, object data, bool isSaveHard, Action<bool> callback)
     {
         bool result;
         if (!(result = SaveSoft(key, data)) || !isSaveHard)
         {
             callback?.Invoke(result);
-            return;
+            return null;
         }
 
         try
         {
             string json = Serialize(_saved);
-            result = UtilityJS.SetCookies(_key, json);
+            result = UtilityJS.SetStorage(_key, json);
 
         }
         catch (Exception ex)
@@ -64,5 +65,7 @@ public class JsonToCookies : ASaveLoadJsonTo
         {
             callback?.Invoke(result);
         }
+
+        return null;
     }
 }

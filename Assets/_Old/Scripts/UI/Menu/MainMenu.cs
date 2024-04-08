@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,13 +14,15 @@ public class MainMenu : MenuNavigation
     {
         _ysdk = YandexSDK.Instance;
 
-        ButtonInitialize().Forget();
+        StartCoroutine(ButtonInitialize());
 
         #region Local Function
-        async UniTaskVoid ButtonInitialize()
+        IEnumerator ButtonInitialize()
         {
             _leaderboard.interactable = _ysdk.IsLeaderboard;
-            _review.interactable = _ysdk.IsLogOn && await _ysdk.CanReview();
+            var wait = _ysdk.CanReview();
+            yield return wait;
+            _review.interactable = _ysdk.IsLogOn && wait.Result;
         }
         #endregion
     }
@@ -28,6 +30,6 @@ public class MainMenu : MenuNavigation
     public void OnReview()
     {
         _review.interactable = false;
-        _ysdk.RequestReview().Forget();
+        _ysdk.RequestReview();
     }
 }

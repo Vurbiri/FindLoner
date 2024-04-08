@@ -1,49 +1,65 @@
-using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 
 public class LogOnPanel : MonoBehaviour
 {
-    private UniTaskCompletionSource<bool> _taskLogOn;
+    private WaitResult<bool> _waitLogOn;
     YandexSDK _ysdk;
 
-    public async UniTask<bool> TryLogOn()
+    public IEnumerator TryLogOnCoroutine()
     {
         _ysdk = YandexSDK.InstanceF;
 
-        _taskLogOn = new();
+        _waitLogOn = new();
         gameObject.SetActive(true);
 
-        while (await _taskLogOn.Task)
+        WaitResult<bool> waitResult;
+        bool resultAuthorization = false;
+        while (true)
         {
-            if (await Authorization())
+            yield return _waitLogOn;
+            if (!_waitLogOn.Result)
                 break;
 
-            _taskLogOn = new();
+            yield return StartCoroutine(AuthorizationCoroutine());
+            if (resultAuthorization)
+                break;
+
+            _waitLogOn = new();
             Message.BannerKey("ErrorLogon", MessageType.Error);
         }
 
         gameObject.SetActive(false);
 
-        return _ysdk.IsLogOn;
-
-        #region Local Functions
-
-        async UniTask<bool> Authorization()
+        #region Local Function
+        IEnumerator AuthorizationCoroutine()
         {
             Message.BannersClear();
 
             if (!_ysdk.IsPlayer)
-                if (!await _ysdk.InitPlayer())
-                    return false;
+            {
+                yield return (waitResult = _ysdk.InitPlayer());
+                if (!waitResult.Result)
+                {
+                    resultAuthorization = false;
+                    yield break;
+                }
+            }
 
             if (!_ysdk.IsLogOn)
-                if (!await _ysdk.LogOn())
-                    return false;
+            {
+                yield return (waitResult = _ysdk.LogOn());
+                if (!waitResult.Result)
+                {
+                    resultAuthorization = false;
+                    yield break;
+                }
+            }
 
             if (!_ysdk.IsLeaderboard)
-                await _ysdk.InitLeaderboards();
+                yield return _ysdk.InitLeaderboards();
 
-            return true;
+            resultAuthorization = true;
 
         }
         #endregion
@@ -51,17 +67,17 @@ public class LogOnPanel : MonoBehaviour
 
     public void OnGuest()
     {
-        _taskLogOn?.TrySetResult(false);
+        _waitLogOn.SetResult(false);
     }
 
     public void OnLogOn()
     {
-        _taskLogOn?.TrySetResult(true);
+        _waitLogOn.SetResult(true);
     }
 
     private void Update()
     {
         if (_ysdk.IsLogOn)
-            _taskLogOn?.TrySetResult(true);
+            _waitLogOn.SetResult(true);
     }
 }

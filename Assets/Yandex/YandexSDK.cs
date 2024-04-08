@@ -1,5 +1,5 @@
-using Cysharp.Threading.Tasks;
 using System;
+using System.Collections;
 using UnityEngine;
 
 //[DefaultExecutionOrder(-1)]
@@ -20,94 +20,64 @@ public partial class YandexSDK : ASingleton<YandexSDK>
     public string GetPlayerAvatarURL(AvatarSize size) => GetPlayerAvatarURLJS(size.ToString().ToLower());
     public string Lang => GetLangJS();
 
-    public async UniTask<bool> InitYsdk()
-    {
-        bool result = await WaitTask(ref taskEndInitYsdk, InitYsdkJS);
-        taskEndInitYsdk = null;
-        return result;
-    }
+    public WaitResult<bool> InitYsdk() => WaitResult(ref _waitEndInitYsdk, InitYsdkJS);
     public void LoadingAPI_Ready() => ReadyJS();
-    public async UniTask<bool> InitPlayer()
+    public WaitResult<bool> InitPlayer() => WaitResult(ref _waitEndInitPlayer, InitPlayerJS);
+
+    public WaitResult<bool> LogOn() => WaitResult(ref _waitEndLogOn, LogOnJS);
+
+    public WaitResult<bool> InitLeaderboards() => WaitResult(ref _waitEndInitLeaderboards, InitLeaderboardsJS);
+    public WaitResult<Return<PlayerRecord>> GetPlayerResult() 
     {
-        bool result = await WaitTask(ref taskEndInitPlayer, InitPlayerJS);
-        taskEndInitPlayer = null;
-        return result;
+        WaitResult<Return<PlayerRecord>> wait = new();
+        StartCoroutine(GetPlayerResultCoroutine());
+        return wait;
+
+        #region Local Function
+        IEnumerator GetPlayerResultCoroutine()
+        {
+            yield return WaitResult(ref _waitEndGetPlayerResult, GetPlayerResultJS, _lbName);
+            string json = _waitEndGetPlayerResult.Result;
+
+            if (string.IsNullOrEmpty(json))
+                wait.SetResult(Return<PlayerRecord>.Empty);
+            else
+                wait.SetResult(Storage.Deserialize<PlayerRecord>(json));
+        }
+        #endregion
     }
-    public async UniTask<bool> LogOn()
+    public WaitResult<bool> SetScore(long score) => WaitResult(ref _waitEndSetScore, SetScoreJS, _lbName, score);
+    public WaitResult<Return<Leaderboard>> GetLeaderboard(int quantityTop, bool includeUser = false, int quantityAround = 1, AvatarSize size = AvatarSize.Medium)
     {
-        bool result = await WaitTask(ref taskEndLogOn, LogOnJS);
-        taskEndLogOn = null;
-        return result;
+        WaitResult<Return<Leaderboard>> wait = new();
+        StartCoroutine(GetLeaderboardCoroutine());
+        return wait;
+
+        #region Local Function
+        IEnumerator GetLeaderboardCoroutine()
+        {
+            _waitEndGetLeaderboard = _waitEndGetLeaderboard.Delete();
+            GetLeaderboardJS(_lbName, quantityTop, includeUser, quantityAround, size.ToString().ToLower());
+            yield return _waitEndGetLeaderboard;
+            string json = _waitEndGetLeaderboard.Result;
+
+            if (string.IsNullOrEmpty(json))
+                wait.SetResult(Return<Leaderboard>.Empty);
+            else
+                wait.SetResult(Storage.Deserialize<Leaderboard>(json));
+        }
+        #endregion
     }
 
-    public async UniTask<bool> InitLeaderboards()
-    {
-        bool result = await WaitTask(ref taskEndInitLeaderboards, InitLeaderboardsJS);
-        taskEndInitLeaderboards = null;
-        return result;
-    }
-    public async UniTask<Return<PlayerRecord>> GetPlayerResult() 
-    {
-        string json = await WaitTask(ref taskEndGetPlayerResult, GetPlayerResultJS, _lbName);
-        taskEndGetPlayerResult = null;
-        if (string.IsNullOrEmpty(json))
-            return Return<PlayerRecord>.Empty;
-        else
-            return Storage.Deserialize<PlayerRecord>(json);
-    }
-    public async UniTask<bool> SetScore(long score)
-    {
-        bool result = await WaitTask(ref taskEndSetScore, SetScoreJS, _lbName, score);
-        taskEndSetScore = null;
-        return result;
-    }
-    public async UniTask<Return<Leaderboard>> GetLeaderboard(int quantityTop, bool includeUser = false, int quantityAround = 1, AvatarSize size = AvatarSize.Medium)
-    {
-        taskEndGetLeaderboard.TrySetResult(default);
-        taskEndGetLeaderboard = new();
-        GetLeaderboardJS(_lbName, quantityTop, includeUser, quantityAround, size.ToString().ToLower());
-        string json = await taskEndGetLeaderboard.Task;
-        taskEndGetLeaderboard = null;
-        return Storage.Deserialize<Leaderboard>(json);
-    }
+    public WaitResult<bool> Save(string key, string data) => WaitResult(ref _waitEndSave, SaveJS, key, data);
+    public WaitResult<string> Load(string key) => WaitResult(ref _waitEndLoad, LoadJS, key);
 
-    public async UniTask<bool> Save(string key, string data) 
-    {
-        bool result = await WaitTask(ref taskEndSave, SaveJS, key, data);
-        taskEndSave = null;
-        return result;
-    }
-    public async UniTask<string> Load(string key) 
-    {
-        string json = await WaitTask(ref taskEndLoad, LoadJS, key);
-        taskEndLoad = null;
-        return json;
-    }
+    public WaitResult<bool> CanReview() => WaitResult(ref _waitEndCanReview, CanReviewJS);
+    public WaitResult<bool> RequestReview() => WaitResult(ref _waitEndRequestReview, RequestReviewJS);
 
-    public async UniTask<bool> CanReview()
-    {
-        bool result = await WaitTask(ref taskEndCanReview, CanReviewJS);
-        taskEndCanReview = null;
-        return result;
-    }
-    public async UniTaskVoid RequestReview()
-    {
-        await WaitTask(ref taskEndRequestReview, RequestReviewJS);
-        taskEndRequestReview = null;
-    }
+    public WaitResult<bool> CanShortcut() => WaitResult(ref _waitEndCanShortcut, CanShortcutJS);
+    public WaitResult<bool> CreateShortcut() => WaitResult(ref _waitEndCreateShortcut, CreateShortcutJS);
 
-    public async UniTask<bool> CanShortcut()
-    {
-        bool result = await WaitTask(ref taskEndCanShortcut, CanShortcutJS);
-        taskEndCanShortcut = null;
-        return result;
-    }
-    public async UniTask<bool> CreateShortcut() 
-    {
-        bool result = await WaitTask(ref taskEndCreateShortcut, CreateShortcutJS);
-        taskEndCreateShortcut = null;
-        return result;
-    }
 #endif
 
     //public async UniTask<bool> TrySetScore(long points)
@@ -125,26 +95,23 @@ public partial class YandexSDK : ASingleton<YandexSDK>
     //    return await SetScore(points);
     //}
 
-    private UniTask<T> WaitTask<T>(ref UniTaskCompletionSource<T> taskCompletion, Action action)
+    private WaitResult<T> WaitResult<T>(ref WaitResult<T> completion, Action action)
     {
-        taskCompletion?.TrySetResult(default);
-        taskCompletion = new();
+        completion = completion.Delete();
         action();
-        return taskCompletion.Task;
+        return completion;
     }
-    private UniTask<T> WaitTask<T, U>(ref UniTaskCompletionSource<T> taskCompletion, Action<U> action, U value)
+    private WaitResult<T> WaitResult<T, U>(ref WaitResult<T> completion, Action<U> action, U value)
     {
-        taskCompletion?.TrySetResult(default);
-        taskCompletion = new();
+        completion = completion.Delete();
         action(value);
-        return taskCompletion.Task;
+        return completion;
     }
-    private UniTask<T> WaitTask<T, U, V>(ref UniTaskCompletionSource<T> taskCompletion, Action<U, V> action, U value1, V value2)
+    private WaitResult<T> WaitResult<T, U, V>(ref WaitResult<T> completion, Action<U, V> action, U value1, V value2)
     {
-        taskCompletion?.TrySetResult(default);
-        taskCompletion = new();
+        completion = completion.Delete();
         action(value1, value2);
-        return taskCompletion.Task;
+        return completion;
     }
 }
 

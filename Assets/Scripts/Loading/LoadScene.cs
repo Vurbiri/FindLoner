@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -29,19 +29,21 @@ public class LoadScene
         _isAddProgress = isAddProgress;
     }
 
-    public void Start()
+    public IEnumerator StartCoroutine()
     {
         _asyncOperation = SceneManager.LoadSceneAsync(_nextScene);
         _asyncOperation.allowSceneActivation = false;
         if (_slider != null)
-            ProgressAsync().Forget();
+            return ProgressCoroutine();
+        
+        return null;
 
-        async UniTaskVoid ProgressAsync()
+        IEnumerator ProgressCoroutine()
         {
             while (!_asyncOperation.isDone)
             {
                 _slider.value = Progress;
-                await UniTask.Yield();
+                yield return null;
             }
         }
     }

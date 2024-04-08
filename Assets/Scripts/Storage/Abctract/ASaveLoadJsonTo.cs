@@ -1,5 +1,5 @@
-using Cysharp.Threading.Tasks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 public abstract class ASaveLoadJsonTo
@@ -9,7 +9,7 @@ public abstract class ASaveLoadJsonTo
 
     public abstract bool IsValid { get; }
 
-    public abstract UniTask<bool> Initialize(string key);
+    public abstract IEnumerator InitializeCoroutine(string key, Action<bool> callback);
 
     public virtual Return<T> Load<T>(string key) where T : class
     {
@@ -19,7 +19,7 @@ public abstract class ASaveLoadJsonTo
         return Return<T>.Empty;
     }
 
-    public abstract void Save(string key, object data, bool isSaveHard, Action<bool> callback);
+    public abstract IEnumerator SaveCoroutine(string key, object data, bool isSaveHard, Action<bool> callback);
     protected virtual bool SaveSoft(string key, object data)
     {
         try

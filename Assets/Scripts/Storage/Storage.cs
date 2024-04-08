@@ -1,4 +1,3 @@
-using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -9,20 +8,9 @@ using static UnityEngine.Networking.UnityWebRequest;
 
 public static class Storage
 {
-    private const string keyGlobalSave = "DBL";
-    
     private static ASaveLoadJsonTo service;
 
     public static Type TypeStorage => service?.GetType();
-
-    private static bool Create<T>() where T : ASaveLoadJsonTo, new()
-    {
-        if (typeof(T) == TypeStorage)
-            return true; 
-
-        service = new T();
-        return service.IsValid;
-    }
 
     public static bool StoragesCreate()
     {
@@ -37,19 +25,20 @@ public static class Storage
 
         Create<EmptyStorage>();
         return false;
-    }
-    public static UniTask<bool> Initialize(string key = null)
-    {
-        return service.Initialize(string.IsNullOrEmpty(key) ? keyGlobalSave : key);
-    }
 
-    public static void Save(string key, object data, bool isSaveHard = true, Action<bool> callback = null) => service.Save(key, data, isSaveHard, callback);
-    public static UniTask<bool> SaveAsync(string key, object data, bool isSaveHard = true)
-    {
-        UniTaskCompletionSource<bool> taskSave = new();
-        service.Save(key, data, isSaveHard, (b) => taskSave.TrySetResult(b));
-        return taskSave.Task;
+        #region Local Function
+        static bool Create<T>() where T : ASaveLoadJsonTo, new()
+        {
+            if (typeof(T) == TypeStorage)
+                return true;
+
+            service = new T();
+            return service.IsValid;
+        }
+        #endregion
     }
+    public static IEnumerator InitializeCoroutine(string key, Action<bool> callback) => service.InitializeCoroutine(key, callback);
+    public static IEnumerator SaveCoroutine(string key, object data, bool isSaveHard = true, Action<bool> callback = null) => service.SaveCoroutine(key, data, isSaveHard, callback);
     public static Return<T> Load<T>(string key) where T : class => service.Load<T>(key);
 
     public static Return<T> Deserialize<T>(string json) where T : class

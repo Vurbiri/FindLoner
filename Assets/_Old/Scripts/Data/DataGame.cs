@@ -77,7 +77,7 @@ public class DataGame : ASingleton<DataGame>
 
         return data.Result;
     }
-    public void Save() => Storage.Save(KEY, _data);
+    public void Save() => Storage.SaveCoroutine(KEY, _data);
 
     public void StartNewGame()
     {

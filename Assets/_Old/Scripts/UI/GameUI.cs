@@ -41,7 +41,7 @@ public class GameUI : MonoBehaviour
         _menus.PlayNormal();
     }
 
-    public void SetScore(long score) => _leaderboardUI.SetScore(score).Forget();
+    public void SetScore(long score) => StartCoroutine(_leaderboardUI.SetScore(score));
 
     private void EnableMenus(bool isFirst = false)
     {

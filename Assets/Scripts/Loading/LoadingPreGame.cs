@@ -1,22 +1,24 @@
-using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LoadingPreGame : MonoBehaviour
 {
+    [SerializeField] private string _keySave = "FDL_test";
+    [Space]
     [SerializeField] private Slider _slider;
     [SerializeField] private LogOnPanel _logOnPanel;
 
     private const int NEXT_SCENE = 1;
 
-    private void Start() => Loading().Forget();
+    private void Start() => StartCoroutine(LoadingCoroutine());
 
-    private async UniTaskVoid Loading()
+    private IEnumerator LoadingCoroutine()
     {
         Message.Log("Start LoadingPreGame");
         
         LoadScene loadScene = new(NEXT_SCENE, _slider, true);
-        loadScene.Start();
+        StartCoroutine(loadScene.StartCoroutine());
 
         YandexSDK ysdk = YandexSDK.InstanceF;
         Localization localization = Localization.InstanceF;
@@ -27,8 +29,7 @@ public class LoadingPreGame : MonoBehaviour
         
         ProgressLoad(0.1f);
 
-        if (!await InitializeYSDK())
-            Message.Log("YandexSDK - initialization error!");
+        yield return StartCoroutine(InitializeYSDKCoroutine());
 
         ProgressLoad(0.18f);
 
@@ -38,53 +39,61 @@ public class LoadingPreGame : MonoBehaviour
 
         ProgressLoad(0.28f);
 
-        await CreateStorages();
-                
+        yield return StartCoroutine(CreateStoragesCoroutine());
+
         if (!ysdk.IsLogOn)
         {
-            if (await _logOnPanel.TryLogOn())
-                await CreateStorages();
+            yield return StartCoroutine(_logOnPanel.TryLogOnCoroutine());
+            if (ysdk.IsLogOn)
+                yield return StartCoroutine(CreateStoragesCoroutine());
         }
 
         Message.Log("End LoadingPreGame");
-        loadScene.End();
+        //loadScene.End();
 
         #region Local Functions
-        async UniTask<bool> InitializeYSDK()
+        IEnumerator InitializeYSDKCoroutine()
         {
-            if (!await ysdk.InitYsdk())
-                return false;
+            WaitResult<bool> waitResult;
 
-            if (!await ysdk.InitPlayer())
+            yield return (waitResult = ysdk.InitYsdk());
+            if (!waitResult.Result)
+            {
+                Message.Log("YandexSDK - initialization error!");
+                yield break;
+            }
+
+            yield return (waitResult = ysdk.InitPlayer());
+            if (!waitResult.Result)
                 Message.Log("Player - initialization error!");
 
-            if (!await ysdk.InitLeaderboards())
+            yield return (waitResult = ysdk.InitLeaderboards());
+            if (!waitResult.Result)
                 Message.Log("Leaderboards - initialization error!");
-
-            return true;
         }
-        async UniTask CreateStorages(string key = null)
+        IEnumerator CreateStoragesCoroutine()
         {
             if (!Storage.StoragesCreate())
                 Message.Banner(localization.GetText("ErrorStorage"), MessageType.Error, 7000);
             
             ProgressLoad(0.35f);
 
-            settings.IsFirstStart = !await InitializeStorages();
+            yield return StartCoroutine(InitializeStoragesCoroutine());
 
             ProgressLoad(0.43f);
 
             #region Local Functions
-            async UniTask<bool> InitializeStorages()
+            IEnumerator InitializeStoragesCoroutine()
             {
-                bool isLoad = await Storage.Initialize(key);
+                bool isLoad = false;
+                yield return StartCoroutine(Storage.InitializeCoroutine(_keySave, (b) => isLoad = b));
             
                 if (isLoad)
                     Message.Log("Storage initialize");
                 else
                     Message.Log("Storage not initialize");
 
-                return Load(isLoad);
+                settings.IsFirstStart = !Load(isLoad);
 
                 #region Local Functions
                 bool Load(bool load)

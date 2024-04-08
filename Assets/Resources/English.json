@@ -1,0 +1,52 @@
+{
+  "Id": "1",
+  "CodeISO639_1": "en",
+
+  "DBlocks": "Number Blocks",
+
+  "Settings": "Settings",
+  "Music": "Music",
+  "SFX": "Sound",
+  "MaxDigit": "Max number",
+  "Score": "Score",
+
+  "MScore": "Best",
+
+  "Stage": "Stage {0}",
+
+  "Game": "Game",
+  "Start": "Start",
+  "New": "New",
+  "Continue": "Continue",
+  "Authorization": "Authorization",
+
+  "Rank": "Rank",
+  "Player": "Player",
+  "Guest": "Guest",
+  "Anonym": "Anonym",
+
+  "ToMenu": "To menu",
+  "Pause": "Pause",
+  "GameOver": "Game over",
+
+  "Empty": "Empty",
+  "Error": "!ERROR!",
+  "ErrorLogon": "Authorization failed",
+  "ErrorStorage": "Error! Saving progress is not available!",
+  "ErrorSave": "Save error!",
+  "GoodSaveSettings": "Settings is saved",
+  "WarningAuthorization": "Cloud save, personalization and leaderboard are not available without authorization",
+
+  "Leaderboard": "Numbuilders",
+
+  "Help": "Help",
+  "Control": "Control",
+  "GameControlDesktop": "  Control is by drag and drop:\n  · move the pointer to the shape;\n  · press and hold the left mouse button to 'grab' the shape;\n  · 'drag' the shape to the desired location by moving the pointer to this one;\n  · 'drop' the shape by releasing the button.",
+  "GameControlMobile": "  Control is by drag and drop:\n  · move the finger to the shape;\n  · press and hold the finger to 'grab' the shape;\n  · 'drag' the shape to the desired location by moving the finger to this one;\n  · 'drop' the shape by releasing the finger.",
+  "GameRules": "Game rules",
+  "Enjoy": "Have fun playing!",
+  "GameRulesPart1": "  The goal of the game is to arrange blocks of numbers into clusters according to their value. The cluster contains blocks that are adjacent in a straight line (top, left, bottom, right). To remove a cluster of 2s, you only need two blocks, a cluster of 3s - three blocks, and so on up to 9s - there must be at least nine of them.",
+  "GameRulesPart2": "  When a cluster is removed, all adjacent 1s and their clusters are destroyed.",
+  "GameRulesPart3": "  You have Zero-Bombs at your disposal. When the Zero-Bombs is placed on the board, it will explode and destroy blocks (without scoring any points) within a one-cell radius.",
+  "GameRulesPart4": "  When a block is placed on the board, it scores points equal to its value. The points for removing a block are twice the value of the block. Each block removed that exceeds the required minimum in the cluster gives double points (value multiplied by four).\n  1s score points based on the value of the cluster they join (no bonus points for exceeding the minimum)."
+}

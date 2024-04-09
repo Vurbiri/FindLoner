@@ -13,7 +13,6 @@ public class JsonToCookies : ASaveLoadJsonTo
         _key = key;
 
         string json;
-
         try
         {
             json = UtilityJS.GetCookies(_key);
@@ -32,22 +31,21 @@ public class JsonToCookies : ASaveLoadJsonTo
             {
                 _saved = d.Value;
                 callback?.Invoke(true);
-                return null;
+                yield break;
             }
         }
 
         _saved = new();
         callback?.Invoke(false);
-        return null;
     }
 
-    public override IEnumerator SaveCoroutine(string key, object data, bool isSaveHard, Action<bool> callback)
+    public override IEnumerator SaveCoroutine(string key, object data, Action<bool> callback)
     {
-        bool result;
-        if (!(result = SaveSoft(key, data)) || !isSaveHard)
+        bool result = SaveToMemory(key, data);
+        if (!result)
         {
-            callback?.Invoke(result);
-            return null;
+            callback?.Invoke(false);
+            yield break;
         }
 
         try
@@ -65,7 +63,5 @@ public class JsonToCookies : ASaveLoadJsonTo
         {
             callback?.Invoke(result);
         }
-
-        return null;
     }
 }

@@ -19,8 +19,8 @@ public abstract class ASaveLoadJsonTo
         return Return<T>.Empty;
     }
 
-    public abstract IEnumerator SaveCoroutine(string key, object data, bool isSaveHard, Action<bool> callback);
-    protected virtual bool SaveSoft(string key, object data)
+    public abstract IEnumerator SaveCoroutine(string key, object data, Action<bool> callback);
+    protected virtual bool SaveToMemory(string key, object data)
     {
         try
         {

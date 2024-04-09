@@ -105,7 +105,7 @@ public partial class YandexSDK
             using StreamReader sr = new(path);
             return new(sr.ReadToEnd());
         }
-        return null;
+        return new(string.Empty);
     }
 
     public WaitResult<bool> CanReview() => new(_isLogOn);

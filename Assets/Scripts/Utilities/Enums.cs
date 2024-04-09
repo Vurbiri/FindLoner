@@ -1,21 +1,6 @@
 using System;
 using System.Linq;
 
-public enum ShapeType : sbyte
-{
-    None = -1,
-    One = 0,
-    TwoI_1,
-    TwoI_2,
-    TwoX_1,
-    TwoX_2,
-    ThreeL_1,
-    ThreeL_2,
-    ThreeL_3,
-    ThreeL_4,
-    FourO
-}
-
 public enum MixerGroup : byte
 {
     Music,

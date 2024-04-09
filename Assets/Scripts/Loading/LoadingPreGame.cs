@@ -1,3 +1,4 @@
+using NaughtyAttributes;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,10 +7,11 @@ public class LoadingPreGame : MonoBehaviour
 {
     [SerializeField] private string _keySave = "FDL_test";
     [Space]
+    [SerializeField, Scene] private int _sceneDesktop = 0;
+    [SerializeField, Scene] private int _sceneMobile = 0;
+    [Space]
     [SerializeField] private Slider _slider;
     [SerializeField] private LogOnPanel _logOnPanel;
-
-    private const int NEXT_SCENE = 1;
 
     private void Start() => StartCoroutine(LoadingCoroutine());
 
@@ -17,12 +19,10 @@ public class LoadingPreGame : MonoBehaviour
     {
         Message.Log("Start LoadingPreGame");
         
-        LoadScene loadScene = new(NEXT_SCENE, _slider, true);
-        StartCoroutine(loadScene.StartCoroutine());
-
         YandexSDK ysdk = YandexSDK.InstanceF;
         Localization localization = Localization.InstanceF;
         SettingsGame settings = SettingsGame.InstanceF;
+        LoadScene loadScene = null;
 
         if (!localization.Initialize())
             Message.Error("Error loading Localization!");
@@ -35,7 +35,9 @@ public class LoadingPreGame : MonoBehaviour
 
         settings.SetPlatform();
         Banners.InstanceF.Initialize();
-        PoolBlocks.InstanceF.Initialize();
+
+        loadScene = new(settings.IsDesktop ? _sceneDesktop : _sceneMobile, _slider, true);
+        StartCoroutine(loadScene.StartCoroutine());
 
         ProgressLoad(0.28f);
 
@@ -49,7 +51,7 @@ public class LoadingPreGame : MonoBehaviour
         }
 
         Message.Log("End LoadingPreGame");
-        //loadScene.End();
+        loadScene.End();
 
         #region Local Functions
         IEnumerator InitializeYSDKCoroutine()
@@ -85,15 +87,15 @@ public class LoadingPreGame : MonoBehaviour
             #region Local Functions
             IEnumerator InitializeStoragesCoroutine()
             {
-                bool isLoad = false;
-                yield return StartCoroutine(Storage.InitializeCoroutine(_keySave, (b) => isLoad = b));
+                WaitReturnData<bool> waitReturn = new(this);
+                yield return waitReturn.Start(Storage.InitializeCoroutine, _keySave);
             
-                if (isLoad)
+                if (waitReturn.Return)
                     Message.Log("Storage initialize");
                 else
                     Message.Log("Storage not initialize");
 
-                settings.IsFirstStart = !Load(isLoad);
+                settings.IsFirstStart = !Load(waitReturn.Return);
 
                 #region Local Functions
                 bool Load(bool load)

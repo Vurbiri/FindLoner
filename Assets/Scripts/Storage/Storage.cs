@@ -38,7 +38,7 @@ public static class Storage
         #endregion
     }
     public static IEnumerator InitializeCoroutine(string key, Action<bool> callback) => service.InitializeCoroutine(key, callback);
-    public static IEnumerator SaveCoroutine(string key, object data, bool isSaveHard = true, Action<bool> callback = null) => service.SaveCoroutine(key, data, isSaveHard, callback);
+    public static IEnumerator SaveCoroutine(string key, object data, Action<bool> callback = null) => service.SaveCoroutine(key, data, callback);
     public static Return<T> Load<T>(string key) where T : class => service.Load<T>(key);
 
     public static Return<T> Deserialize<T>(string json) where T : class
@@ -57,11 +57,11 @@ public static class Storage
     }
     public static string Serialize(object obj) => JsonConvert.SerializeObject(obj);
 
-    public static IEnumerator TryLoadTextureWeb(RawImage avatar, Texture avatarError, string url)
+    public static IEnumerator TryLoadTextureWeb(string url, Action<Return<Texture>> callback)
     {
         if (string.IsNullOrEmpty(url) || !url.StartsWith("https://"))
         {
-            avatar.texture = avatarError;
+            callback?.Invoke(Return<Texture>.Empty);
             yield break;
         }
 
@@ -72,11 +72,11 @@ public static class Storage
             if (request.result != Result.Success || request.downloadHandler == null)
             {
                 Message.Log("==== UnityWebRequest: " + request.error);
-                avatar.texture = avatarError;
+                callback?.Invoke(Return<Texture>.Empty);
                 yield break;
             }
 
-            avatar.texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
+            callback?.Invoke(new(((DownloadHandlerTexture)request.downloadHandler).texture));
         }
     }
 }

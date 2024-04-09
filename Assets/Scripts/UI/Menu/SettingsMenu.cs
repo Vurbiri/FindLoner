@@ -1,0 +1,31 @@
+public class SettingsMenu : MenuNavigation
+{
+    private SettingsGame _settings;
+    private bool isSave;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        _settings = SettingsGame.InstanceF;
+    }
+
+    private void OnEnable()
+    {
+        isSave = false;
+    }
+    private void OnDisable() 
+    {
+        if (SettingsGame.Instance == null)
+            return;
+        
+        if (isSave)
+            _settings.Save((b) => Message.Saving("GoodSaveSettings", b));
+        else
+            _settings.Cancel();
+    }
+
+    public void OnOk()
+    {
+        isSave = true;
+    }
+}

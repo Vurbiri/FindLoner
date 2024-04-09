@@ -5,15 +5,19 @@ using System.Collections.Generic;
 public class JsonToYandex : ASaveLoadJsonTo
 {
     private string _key;
-    private YandexSDK _ysdk;
+    private readonly YandexSDK _ysdk;
 
     public override bool IsValid => _ysdk.IsLogOn;
+
+    public JsonToYandex()
+    {
+        _ysdk = YandexSDK.InstanceF;
+    }
 
     public override IEnumerator InitializeCoroutine(string key, Action<bool> callback)
     {
         _key = key;
-        _ysdk = YandexSDK.Instance;
-
+        
         WaitResult<string> waitResult;
         string json;
 
@@ -35,12 +39,12 @@ public class JsonToYandex : ASaveLoadJsonTo
         callback?.Invoke(false);
     }
 
-    public override IEnumerator SaveCoroutine(string key, object data, bool isSaveHard, Action<bool> callback)
+    public override IEnumerator SaveCoroutine(string key, object data, Action<bool> callback)
     {
-        bool result;
-        if (!((result = SaveSoft(key, data)) && isSaveHard && _dictModified))
+        bool result = SaveToMemory(key, data);
+        if (!(result && _dictModified))
         {
-            callback?.Invoke(result);
+            callback?.Invoke(false);
             yield break;
         }
 

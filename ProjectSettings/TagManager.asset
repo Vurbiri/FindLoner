@@ -12,8 +12,8 @@ TagManager:
   - Water
   - UI
   - ScriptObject
-  - Graphic
-  - Actor
+  - 
+  - 
   - 
   - 
   - 
@@ -43,9 +43,6 @@ TagManager:
     locked: 0
   - name: Background
     uniqueID: 4014037631
-    locked: 0
-  - name: GameArea
-    uniqueID: 3959176127
     locked: 0
   - name: Actor
     uniqueID: 2870205795

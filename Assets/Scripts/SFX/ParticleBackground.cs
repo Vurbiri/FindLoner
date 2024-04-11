@@ -37,7 +37,7 @@ public class ParticleBackground : ABlockParticleSystemController
     {
         while (true)
         {
-            _color.Random();
+            _color.Randomize();
             _mainModule.startColor = _color;
 
             yield return _delay;

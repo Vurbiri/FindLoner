@@ -421,7 +421,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isNotDestroying: 1
-  _lbName: lbFindLoner
+  _lbName: lbFindLoner_test
+  _playerName: Best in the Best
   _isDesktop: 1
   _isLogOn: 1
   _lang: ru
@@ -1675,7 +1676,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.1, y: 0}
   m_AnchorMax: {x: 0.9, y: 0}
-  m_AnchoredPosition: {x: 0, y: 5}
+  m_AnchoredPosition: {x: 0, y: 25}
   m_SizeDelta: {x: 0, y: 80}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!224 &334797099553334352

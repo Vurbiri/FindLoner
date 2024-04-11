@@ -2,16 +2,30 @@ using UnityEngine;
 
 public static class ExtensionsColor
 {
-    public static void Random(this ref Color self, float spread = 0.15f)
+    public static void Randomize(this ref Color self, float saturationMin = 0.15f, float brightnessMin = 0.15f)
     {
+        float saturation, brightness;
         do
         {
-            self.r = UnityEngine.Random.value;
-            self.g = UnityEngine.Random.value;
-            self.b = UnityEngine.Random.value;
+            self.r = Random.value;
+            self.g = Random.value;
+            self.b = Random.value;
+
+            brightness = self.maxColorComponent;
+            saturation = brightness == 0 ? 0 : (1f - Mathf.Min(self.r, self.g, self.b) / brightness);
         }
-        while (Mathf.Abs(self.r - self.g) <= spread && Mathf.Abs(self.r - self.b) <= spread && Mathf.Abs(self.g - self.b) <= spread);
+        while (saturation <= saturationMin || brightness <= brightnessMin);
     }
+
+    //public static float Saturation(this Color self)
+    //{
+    //    float max = self.maxColorComponent;
+    //    if (max == 0) return 0;
+
+    //    float min = Mathf.Min(self.r, self.g, self.b);
+    //    return 1f - (min / max);
+    //}
+
 
     //public static void SetBrightness(this ref Color self, float brightness)
     //{

@@ -8,12 +8,13 @@ using UnityEngine;
 public partial class YandexSDK
 {
     [Space]
-    public bool _isDesktop = true;
-    public bool _isLogOn = true;
-    [Dropdown("GetLangValues")] public string _lang = "ru";
-    public bool _isInitialize = true;
-    public bool _isLeaderboard = true;
-    public bool _isPlayer = true;
+    [SerializeField] private string _playerName = "Best in the Best";
+    [SerializeField] private bool _isDesktop = true;
+    [SerializeField] private bool _isLogOn = true;
+    [SerializeField, Dropdown("GetLangValues")] private string _lang = "ru";
+    [SerializeField] private bool _isInitialize = true;
+    [SerializeField] private bool _isLeaderboard = true;
+    [SerializeField] private bool _isPlayer = true;
 
     private DropdownList<string> GetLangValues()
     {
@@ -29,7 +30,7 @@ public partial class YandexSDK
     public bool IsInitialize => _isInitialize;
     public bool IsPlayer => IsInitialize && _isPlayer;
     public bool IsLeaderboard => IsLogOn && _isLeaderboard;
-    public string PlayerName => "PlayerName";
+    public string PlayerName => _playerName;
     public bool IsLogOn => _isLogOn;
     public string Lang => _lang;
 

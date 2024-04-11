@@ -27,7 +27,6 @@ public class SliderSound : MonoBehaviour
         _thisSlider.onValueChanged.AddListener((v) => _settings.SetVolume(_audioMixerGroup, v));
     }
 
-
     private void OnDisable()
     {
         _thisSlider.onValueChanged.RemoveAllListeners();

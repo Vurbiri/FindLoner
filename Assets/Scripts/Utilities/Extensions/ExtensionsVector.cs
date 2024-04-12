@@ -13,5 +13,5 @@ public static class ExtensionsVector
     //public static Vector3 ToVector3(this Vector2Int self) => new(self.x, self.y, 0f);
     //public static Vector2 ToVector2(this Vector2Int self) => new(self.x, self.y);
 
-    public static float RandomRange(this Vector2 self) => Random.Range(self.x, self.y);
+    public static int Random(this Vector2Int self) => UnityEngine.Random.Range(self.x, self.y + 1);
 }

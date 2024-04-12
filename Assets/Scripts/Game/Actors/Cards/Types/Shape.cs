@@ -7,7 +7,7 @@ public class Shape
     public Color Color => _color;
     private Color _color = Color.white;
 
-    private const float VARIANCE = 0.2f;
+    private const float VARIANCE = 0.25f;
 
     public Shape(Sprite sprite, Color color)
     {

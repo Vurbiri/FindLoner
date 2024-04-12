@@ -18,7 +18,9 @@ public class LoadingPreGame : MonoBehaviour
     private IEnumerator LoadingCoroutine()
     {
         Message.Log("Start LoadingPreGame");
-        
+
+        Random.InitState((int)(System.DateTime.Now.Ticks - System.DateTime.UnixEpoch.Ticks));
+
         YandexSDK ysdk = YandexSDK.InstanceF;
         Localization localization = Localization.InstanceF;
         SettingsGame settings = SettingsGame.InstanceF;

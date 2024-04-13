@@ -7,4 +7,6 @@ public class CardShape : ACardComponent
         _thisImage.sprite = shape.Sprite;
         _thisImage.color = shape.Color;
     }
+
+    public void SetColor(Color color) => _thisImage.color = color;
 }

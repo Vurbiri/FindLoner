@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,44 +6,56 @@ public class Card : ACard
 {
     [SerializeField] private CardShape _cardShape;
     [Space]
-    [SerializeField] private Color _colorNormal = Color.gray;
-    [SerializeField] private Color _colorTrue = Color.gray;
-    [SerializeField] private Color _colorError = Color.gray;
+    [SerializeField] private Color _colorBorderNormal = Color.gray;
+    [SerializeField] private Color _colorBorderTrue = Color.gray;
+    [SerializeField] private Color _colorBorderError = Color.gray;
 
-    public event Action<int> EventSelected;
+    private Shape _shape;
 
-    public IEnumerator Setup(Shape shape, int size, Vector3 axis, int idGroup)
+    public void Setup(Shape shape, int size, Vector3 axis, int idGroup)
     {
         _isInteractable = false;
 
         _idGroup = idGroup;
+        _axis = axis;
+
         _cardShape.SetShape(shape);
         _cardBackground.SetPixelSize(size);
-        _cardBackground.SetColor(_colorNormal);
+        _cardBackground.SetColorBorder(_colorBorderNormal);
 
         _cardBackground.Rotation(axis, 90f);
-        yield return StartCoroutine(_cardBackground.Rotation90AngleCoroutine(-axis, _speedRotation));
+    }
 
+    public override IEnumerator Show_Coroutine()
+    {
+        yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(-_axis, _speedRotation));
         _isInteractable = true;
     }
 
-    public IEnumerator ReSetup(Shape shape, Vector3 axis, int idGroup)
+    public void ReSetup(Shape shape, Vector3 axis, int idGroup)
     {
         _isInteractable = false;
+
         _idGroup = idGroup;
+        _axis = axis;
+        _shape = shape;
+    }
 
-        yield return StartCoroutine(_cardBackground.Rotation90AngleCoroutine(axis, _speedRotation));
+    public override IEnumerator Turn_Coroutine()
+    {
+        yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));
         yield return null;
 
-        _cardShape.SetShape(shape);
-        _cardShape.Mirror(axis);
-        _cardBackground.SetColor(_colorNormal);
+        _cardShape.SetShape(_shape);
+        _cardShape.Mirror(_axis);
+        _cardBackground.SetColorBorder(_colorBorderNormal);
 
         yield return null;
-        yield return StartCoroutine(_cardBackground.Rotation90AngleCoroutine(axis, _speedRotation));
+        yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));
 
         _isInteractable = true;
     }
+
 
     public void CheckCroup(int idGroup) 
     {
@@ -53,12 +64,13 @@ public class Card : ACard
         if (_idGroup != 0 && _idGroup != idGroup) 
             return;
 
-        _cardBackground.SetColor(_idGroup == 0 ? _colorTrue : _colorError);
+        _cardBackground.SetColorBorder(_idGroup == 0 ? _colorBorderTrue : _colorBorderError);
     }
 
     public override void OnPointerDown(PointerEventData eventData)
     {
-        if (_isInteractable)
-            EventSelected?.Invoke(_idGroup);
+        if (!_isInteractable) return;
+
+        base.OnPointerDown(eventData);
     }
 }

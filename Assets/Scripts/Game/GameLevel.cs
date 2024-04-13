@@ -4,29 +4,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(GridLayoutGroup))]
+[RequireComponent(typeof(CardsArea), typeof(GridLayoutGroup))]
 public class GameLevel : MonoBehaviour
 {
-    [SerializeField] private Card _prefabCard;
-    [SerializeField] private Transform _repository;
-    [Space]
     [SerializeField] private List<Sprite> _shapeSprites;
     [Space]
     [SerializeField] private float _timeShow = 1f;
+    [SerializeField] private float _delayTurn = 0.025f;
     [Space]
-    [SerializeField] private float _saturationMin = 0.16f;
-    [SerializeField] private float _brightnessMin = 0.2f;
+    [SerializeField] private float _saturationMin = 0.275f;
+    [SerializeField] private float _brightnessMin = 0.175f;
 
+    private CardsArea _cardsArea;
     private GridLayoutGroup _thisGrid;
-    private Transform _thisTransform;
     private Vector2 _sizeArea, _defaultSpacing;
 
     private int _size, _countShapes, _countTypes;
     private bool _isMonochrome;
     private WaitForSeconds _waitShow;
-
-    private readonly Stack<Card> _cardsActive = new();
-    private readonly Stack<Card> _cardsRepository = new();
+    
     private int[] _groupsCard;
 
     public event Action EventStartRound;
@@ -34,8 +30,8 @@ public class GameLevel : MonoBehaviour
 
     private void Awake()
     {
+        _cardsArea = GetComponent<CardsArea>();
         _thisGrid = GetComponent<GridLayoutGroup>();
-        _thisTransform = transform;
         _defaultSpacing = _thisGrid.spacing;
         _sizeArea = GetComponent<RectTransform>().rect.size - _defaultSpacing * 2;
         _waitShow = new(_timeShow);
@@ -43,8 +39,9 @@ public class GameLevel : MonoBehaviour
 
     private void Start()
     {
-        LevelSetup(12, 5, false);
-        StartCoroutine(StartRound(true));
+        int size = UnityEngine.Random.Range(2, 12);
+        LevelSetup(size, size, false);
+        StartCoroutine(StartRound_Coroutine(true));
     }
 
     private void LevelSetup(int size, int countTypes, bool isMonochrome)
@@ -59,41 +56,17 @@ public class GameLevel : MonoBehaviour
         _thisGrid.spacing = _defaultSpacing / (size - 1);
 
         _groupsCard = new int[_countTypes];
-        
-        if (_cardsActive.Count == _countShapes) return;
 
-        Card card;
-        while (_cardsActive.Count > _countShapes) 
-        {
-            card = _cardsActive.Pop();
-            card.Deactivate(_repository);
-            _cardsRepository.Push(card);
-        }
-
-        while (_cardsActive.Count < _countShapes)
-        {
-            if (_cardsRepository.Count > 0)
-            {
-                card = _cardsRepository.Pop();
-                card.Activate(_thisTransform);
-            }
-            else
-            {
-                card = Instantiate(_prefabCard, _thisTransform);
-                card.EventSelected += OnCardSelected;
-            }
-
-            _cardsActive.Push(card);
-        }
+        _cardsArea.CreateCards(size, OnCardSelected);
     }
 
-    private IEnumerator StartRound(bool isNew)
+    private IEnumerator StartRound_Coroutine(bool isNew)
     {
         WaitAll waitAll = new(this);
         
         CreateGroupsCard();
         List<Shape> shapes = GetShapes();
-        List<Card> cards = new(_cardsActive);
+        List<Card> cards = _cardsArea.Cards;
         Card card;
         Vector3 axis = Direction2D.Random;
 
@@ -101,35 +74,47 @@ public class GameLevel : MonoBehaviour
         {
             for (int j = 0; j < _groupsCard[i]; j++)
             {
-                card = cards.RandomPop();
-                if(isNew)
-                    waitAll.Add(card.Setup(shapes[i], _size, axis, i));
+                card = cards.RandomPull();
+                if (isNew)
+                    card.Setup(shapes[i], _size, axis, i);
                 else
-                    waitAll.Add(card.ReSetup(shapes[i], Direction2D.Random, i));
+                    card.ReSetup(shapes[i], axis, i);
             }
         }
 
-        yield return waitAll;
-        
+        if (isNew)
+            yield return _cardsArea.ShowRandom(_delayTurn);
+        else
+            yield return _cardsArea.TurnRandom(_delayTurn);
+
         EventStartRound?.Invoke();
     }
 
-    private void OnCardSelected(int idGroup)
+    private void OnCardSelected(ACard card)
     {
-        bool isContinue = idGroup == 0;
+        int id = card.IdGroup;
+        bool isContinue = id == 0;
         
         EventEndRound?.Invoke(isContinue);
-        foreach (var card in _cardsActive)
-            card.CheckCroup(idGroup);
+        _cardsArea.ForEach((c) => c.CheckCroup(id));
 
         if (isContinue)
-            StartCoroutine(NextRound());
+            StartCoroutine(NextRound_Coroutine());
+        else
+            StartCoroutine(NewRound_Coroutine());
 
         #region Local function
-        IEnumerator NextRound()
+        IEnumerator NextRound_Coroutine()
         {
             yield return _waitShow;
-            StartCoroutine(StartRound(false));
+            StartCoroutine(StartRound_Coroutine(false));
+        }
+        IEnumerator NewRound_Coroutine()
+        {
+            yield return new WaitForSeconds(2.5f);
+            int size = UnityEngine.Random.Range(2, 12);
+            LevelSetup(size, size, false);
+            StartCoroutine(StartRound_Coroutine(true));
         }
         #endregion
     }
@@ -161,14 +146,13 @@ public class GameLevel : MonoBehaviour
 
         for (int i = 0; i < _countTypes; i++)
         {
-            shape = new(_shapeSprites.RandomPop(), color);
+            shape = new(_shapeSprites.RandomPull(), color);
             if (!_isMonochrome)
                 shape.SetUniqueColor(shapes, _saturationMin, _brightnessMin);
             shapes.Add(shape);
         }
 
-        foreach (var s in shapes)
-            _shapeSprites.Add(s.Sprite);
+        shapes.ForEach((s) => _shapeSprites.Add(s.Sprite));
 
         return shapes;
     }

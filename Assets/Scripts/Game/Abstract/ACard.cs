@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,9 +12,13 @@ public abstract class ACard : Graphic, IPointerDownHandler
     [SerializeField] protected CardBackground _cardBackground;
 
     protected Transform _thisTransform;
-
-    protected int _idGroup;
     protected bool _isInteractable = false;
+    protected int _idGroup;
+    protected Vector3 _axis;
+
+    public int IdGroup => _idGroup;
+
+    public event Action<ACard> EventSelected;
 
     protected override void Awake()
     {
@@ -34,5 +39,13 @@ public abstract class ACard : Graphic, IPointerDownHandler
         _thisTransform.SetParent(parent);
     }
 
-    public abstract void OnPointerDown(PointerEventData eventData);
+    public virtual void OnPointerDown(PointerEventData eventData)
+    {
+        EventSelected?.Invoke(this);
+    }
+
+    public abstract IEnumerator Show_Coroutine();
+    public abstract IEnumerator Turn_Coroutine();
+
+    
 }

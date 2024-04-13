@@ -4,40 +4,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(TimeCardsArea), typeof(GridLayoutGroup))]
 public class BonusLevel : MonoBehaviour
 {
-    [SerializeField] private TimeCard _prefabCard;
-    [SerializeField] private Transform _repository;
-    [Space]
     [SerializeField] private float _startTimeShow = 1f;
+    [SerializeField] private float _delayOpen = 0.015f;
+    [SerializeField] private float _delayTurn = 0.025f;
 
+    private TimeCardsArea _cardsArea;
     private GridLayoutGroup _thisGrid;
-    private Transform _thisTransform;
     private Vector2 _sizeArea, _defaultSpacing;
 
     private WaitForSeconds _waitShow;
+   
+    private int _attempts;
 
-    private readonly Stack<TimeCard> _cardsActive = new();
-    private readonly Stack<TimeCard> _cardsRepository = new();
-
-    public event Action EventStartRound;
-    public event Action<bool> EventEndRound;
+    public event Action EventStartLevel;
+    public event Action<int> EventSelectedCard;
+    public event Action EventEndLevel;
 
     private void Awake()
     {
+        _cardsArea = GetComponent<TimeCardsArea>();
         _thisGrid = GetComponent<GridLayoutGroup>();
-        _thisTransform = transform;
         _defaultSpacing = _thisGrid.spacing;
         _sizeArea = GetComponent<RectTransform>().rect.size - _defaultSpacing * 2;
     }
 
     private void Start()
     {
-        LevelSetup(8, false);
+        LevelSetup(3, 6, new(0));
     }
 
-    private void LevelSetup(int size, bool isMonochrome)
+    private void LevelSetup(int attempts, int size, Increment range)
     {
+        _attempts = attempts;
         int countShapes = size * size;
         Vector2 cellSize = _sizeArea / size;
 
@@ -47,70 +48,60 @@ public class BonusLevel : MonoBehaviour
         _thisGrid.cellSize = cellSize;
         _thisGrid.spacing = _defaultSpacing / (size - 1);
 
-        CreateCards();
-        StartCoroutine(StartRound(new(0,15)));
+        _cardsArea.CreateCards(size, OnCardSelected);
+
+        StartCoroutine(StartRound_Coroutine(range));
 
         #region Local functions
-        void CreateCards()
+        IEnumerator StartRound_Coroutine(Increment range)
         {
-            if (_cardsActive.Count == countShapes) return;
-
+            List<TimeCard> cards = _cardsArea.Cards;
             TimeCard card;
-            while (_cardsActive.Count > countShapes)
-            {
-                card = _cardsActive.Pop();
-                card.Deactivate(_repository);
-                _cardsRepository.Push(card);
-            }
-
-            while (_cardsActive.Count < countShapes)
-            {
-                if (_cardsRepository.Count > 0)
-                {
-                    card = _cardsRepository.Pop();
-                    card.Activate(_thisTransform);
-                }
-                else
-                {
-                    card = Instantiate(_prefabCard, _thisTransform);
-                    card.EventSelected += OnCardSelected;
-                }
-
-                _cardsActive.Push(card);
-            }
-        }
-        IEnumerator StartRound(Vector2Int range)
-        {
-            WaitAll waitAll = new(this);
-
-            List<TimeCard> cards = new(_cardsActive);
-            //TimeCard card;
             Vector3 axis = Direction2D.Random;
-            int index = 0;
 
-            foreach (var card in _cardsActive)
-                waitAll.Add(card.Setup(index++, cellSize.x, size, axis, 0));
+            while (cards.Count > 0)
+            {
+                card = cards.RandomPull();
+                card.Setup(range.Next, cellSize.x, size, axis, 0);
+            }
 
-            //while (cards.Count > 0)
-            //{
-            //    card = cards.RandomPop();
-            //    waitAll.Add(card.Setup(index++, cellSize.x, size, axis, 0));
-            //}
-
-            yield return waitAll;
+            yield return _cardsArea.ShowRandom(_delayOpen);
             yield return _waitShow;
 
-            //foreach (var item in _cardsActive)
-            //    waitAll.Add(item.Hide());
-            //yield return waitAll;
+            yield return _cardsArea.TurnRepeat(_delayOpen);
 
-            EventStartRound?.Invoke();
+            EventStartLevel?.Invoke();
         }
         #endregion
     }
 
-    private void OnCardSelected(TimeCard card)
+    private void OnCardSelected(ACard aCard)
     {
-        StartCoroutine(card.Show());
+        TimeCard card = (TimeCard)aCard;
+        bool endLevel = --_attempts == 0;
+
+        EventSelectedCard?.Invoke(card.Value);
+        StartCoroutine(CardSelected_Coroutine());
+
+        #region Local functions
+        IEnumerator CardSelected_Coroutine()
+        {
+            if (endLevel)
+                _cardsArea.ForEach((c) => c.IsInteractable = false);
+
+            yield return StartCoroutine(card.TurnToValue_Coroutine());
+
+            if (!endLevel) yield break;
+
+            yield return _cardsArea.TurnToValueRandom(_delayTurn);
+
+            EventEndLevel?.Invoke();
+
+            yield return new WaitForSeconds(1.5f);
+            LevelSetup(3, UnityEngine.Random.Range(3, 13), new(0));
+        }
+        #endregion
     }
+
+
 }

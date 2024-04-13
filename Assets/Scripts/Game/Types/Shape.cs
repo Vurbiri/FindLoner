@@ -7,7 +7,7 @@ public class Shape
     public Color Color => _color;
     private Color _color = Color.white;
 
-    private const float VARIANCE = 0.25f;
+    private const float VARIANCE = 0.2f;
 
     public Shape(Sprite sprite, Color color)
     {
@@ -20,7 +20,7 @@ public class Shape
         int count = otherShapes.Count;
         while (count > 0) 
         {
-            if(EqualsColor(otherShapes[count - 1].Color))
+            if(_color.IsSimilar(otherShapes[count - 1].Color, VARIANCE))
             {
                 _color.Randomize(saturationMin, brightnessMin);
                 count = otherShapes.Count;
@@ -30,8 +30,5 @@ public class Shape
                 count--;
             }
         }
-
-        // Local function
-        bool EqualsColor(Color color) => (Mathf.Abs(_color.r - color.r) < VARIANCE && Mathf.Abs(_color.b - color.b) < VARIANCE && Mathf.Abs(_color.g - color.g) < VARIANCE);
     }
 }

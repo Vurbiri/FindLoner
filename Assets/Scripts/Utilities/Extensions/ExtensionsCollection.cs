@@ -1,12 +1,18 @@
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public static class ExtensionsCollection
 {
-    public static T RandomPop<T>(this List<T> self)
+    public static T RandomPull<T>(this List<T> self)
     {
-        int index = Random.Range(0, self.Count);
+        int index = UnityEngine.Random.Range(0, self.Count);
         T obj = self[index]; self.RemoveAt(index);
         return obj;
+    }
+
+    public static void ForEach<T>(this Stack<T> self, Action<T> action)
+    {
+        foreach (var item in self)
+            action(item);
     }
 }

@@ -1,13 +1,15 @@
-
 using UnityEngine;
 
-public class CardTimeShirt : ACardComponent
+public class CardTimeShirt : MonoBehaviour
 {
+    private Transform _thisTransform;
+
+    private void Awake()
+    {
+        _thisTransform = transform;
+    }
+
     public void SetActive(bool active) => gameObject.SetActive(active);
 
-    public override void Mirror(Vector3 axis)
-    {
-        _thisTransform.rotation = Quaternion.identity;
-        base.Mirror(axis);
-    }
+    public void Mirror(Vector3 axis) => _thisTransform.rotation = Quaternion.Euler(axis * 180);
 }

@@ -56,7 +56,6 @@ public class Card : ACard
         _isInteractable = true;
     }
 
-
     public void CheckCroup(int idGroup) 
     {
         _isInteractable = false;

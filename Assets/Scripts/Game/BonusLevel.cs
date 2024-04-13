@@ -55,15 +55,11 @@ public class BonusLevel : MonoBehaviour
         #region Local functions
         IEnumerator StartRound_Coroutine(Increment range)
         {
-            List<TimeCard> cards = _cardsArea.Cards;
-            TimeCard card;
+            _cardsArea.Shuffle();
             Vector3 axis = Direction2D.Random;
 
-            while (cards.Count > 0)
-            {
-                card = cards.RandomPull();
+            while (_cardsArea.TryGetRandomCard(out TimeCard card))
                 card.Setup(range.Next, cellSize.x, size, axis, 0);
-            }
 
             yield return _cardsArea.ShowRandom(_delayOpen);
             yield return _waitShow;

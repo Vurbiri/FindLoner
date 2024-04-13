@@ -7,7 +7,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CardsArea), typeof(GridLayoutGroup))]
 public class GameLevel : MonoBehaviour
 {
-    [SerializeField] private List<Sprite> _shapeSprites;
+    [SerializeField] private Sprite[] _shapeSprites;
     [Space]
     [SerializeField] private float _timeShow = 1f;
     [SerializeField] private float _delayTurn = 0.025f;
@@ -22,7 +22,8 @@ public class GameLevel : MonoBehaviour
     private int _size, _countShapes, _countTypes;
     private bool _isMonochrome;
     private WaitForSeconds _waitShow;
-    
+
+    private ShuffledArray<Sprite> _spritesRandom;
     private int[] _groupsCard;
 
     public event Action EventStartRound;
@@ -35,6 +36,7 @@ public class GameLevel : MonoBehaviour
         _defaultSpacing = _thisGrid.spacing;
         _sizeArea = GetComponent<RectTransform>().rect.size - _defaultSpacing * 2;
         _waitShow = new(_timeShow);
+        _spritesRandom = new(_shapeSprites);
     }
 
     private void Start()
@@ -65,16 +67,15 @@ public class GameLevel : MonoBehaviour
         WaitAll waitAll = new(this);
         
         CreateGroupsCard();
+        _cardsArea.Shuffle();
         List<Shape> shapes = GetShapes();
-        List<Card> cards = _cardsArea.Cards;
-        Card card;
         Vector3 axis = Direction2D.Random;
-
+        Card card;
         for (int i = 0; i < _groupsCard.Length; i++)
         {
             for (int j = 0; j < _groupsCard[i]; j++)
             {
-                card = cards.RandomPull();
+                card = _cardsArea.RandomCard;
                 if (isNew)
                     card.Setup(shapes[i], _size, axis, i);
                 else
@@ -140,19 +141,18 @@ public class GameLevel : MonoBehaviour
 
     private List<Shape> GetShapes() 
     {
+        _spritesRandom.Shuffle();
         List<Shape> shapes = new(_countTypes);
         Shape shape;
         Color color = Color.white; color.Randomize(_saturationMin, _brightnessMin);
 
         for (int i = 0; i < _countTypes; i++)
         {
-            shape = new(_shapeSprites.RandomPull(), color);
+            shape = new(_spritesRandom.Next, color);
             if (!_isMonochrome)
                 shape.SetUniqueColor(shapes, _saturationMin, _brightnessMin);
             shapes.Add(shape);
         }
-
-        shapes.ForEach((s) => _shapeSprites.Add(s.Sprite));
 
         return shapes;
     }

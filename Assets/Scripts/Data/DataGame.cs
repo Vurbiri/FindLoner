@@ -96,5 +96,5 @@ public class DataGame : ASingleton<DataGame>
             maxScore = 0;
         }
     }
-     #endregion
+    #endregion
 }

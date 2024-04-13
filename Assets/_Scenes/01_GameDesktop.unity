@@ -2945,7 +2945,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &941481594
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6729,7 +6729,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2014011842
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6800,7 +6800,7 @@ MonoBehaviour:
   _timeShow: 1
   _delayTurn: 0.02
   _saturationMin: 0.275
-  _brightnessMin: 0.175
+  _brightnessMin: 0.2
 --- !u!114 &2014011845
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -9,16 +9,21 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     [SerializeField] private Transform _repository;
     private Transform _thisTransform;
 
-    private readonly Stack<T> _cardsActive = new();
-    private readonly Stack<T> _cardsRepository = new();
-    protected T[,] _cardsArea;
-    protected int _size, _index;
+    protected readonly FreeStack<T> _cardsActive = new(CAPACITY_LIST);
+    private readonly ShuffledArray<T> _cardsRandom = new(CAPACITY_LIST);
+    private readonly Stack<T> _cardsRepository = new(CAPACITY_STACK);
+
+    protected int _sizeArea, _indexFunc;
 
     private Func<float, IEnumerator>[] _shows;
     private Func<float, IEnumerator>[] _turnsOne;
-    protected const int COUNT_FUNC = 8;
 
-    public List<T> Cards => new(_cardsActive);
+    protected const int COUNT_FUNC = 8;
+    protected const int CAPACITY_LIST = 144;
+    protected const int CAPACITY_STACK = 140;
+
+    public T RandomCard => _cardsRandom.Next;
+    public bool TryGetRandomCard(out T card) => _cardsRandom.TryGetNext(out card);
 
     protected virtual void Awake()
     {
@@ -30,24 +35,28 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
         _turnsOne = new Func<float, IEnumerator>[] { Turn_FX_FY_Coroutine, Turn_FX_BY_Coroutine, Turn_BX_FY_Coroutine, Turn_BX_BY_Coroutine,
                                                      Turn_FY_FX_Coroutine, Turn_FY_BX_Coroutine, Turn_BY_FX_Coroutine, Turn_BY_BX_Coroutine};
     }
-       
+    public void Shuffle()
+    {
+        _cardsRandom.Shuffle();
+    }
 
-    public Coroutine ShowRandom(float delay) => StartCoroutine(_shows[_index = UnityEngine.Random.Range(0, COUNT_FUNC)](delay));
-    public Coroutine TurnRandom(float delay) => StartCoroutine(_turnsOne[_index = UnityEngine.Random.Range(0, COUNT_FUNC)](delay));
+    public Coroutine ShowRandom(float delay) => StartCoroutine(_shows[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay));
+    public Coroutine TurnRandom(float delay) => StartCoroutine(_turnsOne[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay));
 
-    public Coroutine ShowRepeat(float delay) => StartCoroutine(_shows[_index](delay));
-    public Coroutine TurnRepeat(float delay) => StartCoroutine(_turnsOne[_index](delay));
+    public Coroutine ShowRepeat(float delay) => StartCoroutine(_shows[_indexFunc](delay));
+    public Coroutine TurnRepeat(float delay) => StartCoroutine(_turnsOne[_indexFunc](delay));
 
     public void ForEach(Action<T> action)
     {
         foreach (var item in _cardsActive)
             action(item);
     }
-
-    public void CreateCards(int sizeNew, Action<ACard> action)
+    
+    public void CreateCards(int size, Action<ACard> action)
     {
-        int countNew = sizeNew * sizeNew;
-        if (_cardsActive.Count == countNew) return;
+        int countNew = size * size;
+        if (_cardsActive.Count == countNew) 
+            return;
 
         T card;
         while (_cardsActive.Count > countNew)
@@ -73,19 +82,8 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
             _cardsActive.Push(card);
         }
 
-        _cardsArea = new T[sizeNew, sizeNew];
-        int x = 0, y = 0;
-        foreach (var c in _cardsActive)
-        {
-            _cardsArea[x, y++] = c;
-
-            if (y == sizeNew)
-            {
-                x++; y = 0;
-            }
-        }
-
-        _size = sizeNew;
+        _cardsActive.Size = _sizeArea = size;
+        _cardsActive.CopyToShuffledArray(_cardsRandom);
     }
 
     #region Show
@@ -93,11 +91,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Show_FX_FY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = 0; x < _size; x++)
+        for (int x = 0; x < _sizeArea; x++)
         {
-            for (int y = 0; y < _size; y++)
+            for (int y = 0; y < _sizeArea; y++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Show_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -107,11 +105,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Show_FX_BY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = 0; x < _size; x++)
+        for (int x = 0; x < _sizeArea; x++)
         {
-            for (int y = _size - 1; y >= 0; y--)
+            for (int y = _sizeArea - 1; y >= 0; y--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Show_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -121,11 +119,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Show_BX_FY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = _size - 1; x >= 0; x--)
+        for (int x = _sizeArea - 1; x >= 0; x--)
         {
-            for (int y = 0; y < _size; y++)
+            for (int y = 0; y < _sizeArea; y++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Show_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -135,11 +133,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Show_BX_BY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = _size - 1; x >= 0; x--)
+        for (int x = _sizeArea - 1; x >= 0; x--)
         {
-            for (int y = _size - 1; y >= 0; y--)
+            for (int y = _sizeArea - 1; y >= 0; y--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Show_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -149,11 +147,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Show_FY_FX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = 0; y < _size; y++)
+        for (int y = 0; y < _sizeArea; y++)
         {
-            for (int x = 0; x < _size; x++)
+            for (int x = 0; x < _sizeArea; x++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Show_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -163,11 +161,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Show_FY_BX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = 0; y < _size; y++)
+        for (int y = 0; y < _sizeArea; y++)
         {
-            for (int x = _size - 1; x >= 0; x--)
+            for (int x = _sizeArea - 1; x >= 0; x--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Show_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -177,11 +175,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Show_BY_FX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = _size - 1; y >= 0; y--)
+        for (int y = _sizeArea - 1; y >= 0; y--)
         {
-            for (int x = 0; x < _size; x++)
+            for (int x = 0; x < _sizeArea; x++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Show_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -191,11 +189,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Show_BY_BX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = _size - 1; y >= 0; y--)
+        for (int y = _sizeArea - 1; y >= 0; y--)
         {
-            for (int x = _size - 1; x >= 0; x--)
+            for (int x = _sizeArea - 1; x >= 0; x--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Show_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -208,11 +206,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Turn_FX_FY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = 0; x < _size; x++)
+        for (int x = 0; x < _sizeArea; x++)
         {
-            for (int y = 0; y < _size; y++)
+            for (int y = 0; y < _sizeArea; y++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -222,11 +220,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Turn_FX_BY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = 0; x < _size; x++)
+        for (int x = 0; x < _sizeArea; x++)
         {
-            for (int y = _size - 1; y >= 0; y--)
+            for (int y = _sizeArea - 1; y >= 0; y--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -236,11 +234,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Turn_BX_FY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = _size - 1; x >= 0; x--)
+        for (int x = _sizeArea - 1; x >= 0; x--)
         {
-            for (int y = 0; y < _size; y++)
+            for (int y = 0; y < _sizeArea; y++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -250,11 +248,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Turn_BX_BY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = _size - 1; x >= 0; x--)
+        for (int x = _sizeArea - 1; x >= 0; x--)
         {
-            for (int y = _size - 1; y >= 0; y--)
+            for (int y = _sizeArea - 1; y >= 0; y--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -264,11 +262,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Turn_FY_FX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = 0; y < _size; y++)
+        for (int y = 0; y < _sizeArea; y++)
         {
-            for (int x = 0; x < _size; x++)
+            for (int x = 0; x < _sizeArea; x++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -278,11 +276,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Turn_FY_BX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = 0; y < _size; y++)
+        for (int y = 0; y < _sizeArea; y++)
         {
-            for (int x = _size - 1; x >= 0; x--)
+            for (int x = _sizeArea - 1; x >= 0; x--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -292,11 +290,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Turn_BY_FX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = _size - 1; y >= 0; y--)
+        for (int y = _sizeArea - 1; y >= 0; y--)
         {
-            for (int x = 0; x < _size; x++)
+            for (int x = 0; x < _sizeArea; x++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -306,11 +304,11 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private IEnumerator Turn_BY_BX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = _size - 1; y >= 0; y--)
+        for (int y = _sizeArea - 1; y >= 0; y--)
         {
-            for (int x = _size - 1; x >= 0; x--)
+            for (int x = _sizeArea - 1; x >= 0; x--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }

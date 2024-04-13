@@ -15,9 +15,9 @@ public class TimeCardsArea : ACardsArea<TimeCard>
 
     }
 
-    public Coroutine TurnToValueRandom(float delay) => StartCoroutine(_turnsToValue[_index = UnityEngine.Random.Range(0, COUNT_FUNC)](delay));
+    public Coroutine TurnToValueRandom(float delay) => StartCoroutine(_turnsToValue[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay));
 
-    public Coroutine TurnToValueRepeat(float delay) => StartCoroutine(_turnsToValue[_index](delay));
+    public Coroutine TurnToValueRepeat(float delay) => StartCoroutine(_turnsToValue[_indexFunc](delay));
 
 
     #region TurnToValue
@@ -25,11 +25,11 @@ public class TimeCardsArea : ACardsArea<TimeCard>
     private IEnumerator TurnToValue_FX_FY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = 0; x < _size; x++)
+        for (int x = 0; x < _sizeArea; x++)
         {
-            for (int y = 0; y < _size; y++)
+            for (int y = 0; y < _sizeArea; y++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].TurnToValue_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].TurnToValue_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -39,11 +39,11 @@ public class TimeCardsArea : ACardsArea<TimeCard>
     private IEnumerator TurnToValue_FX_BY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = 0; x < _size; x++)
+        for (int x = 0; x < _sizeArea; x++)
         {
-            for (int y = _size - 1; y >= 0; y--)
+            for (int y = _sizeArea - 1; y >= 0; y--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].TurnToValue_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].TurnToValue_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -53,11 +53,11 @@ public class TimeCardsArea : ACardsArea<TimeCard>
     private IEnumerator TurnToValue_BX_FY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = _size - 1; x >= 0; x--)
+        for (int x = _sizeArea - 1; x >= 0; x--)
         {
-            for (int y = 0; y < _size; y++)
+            for (int y = 0; y < _sizeArea; y++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].TurnToValue_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].TurnToValue_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -67,11 +67,11 @@ public class TimeCardsArea : ACardsArea<TimeCard>
     private IEnumerator TurnToValue_BX_BY_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int x = _size - 1; x >= 0; x--)
+        for (int x = _sizeArea - 1; x >= 0; x--)
         {
-            for (int y = _size - 1; y >= 0; y--)
+            for (int y = _sizeArea - 1; y >= 0; y--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].TurnToValue_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].TurnToValue_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -81,11 +81,11 @@ public class TimeCardsArea : ACardsArea<TimeCard>
     private IEnumerator TurnToValue_FY_FX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = 0; y < _size; y++)
+        for (int y = 0; y < _sizeArea; y++)
         {
-            for (int x = 0; x < _size; x++)
+            for (int x = 0; x < _sizeArea; x++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].TurnToValue_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].TurnToValue_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -95,11 +95,11 @@ public class TimeCardsArea : ACardsArea<TimeCard>
     private IEnumerator TurnToValue_FY_BX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = 0; y < _size; y++)
+        for (int y = 0; y < _sizeArea; y++)
         {
-            for (int x = _size - 1; x >= 0; x--)
+            for (int x = _sizeArea - 1; x >= 0; x--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].TurnToValue_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].TurnToValue_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -109,11 +109,11 @@ public class TimeCardsArea : ACardsArea<TimeCard>
     private IEnumerator TurnToValue_BY_FX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = _size - 1; y >= 0; y--)
+        for (int y = _sizeArea - 1; y >= 0; y--)
         {
-            for (int x = 0; x < _size; x++)
+            for (int x = 0; x < _sizeArea; x++)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].TurnToValue_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].TurnToValue_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }
@@ -123,11 +123,11 @@ public class TimeCardsArea : ACardsArea<TimeCard>
     private IEnumerator TurnToValue_BY_BX_Coroutine(float time)
     {
         Coroutine coroutine = null;
-        for (int y = _size - 1; y >= 0; y--)
+        for (int y = _sizeArea - 1; y >= 0; y--)
         {
-            for (int x = _size - 1; x >= 0; x--)
+            for (int x = _sizeArea - 1; x >= 0; x--)
             {
-                coroutine = StartCoroutine(_cardsArea[x, y].TurnToValue_Coroutine());
+                coroutine = StartCoroutine(_cardsActive[x, y].TurnToValue_Coroutine());
                 yield return new WaitForSeconds(time);
             }
         }

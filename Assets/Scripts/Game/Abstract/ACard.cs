@@ -41,6 +41,9 @@ public abstract class ACard<T> : Graphic, IPointerDownHandler where T : ACard<T>
 
     public virtual void OnPointerDown(PointerEventData eventData)
     {
+        if (!_isInteractable) return;
+
+        _isInteractable = false;
         EventSelected?.Invoke((T)this);
     }
 

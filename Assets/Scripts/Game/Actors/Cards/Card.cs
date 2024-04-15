@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class Card : ACard<Card>
 {
@@ -67,12 +66,5 @@ public class Card : ACard<Card>
             return;
 
         _cardBackground.SetColorBorder(_value == 0 ? _colorBorderTrue : _colorBorderError);
-    }
-
-    public override void OnPointerDown(PointerEventData eventData)
-    {
-        if (!_isInteractable) return;
-
-        base.OnPointerDown(eventData);
     }
 }

@@ -16,9 +16,10 @@ public class CardTimeText : MonoBehaviour
     public void Setup(float size, int value)
     {
         _thisText.fontSize = size;
-        _thisText.text = value < 0 ? string.Empty : value.ToString();
+        SetText(value);
     }
 
+    public void SetText(int value) => _thisText.text = value < 0 ? "X" : value.ToString();
     public void SetColor(Color color) => _thisText.color = color;
     public void SetActive(bool active) => gameObject.SetActive(active);
 

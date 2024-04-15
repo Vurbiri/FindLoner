@@ -2936,7 +2936,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 941481594}
+  - component: {fileID: 941481599}
   - component: {fileID: 941481596}
+  - component: {fileID: 941481598}
   - component: {fileID: 941481597}
   - component: {fileID: 941481595}
   m_Layer: 5
@@ -2983,8 +2985,8 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_StartCorner: 3
-  m_StartAxis: 1
+  m_StartCorner: 0
+  m_StartAxis: 0
   m_CellSize: {x: 450, y: 450}
   m_Spacing: {x: 3, y: 3}
   m_Constraint: 1
@@ -3001,10 +3003,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28d191ee5ac74414faf943f2bf95d32e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ratioTimeShow: 0.5
+  _ratioTimeShow: 0.55
   _timeShuffle: 1.5
-  _delayOpenPerAll: 1.5
-  _delayTurnPerAll: 2.5
 --- !u!114 &941481597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3019,6 +3019,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _prefabCard: {fileID: 1247963337755642632, guid: 93538feebcd9eec4187f5fa944c2ab4b, type: 3}
   _repository: {fileID: 1886041710}
+--- !u!114 &941481598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941481593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15df96aeaec9cd04cbbd4b07af3b04ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _ratioTimeShow: 0.85
+  _timeShowPair: 0.9
+--- !u!114 &941481599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941481593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c519d57afe2d8b4fa59d3e7ade5857e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _timeShowEndLevel: 2.5
+  _delayOpenPerAll: 1.5
+  _delayTurnPerAll: 2.5
+  _type: 1
 --- !u!1001 &952149565
 PrefabInstance:
   m_ObjectHideFlags: 0

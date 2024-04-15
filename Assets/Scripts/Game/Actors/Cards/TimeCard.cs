@@ -14,34 +14,35 @@ public class TimeCard : ACard<TimeCard>
     [SerializeField] private Color _colorBorderError = Color.gray;
 
     private bool _isShowShirt, _isDisable;
+    private BonusTime _bonus;
 
-    public int Value => _value;
+    public int Value => _bonus.Value;
+    public BonusTime Bonus => _bonus;
+
+
     public void InteractableOn() => _isInteractable = !_isDisable;
     public void InteractableOff() => _isInteractable = false;
 
-    public void Setup(int value, float sizeCard, float count, Vector3 axis, bool isDisable = false)
+    public void Setup(BonusTime bonus, float sizeCard, float count, Vector3 axis, bool isDisable = false)
     {
-        _value = value;
+        _bonus = bonus;
         _axis = axis;
         _isInteractable = false;
         _isDisable = isDisable;
 
-        _cardText.Setup(sizeCard * _scaleFontSize, value);
+        _cardText.Setup(sizeCard * _scaleFontSize, bonus);
         SetBackgroundPixelSize(count);
         _cardBackground.SetColorBorder(_colorBorderNormal);
 
-        _cardShirt.Mirror(axis);
+        _cardShirt.Set180Angle(axis);
+        _cardText.ResetAngle();
+
         _cardShirt.SetActive(false);
         _cardText.SetActive(true);
 
-        _cardBackground.Rotation(axis, 90f);
+        _cardBackground.Set90Angle(axis);
     }
-
-    public override IEnumerator Show_Coroutine()
-    {
-        yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(-_axis, _speedRotation));
-    }
-
+    
     public IEnumerator TurnToShirt_Coroutine()
     {
         if (_isShowShirt || _isDisable) yield break;
@@ -79,6 +80,7 @@ public class TimeCard : ACard<TimeCard>
     public void Fixed()
     {
         _isDisable = true;
+        _isInteractable = false;
         _cardBackground.SetColorBorder(_colorBorderTrue);
     }
 
@@ -106,13 +108,13 @@ public class TimeCard : ACard<TimeCard>
         _isInteractable = true;
     }
 
-    public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, int value, float time)
+    public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, BonusTime bonus, float time)
     {
-        _value = value;
-        _cardText.SetText(_value);
+        _bonus = bonus;
+        _cardText.ReSetup(bonus);
         return _cardBackground.MoveTo_Coroutine(targetCard._cardBackground, time);
     }
-    public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, float time) => ReplaceCard_Coroutine(targetCard, targetCard._value, time);
+    public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, float time) => ReplaceCard_Coroutine(targetCard, targetCard._bonus, time);
     public void ResetPosition() => _cardBackground.ResetPosition();
 
 //#if UNITY_EDITOR

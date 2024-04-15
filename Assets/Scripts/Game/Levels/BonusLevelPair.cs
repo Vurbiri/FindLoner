@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BonusLevelPair : ABonusLevel
@@ -21,13 +22,13 @@ public class BonusLevelPair : ABonusLevel
         _countShapes = size * size;
     }
 
-    public IEnumerator StartRound_Coroutine(int size, float cellSize, Increment range)
+    public IEnumerator StartRound_Coroutine(int size, float cellSize, Queue<BonusTime> values)
     {
         Vector3 axis = Direction2D.Random;
 
         CardsSetup();
 
-        yield return _cardsArea.ShowRandom(_delayOpen);
+        yield return _cardsArea.Turn90Random(_delayOpen);
         yield return new WaitForSeconds(size * _ratioTimeShow);
 
         yield return _cardsArea.TurnToShirtRepeat(_delayOpen);
@@ -38,14 +39,14 @@ public class BonusLevelPair : ABonusLevel
         void CardsSetup()
         {
             TimeCard card;
-            int value = -1; 
+            BonusTime bonus = null;
             Action setup = Setup;
             
             _cardSelect = null;
             if (_countShapes % 2 != 0)
             {
                 _cardSelect = _cardsArea.CardCenter;
-                _cardSelect.Setup(-1, cellSize, size, axis, true);
+                _cardSelect.Setup(null, cellSize, size, axis, true);
                 setup = SetupNotCardCenter;
                 _countShapes--;
             }
@@ -53,7 +54,8 @@ public class BonusLevelPair : ABonusLevel
             int count = _countShapes / 2;
             while (count > 0)
             {
-                value = range.Next;
+                if (values.Count > 0)
+                    bonus = values.Dequeue();
                 setup();
                 setup();
                 count--;
@@ -63,7 +65,7 @@ public class BonusLevelPair : ABonusLevel
             void Setup()
             {
                 card = _cardsArea.RandomCard;
-                card.Setup(value, cellSize, size, axis);
+                card.Setup(bonus, cellSize, size, axis);
             }
             void SetupNotCardCenter()
             {
@@ -74,7 +76,7 @@ public class BonusLevelPair : ABonusLevel
                     setup = Setup;
                     _cardSelect = null;
                 }
-                card.Setup(value, cellSize, size, axis);
+                card.Setup(bonus, cellSize, size, axis);
             }
             #endregion
         }
@@ -132,6 +134,7 @@ public class BonusLevelPair : ABonusLevel
             {
                 yield return _cardsArea.TurnToValueRandom(_delayTurn);
                 yield return _waitShowEndLevel;
+                yield return _cardsArea.Turn90Random(_delayTurn / 2f);
 
                 EventEndLevel?.Invoke();
             }

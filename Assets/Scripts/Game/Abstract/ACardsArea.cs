@@ -35,10 +35,9 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard<T>
     }
     public void Shuffle() => _cardsRandom.Shuffle();
     
-    public Coroutine ShowRandom(float delay) => StartCoroutine(_funcTraversing[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay, TurnToValue));
-    public Coroutine ShowRepeat(float delay) => StartCoroutine(_funcTraversing[_indexFunc](delay, TurnToValue));
-    private IEnumerator TurnToValue(T card) => card.Show_Coroutine();
-
+    public Coroutine Turn90Random(float delay) => StartCoroutine(_funcTraversing[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay, Turn90_Coroutine));
+    public Coroutine Turn90Repeat(float delay) => StartCoroutine(_funcTraversing[_indexFunc](delay, Turn90_Coroutine));
+    private IEnumerator Turn90_Coroutine(T card) => card.Turn90_Coroutine();
 
     public void ForEach(Action<T> action)
     {

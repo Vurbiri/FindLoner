@@ -15,7 +15,6 @@ public abstract class ACard<T> : Graphic, IPointerDownHandler where T : ACard<T>
 
     protected Transform _thisTransform;
     protected bool _isInteractable = false;
-    protected int _value;
     protected Vector3 _axis;
 
     public event Action<T> EventSelected;
@@ -49,5 +48,8 @@ public abstract class ACard<T> : Graphic, IPointerDownHandler where T : ACard<T>
 
     protected void SetBackgroundPixelSize(float ratio) => _cardBackground.SetPixelSize(1 + _pixelSizeDefault * ratio);
 
-    public abstract IEnumerator Show_Coroutine();
+    public IEnumerator Turn90_Coroutine()
+    {
+        yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(-_axis, _speedRotation));
+    }
 }

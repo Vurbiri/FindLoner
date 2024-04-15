@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using URandom = UnityEngine.Random;
@@ -8,6 +9,9 @@ using URandom = UnityEngine.Random;
 [RequireComponent(typeof(TimeCardsArea), typeof(GridLayoutGroup))]
 public class BonusLevels : MonoBehaviour
 {
+    [SerializeField] private float _saturationMin = 0.275f;
+    [SerializeField] private float _brightnessMin = 0.25f;
+    [Space]
     [SerializeField] private float _timeShowEndLevel = 1.75f;
     [Space]
     [SerializeField] private float _delayOpenPerAll = 1.5f;
@@ -32,15 +36,15 @@ public class BonusLevels : MonoBehaviour
     {
         if (_type == BonusLevelTypes.Single)
         {
-            StartCoroutine(StartSingle_Coroutine(6, new(0), 3, 10));
+            StartCoroutine(StartSingle_Coroutine(6, new(5, 2, 12), 3, false, 1));
             _levelSingle.EventSelectedCard += (t) => Debug.Log("+" + t);
-            _levelSingle.EventEndLevel += () => StartCoroutine(StartSingle_Coroutine(URandom.Range(4, 12), new(0), 3, URandom.Range(0, 22)));
+            _levelSingle.EventEndLevel += () => StartCoroutine(StartSingle_Coroutine(URandom.Range(4, 12), new(0, 3, 4), 3, URandom.Range(0, 100) < 50, URandom.Range(0, 2)));
         }
         else
         {
-            StartCoroutine(StartPair_Coroutine(5, new(0), 10));
+            StartCoroutine(StartPair_Coroutine(5, new(1, 1, 5 * 2), 10, false));
             _levelPair.EventSelectedCard += (t) => Debug.Log("+" + t);
-            _levelPair.EventEndLevel += () => { int i = URandom.Range(4, 8); StartCoroutine(StartPair_Coroutine(i, new(0), i * 2)); };
+            _levelPair.EventEndLevel += () => { int i = URandom.Range(4, 8); StartCoroutine(StartPair_Coroutine(i, new(1, 1, i * 4), i * 2, URandom.Range(0, 100) < 50)); };
         }
     }
 #endif
@@ -61,22 +65,22 @@ public class BonusLevels : MonoBehaviour
         _levelPair.Initialize(_cardsArea, waitShowEndLevel);
     }
 
-    public IEnumerator StartSingle_Coroutine(int size, Increment range, int attempts, int countShuffle)
+    public IEnumerator StartSingle_Coroutine(int size, Increment range, int attempts, bool isMonochrome, int countShuffle)
     {
         int countShapes = size * size;
         float cellSize = GridSetup(size);
 
         _levelSingle.Setup(size, attempts, _delayOpenPerAll / countShapes, _delayTurnPerAll / countShapes);
-        return _levelSingle.StartRound_Coroutine(size, cellSize, range, countShuffle);
+        return _levelSingle.StartRound_Coroutine(size, cellSize, GetBonusTime(range, isMonochrome), countShuffle);
     }
 
-    public IEnumerator StartPair_Coroutine(int size, Increment range, int attempts)
+    public IEnumerator StartPair_Coroutine(int size, Increment range, int attempts, bool isMonochrome)
     {
         int countShapes = size * size;
         float cellSize = GridSetup(size);
         
         _levelPair.Setup(size, attempts, _delayOpenPerAll / countShapes, _delayTurnPerAll / countShapes);
-        return _levelPair.StartRound_Coroutine(size, cellSize, range);
+        return _levelPair.StartRound_Coroutine(size, cellSize, GetBonusTime(range, isMonochrome));
     }
 
     private float GridSetup(int size)
@@ -88,5 +92,22 @@ public class BonusLevels : MonoBehaviour
         _thisGrid.spacing = _defaultSpacing / (size - 1);
 
         return cellSize.x;
+    }
+
+    private Queue<BonusTime> GetBonusTime(Increment range, bool isMonochrome)
+    {
+        Queue<BonusTime> shapes = new(range.Count);
+        BonusTime shape;
+        Color color = Color.white; color.Randomize(_saturationMin, _brightnessMin);
+
+        while (range.TryGetNext(out int value))
+        {
+            shape = new(value, color);
+            if (!isMonochrome)
+                shape.SetUniqueColor(shapes, _saturationMin, _brightnessMin);
+            shapes.Enqueue(shape);
+        }
+
+        return shapes;
     }
 }

@@ -10,6 +10,8 @@ public class GameLevel : MonoBehaviour
     [SerializeField] private Sprite[] _shapeSprites;
     [Space]
     [SerializeField] private float _timeShow = 1f;
+    [SerializeField] private float _timeShowGameOver = 2.5f;
+    [Space]
     [SerializeField] private float _delayTurnPerAll = 2.5f;
     [Space]
     [SerializeField] private float _saturationMin = 0.275f;
@@ -22,13 +24,14 @@ public class GameLevel : MonoBehaviour
     private int _size, _countShapes, _countTypes;
     float _delayTurn;
     private bool _isMonochrome;
-    private WaitForSeconds _waitShow;
+    private WaitForSeconds _waitShow, _waitShowGameOver;
 
     private ShuffledArray<Sprite> _spritesRandom;
     private int[] _groupsCard;
 
     public event Action EventStartRound;
     public event Action<bool> EventEndRound;
+    public event Action<bool> EventEndLevel;
 
     private void Awake()
     {
@@ -37,17 +40,18 @@ public class GameLevel : MonoBehaviour
         _defaultSpacing = _thisGrid.spacing;
         _sizeArea = GetComponent<RectTransform>().rect.size - _defaultSpacing * 2;
         _waitShow = new(_timeShow);
+        _waitShowGameOver = new(_timeShowGameOver);
         _spritesRandom = new(_shapeSprites);
     }
 
     private void Start()
     {
         int size = UnityEngine.Random.Range(2, 12);
-        LevelSetup(size, size, false);
+        Setup(size, size, false);
         StartCoroutine(StartRound_Coroutine(true));
     }
 
-    private void LevelSetup(int size, int countTypes, bool isMonochrome)
+    public void Setup(int size, int countTypes, bool isMonochrome)
     {
         _size = size;
         _countShapes = size * size;
@@ -64,31 +68,39 @@ public class GameLevel : MonoBehaviour
         _cardsArea.CreateCards(size, OnCardSelected);
     }
 
+    public void Play() => _cardsArea.ForEach((c) => c.IsInteractable = true);
+
     private IEnumerator StartRound_Coroutine(bool isNew)
     {
         WaitAll waitAll = new(this);
         
         CreateGroupsCard();
         _cardsArea.Shuffle();
-        List<Shape> shapes = GetShapes();
+
+        Stack<Shape> shapes = GetShapes();
+        Shape shape; Card card;
         Vector3 axis = Direction2D.Random;
-        Card card;
+        
         for (int i = 0; i < _groupsCard.Length; i++)
         {
+            shape = shapes.Pop();
+
             for (int j = 0; j < _groupsCard[i]; j++)
             {
                 card = _cardsArea.RandomCard;
                 if (isNew)
-                    card.Setup(shapes[i], _size, axis, i);
+                    card.Setup(shape, _size, axis, i);
                 else
-                    card.ReSetup(shapes[i], axis, i);
+                    card.ReSetup(shape, axis, i);
             }
         }
 
         if (isNew)
-            yield return _cardsArea.ShowRandom(_delayTurn);
+            yield return _cardsArea.Turn90Random(_delayTurn);
         else
             yield return _cardsArea.TurnRandom(_delayTurn);
+
+        Play(); //========= убрать потом
 
         EventStartRound?.Invoke();
     }
@@ -114,9 +126,12 @@ public class GameLevel : MonoBehaviour
         }
         IEnumerator NewRound_Coroutine()
         {
-            yield return new WaitForSeconds(2.5f);
+            yield return _waitShowGameOver;
+            yield return _cardsArea.Turn90Random(_delayTurn / 2f);
+            EventEndLevel?.Invoke(false);
+
             int size = UnityEngine.Random.Range(2, 12);
-            LevelSetup(size, size, false);
+            Setup(size, size, false);
             StartCoroutine(StartRound_Coroutine(true));
         }
         #endregion
@@ -141,10 +156,10 @@ public class GameLevel : MonoBehaviour
         _groupsCard[countTypes] = currentCount;
     }
 
-    private List<Shape> GetShapes() 
+    private Stack<Shape> GetShapes() 
     {
         _spritesRandom.Shuffle();
-        List<Shape> shapes = new(_countTypes);
+        Stack<Shape> shapes = new(_countTypes);
         Shape shape;
         Color color = Color.white; color.Randomize(_saturationMin, _brightnessMin);
 
@@ -153,7 +168,7 @@ public class GameLevel : MonoBehaviour
             shape = new(_spritesRandom.Next, color);
             if (!_isMonochrome)
                 shape.SetUniqueColor(shapes, _saturationMin, _brightnessMin);
-            shapes.Add(shape);
+            shapes.Push(shape);
         }
 
         return shapes;

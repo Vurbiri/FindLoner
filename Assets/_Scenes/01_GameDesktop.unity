@@ -2942,7 +2942,7 @@ GameObject:
   - component: {fileID: 941481597}
   - component: {fileID: 941481595}
   m_Layer: 5
-  m_Name: BonusLevel
+  m_Name: BonusLevels
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3045,6 +3045,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c519d57afe2d8b4fa59d3e7ade5857e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _saturationMin: 0.275
+  _brightnessMin: 0.25
   _timeShowEndLevel: 2.5
   _delayOpenPerAll: 1.5
   _delayTurnPerAll: 2.5
@@ -6829,6 +6831,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: a6b74fb521697404db7a8d2395cb8898, type: 3}
   - {fileID: 21300000, guid: cd2abe928d4b82845bb5ae8699ed0ec8, type: 3}
   _timeShow: 1
+  _timeShowGameOver: 2.5
   _delayTurnPerAll: 2.5
   _saturationMin: 0.275
   _brightnessMin: 0.2

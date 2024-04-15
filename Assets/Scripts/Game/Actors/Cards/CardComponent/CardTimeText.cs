@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 
+
 [RequireComponent(typeof(TMP_Text))]
 public class CardTimeText : MonoBehaviour
 {
@@ -13,18 +14,27 @@ public class CardTimeText : MonoBehaviour
         _thisTransform = transform;
     }
 
-    public void Setup(float size, int value)
+    public void Setup(float size, BonusTime bonus)
     {
         _thisText.fontSize = size;
-        SetText(value);
+        if (bonus == null)
+        {
+            _thisText.text = "";
+            return;
+        }
+        ReSetup(bonus);
     }
 
-    public void SetText(int value) => _thisText.text = value < 0 ? "X" : value.ToString();
-    public void SetColor(Color color) => _thisText.color = color;
+    public void ReSetup(BonusTime bonus)
+    {
+        _thisText.color = bonus.Color;
+        _thisText.text = bonus.Value.ToString();
+    }
+
+    public void Clear() => _thisText.text = "";
+
     public void SetActive(bool active) => gameObject.SetActive(active);
 
-    public void Rotation(Vector3 axis, float angle)
-    {
-        _thisTransform.rotation *= Quaternion.Euler(axis * angle);
-    }
+    public void ResetAngle() => _thisTransform.localRotation = Quaternion.identity;
+    public void Rotation(Vector3 axis, float angle) => _thisTransform.rotation *= Quaternion.Euler(axis * angle);
 }

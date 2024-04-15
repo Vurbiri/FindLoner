@@ -27,6 +27,11 @@ public enum GameModeStart : byte
     New,
     Continue
 }
+public enum BonusLevelTypes : byte
+{
+    Single,
+    Pair
+}
 
 public static class ExtensionsEnum
 {

@@ -1,31 +1,34 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class TimeCard : ACard
+public class TimeCard : ACard<TimeCard>
 {
+    [Space]
     [SerializeField] private CardTimeShirt _cardShirt;
     [SerializeField] private CardTimeText _cardText;
+    [SerializeField] private float _scaleFontSize = 0.45f;
     [Space]
     [SerializeField] private Color _colorBorderNormal = Color.gray;
     [SerializeField] private Color _colorBorderSelect = Color.gray;
 
-    public bool _isShowShirt;
+    public bool _isShowShirt, _isDisable;
 
-    public int Value { get; private set; }
-    public bool IsInteractable { set => _isInteractable = value; }
+    public int Value => _value;
 
-    public void Setup(int value, float sizeCard, float count, Vector3 axis, int idGroup)
+    public void InteractableOn() => _isInteractable = !_isDisable;
+    public void InteractableOff() => _isInteractable = false;
+    public void Disable() => _isDisable = true;
+
+    public void Setup(int value, float sizeCard, float count, Vector3 axis, bool isDisable = false)
     {
         _isInteractable = false;
-
-        _idGroup = idGroup;
-        Value = value;
+        _value = value;
         _axis = axis;
-        
-        _cardText.Setup(sizeCard, value);
-        _cardBackground.SetPixelSize(count);
+        _isDisable = isDisable;
+
+        _cardText.Setup(sizeCard * _scaleFontSize, value);
+        SetBackgroundPixelSize(count);
         _cardBackground.SetColorBorder(_colorBorderNormal);
 
         _cardShirt.Mirror(axis);
@@ -40,9 +43,9 @@ public class TimeCard : ACard
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(-_axis, _speedRotation));
     }
 
-    public override IEnumerator Turn_Coroutine()
+    public IEnumerator TurnToShirt_Coroutine()
     {
-        if (_isShowShirt) yield break;
+        if (_isShowShirt || _isDisable) yield break;
 
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));
         yield return null;
@@ -53,7 +56,7 @@ public class TimeCard : ACard
         yield return null;
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));
 
-        _isInteractable = _isShowShirt = true;
+        _isShowShirt = true;
     }
 
     public IEnumerator TurnToValue_Coroutine()
@@ -74,17 +77,40 @@ public class TimeCard : ACard
         _isShowShirt = false;
     }
 
+    public IEnumerator CardSelected_Coroutine()
+    {
+        _cardBackground.SetColorBorder(_colorBorderSelect);
+        return TurnToValue_Coroutine();
+    }
+
+    public IEnumerator CardClose_Coroutine()
+    {
+        _cardBackground.SetColorBorder(_colorBorderNormal);
+        return TurnToShirt_Coroutine();
+    }
+
     public override void OnPointerDown(PointerEventData eventData)
     {
         if (!_isInteractable) return;
 
         _isInteractable = false;
-        _cardBackground.SetColorBorder(_colorBorderSelect);
         base.OnPointerDown(eventData);
     }
 
-#if UNITY_EDITOR
-    public static implicit operator string(TimeCard obj) => obj.ToString();
-    public override string ToString() => Value.ToString();
-#endif
+    public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, float time)
+    {
+        _value = targetCard._value;
+        return _cardBackground.MoveTo_Coroutine(targetCard._cardBackground, time);
+    }
+    public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, int value, float time)
+    {
+        _value = value;
+        return _cardBackground.MoveTo_Coroutine(targetCard._cardBackground, time);
+    }
+    public void ResetPosition() => _cardBackground.ResetPosition();
+
+//#if UNITY_EDITOR
+//    public static implicit operator string(TimeCard obj) => obj.ToString();
+//    public override string ToString() => Value.ToString();
+//#endif
 }

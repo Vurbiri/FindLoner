@@ -4,21 +4,21 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public abstract class ACard : Graphic, IPointerDownHandler
+public abstract class ACard<T> : Graphic, IPointerDownHandler where T : ACard<T>
 {
     [Space]
-    [SerializeField] protected float _speedRotation = 90f;
-    [Space]
     [SerializeField] protected CardBackground _cardBackground;
+    [SerializeField] private float _pixelSizeDefault = 0.25f;
+    [Space]
+    [SerializeField] protected float _speedRotation = 90f;
+    
 
     protected Transform _thisTransform;
     protected bool _isInteractable = false;
-    protected int _idGroup;
+    protected int _value;
     protected Vector3 _axis;
 
-    public int IdGroup => _idGroup;
-
-    public event Action<ACard> EventSelected;
+    public event Action<T> EventSelected;
 
     protected override void Awake()
     {
@@ -41,11 +41,10 @@ public abstract class ACard : Graphic, IPointerDownHandler
 
     public virtual void OnPointerDown(PointerEventData eventData)
     {
-        EventSelected?.Invoke(this);
+        EventSelected?.Invoke((T)this);
     }
 
-    public abstract IEnumerator Show_Coroutine();
-    public abstract IEnumerator Turn_Coroutine();
+    protected void SetBackgroundPixelSize(float ratio) => _cardBackground.SetPixelSize(1 + _pixelSizeDefault * ratio);
 
-    
+    public abstract IEnumerator Show_Coroutine();
 }

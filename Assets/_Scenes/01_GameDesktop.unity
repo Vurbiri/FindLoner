@@ -2945,7 +2945,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &941481594
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3001,9 +3001,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28d191ee5ac74414faf943f2bf95d32e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _startTimeShow: 1
-  _delayOpen: 0.015
-  _delayTurn: 0.025
+  _ratioTimeShow: 0.5
+  _timeShuffle: 1.5
+  _delayOpenPerAll: 1.5
+  _delayTurnPerAll: 2.5
 --- !u!114 &941481597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6728,8 +6729,8 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 0
 --- !u!224 &2014011842
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6786,19 +6787,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shapeSprites:
+  - {fileID: 21300000, guid: baf61ff9d33fbb748ac3a8297cf5f15e, type: 3}
+  - {fileID: 21300000, guid: 2ad32bc6b9cd4c842bd763a6285125b6, type: 3}
+  - {fileID: 21300000, guid: cd1d0b9e86c0525418cce2599734bb5b, type: 3}
+  - {fileID: 21300000, guid: a9665b4efc408504e9e61b13391c9001, type: 3}
+  - {fileID: 21300000, guid: 675627c2baa98454b8ddc79df4db3d7e, type: 3}
   - {fileID: 21300000, guid: d9bacafafef319442a650f0b644077c1, type: 3}
   - {fileID: 21300000, guid: e12f23c8895b9f246bfaead567c49e55, type: 3}
   - {fileID: 21300000, guid: 1ba345437294d2e4c964872ce5a6ef63, type: 3}
   - {fileID: 21300000, guid: b0f87823f4db433489647341a65d04c3, type: 3}
   - {fileID: 21300000, guid: a6b74fb521697404db7a8d2395cb8898, type: 3}
   - {fileID: 21300000, guid: cd2abe928d4b82845bb5ae8699ed0ec8, type: 3}
-  - {fileID: 21300000, guid: a9665b4efc408504e9e61b13391c9001, type: 3}
-  - {fileID: 21300000, guid: cd1d0b9e86c0525418cce2599734bb5b, type: 3}
-  - {fileID: 21300000, guid: 2ad32bc6b9cd4c842bd763a6285125b6, type: 3}
-  - {fileID: 21300000, guid: baf61ff9d33fbb748ac3a8297cf5f15e, type: 3}
-  - {fileID: 21300000, guid: 675627c2baa98454b8ddc79df4db3d7e, type: 3}
   _timeShow: 1
-  _delayTurn: 0.02
+  _delayTurnPerAll: 2.5
   _saturationMin: 0.275
   _brightnessMin: 0.2
 --- !u!114 &2014011845

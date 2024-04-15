@@ -4,8 +4,6 @@ using UnityEngine;
 [RequireComponent(typeof(TMP_Text))]
 public class CardTimeText : MonoBehaviour
 {
-    [SerializeField] private float _scaleFontSize = 0.33f;
-    
     protected TMP_Text _thisText;
     protected Transform _thisTransform;
 
@@ -17,8 +15,8 @@ public class CardTimeText : MonoBehaviour
 
     public void Setup(float size, int value)
     {
-        _thisText.fontSize = size * _scaleFontSize;
-        _thisText.text = /*(value > 0 ? "+" : "") +*/ value.ToString();
+        _thisText.fontSize = size;
+        _thisText.text = value < 0 ? string.Empty : value.ToString();
     }
 
     public void SetColor(Color color) => _thisText.color = color;

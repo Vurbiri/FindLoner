@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class FreeStack<T> : IEnumerable<T>
 {
@@ -10,6 +11,7 @@ public class FreeStack<T> : IEnumerable<T>
 
     public T this[int i] { get => _array[i]; }
     public T this[int i, int j] { get => _array[i * _size + j]; }
+    public T this[Vector2Int v] { get => _array[v.x * _size + v.y]; }
 
     public int Size { get => _size; set => _size = value; }
     public int Count => _count;
@@ -43,19 +45,18 @@ public class FreeStack<T> : IEnumerable<T>
 
     public IEnumerator<T> GetEnumerator() => new FreeStackEnumerator(this);
     IEnumerator IEnumerable.GetEnumerator() => new FreeStackEnumerator(this);
-        
-
+    
     #region Nested class
     private class FreeStackEnumerator : IEnumerator<T>
     {
         private readonly FreeStack<T> _freeStack;
-        private int _index;
+        private int _cursor;
         private T _current;
 
         public FreeStackEnumerator(FreeStack<T> freeStack)
         {
             _freeStack = freeStack;
-            _index = -1;
+            _cursor = -1;
             _current = default;
         }
 
@@ -65,15 +66,14 @@ public class FreeStack<T> : IEnumerable<T>
 
         public bool MoveNext()
         {
-            if (++_index >= _freeStack.Count)
+            if (++_cursor >= _freeStack.Count)
                 return false;
-            else
-                _current = _freeStack[_index];
 
+            _current = _freeStack[_cursor];
             return true;
         }
 
-        public void Reset() => _index = -1;
+        public void Reset() => _cursor = -1;
 
         public void Dispose() { }
     }

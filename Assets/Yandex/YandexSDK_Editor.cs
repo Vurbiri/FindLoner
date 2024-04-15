@@ -8,7 +8,7 @@ using UnityEngine;
 public partial class YandexSDK
 {
     [Space]
-    [SerializeField] private string _playerName = "Best in the Best";
+    [SerializeField] private string _playerName = "Best of the Best";
     [SerializeField] private bool _isDesktop = true;
     [SerializeField] private bool _isLogOn = true;
     [SerializeField, Dropdown("GetLangValues")] private string _lang = "ru";

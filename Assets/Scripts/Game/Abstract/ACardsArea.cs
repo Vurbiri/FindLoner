@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
+public abstract class ACardsArea<T> : MonoBehaviour where T : ACard<T>
 {
     [SerializeField] private T _prefabCard;
     [SerializeField] private Transform _repository;
@@ -13,14 +13,14 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     private readonly ShuffledArray<T> _cardsRandom = new(CAPACITY_LIST);
     private readonly Stack<T> _cardsRepository = new(CAPACITY_STACK);
 
-    protected int _sizeArea, _indexFunc;
+    protected int _sizeArea;
 
-    private Func<float, IEnumerator>[] _shows;
-    private Func<float, IEnumerator>[] _turnsOne;
+    private Func<float, Func<T, IEnumerator>, IEnumerator>[] _funcTraversing;
+    private int _indexFunc;
 
-    protected const int COUNT_FUNC = 8;
-    protected const int CAPACITY_LIST = 144;
-    protected const int CAPACITY_STACK = 140;
+    private const int COUNT_FUNC = 8;
+    private const int CAPACITY_LIST = 144;
+    private const int CAPACITY_STACK = 140;
 
     public T RandomCard => _cardsRandom.Next;
     public bool TryGetRandomCard(out T card) => _cardsRandom.TryGetNext(out card);
@@ -29,22 +29,16 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
     {
         _thisTransform = transform;
 
-        _shows = new Func<float, IEnumerator>[] { Show_FX_FY_Coroutine, Show_FX_BY_Coroutine, Show_BX_FY_Coroutine, Show_BX_BY_Coroutine,
-                                                  Show_FY_FX_Coroutine, Show_FY_BX_Coroutine, Show_BY_FX_Coroutine, Show_BY_BX_Coroutine};
-
-        _turnsOne = new Func<float, IEnumerator>[] { Turn_FX_FY_Coroutine, Turn_FX_BY_Coroutine, Turn_BX_FY_Coroutine, Turn_BX_BY_Coroutine,
-                                                     Turn_FY_FX_Coroutine, Turn_FY_BX_Coroutine, Turn_BY_FX_Coroutine, Turn_BY_BX_Coroutine};
+        _funcTraversing = new Func<float, Func<T, IEnumerator>, IEnumerator>[]
+            { Traversing_FX_FY_Coroutine, Traversing_FX_BY_Coroutine, Traversing_BX_FY_Coroutine, Traversing_BX_BY_Coroutine,
+              Traversing_FY_FX_Coroutine, Traversing_FY_BX_Coroutine, Traversing_BY_FX_Coroutine, Traversing_BY_BX_Coroutine};
     }
-    public void Shuffle()
-    {
-        _cardsRandom.Shuffle();
-    }
+    public void Shuffle() => _cardsRandom.Shuffle();
+    
+    public Coroutine ShowRandom(float delay) => StartCoroutine(_funcTraversing[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay, TurnToValue));
+    public Coroutine ShowRepeat(float delay) => StartCoroutine(_funcTraversing[_indexFunc](delay, TurnToValue));
+    private IEnumerator TurnToValue(T card) => card.Show_Coroutine();
 
-    public Coroutine ShowRandom(float delay) => StartCoroutine(_shows[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay));
-    public Coroutine TurnRandom(float delay) => StartCoroutine(_turnsOne[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay));
-
-    public Coroutine ShowRepeat(float delay) => StartCoroutine(_shows[_indexFunc](delay));
-    public Coroutine TurnRepeat(float delay) => StartCoroutine(_turnsOne[_indexFunc](delay));
 
     public void ForEach(Action<T> action)
     {
@@ -52,7 +46,7 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
             action(item);
     }
     
-    public void CreateCards(int size, Action<ACard> action)
+    public void CreateCards(int size, Action<T> action)
     {
         int countNew = size * size;
         if (_cardsActive.Count == countNew) 
@@ -86,229 +80,117 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
         _cardsActive.CopyToShuffledArray(_cardsRandom);
     }
 
-    #region Show
-    //1
-    private IEnumerator Show_FX_FY_Coroutine(float time)
-    {
-        Coroutine coroutine = null;
-        for (int x = 0; x < _sizeArea; x++)
-        {
-            for (int y = 0; y < _sizeArea; y++)
-            {
-                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
-                yield return new WaitForSeconds(time);
-            }
-        }
-        yield return coroutine;
-    }
-    //2
-    private IEnumerator Show_FX_BY_Coroutine(float time)
-    {
-        Coroutine coroutine = null;
-        for (int x = 0; x < _sizeArea; x++)
-        {
-            for (int y = _sizeArea - 1; y >= 0; y--)
-            {
-                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
-                yield return new WaitForSeconds(time);
-            }
-        }
-        yield return coroutine;
-    }
-    //3
-    private IEnumerator Show_BX_FY_Coroutine(float time)
-    {
-        Coroutine coroutine = null;
-        for (int x = _sizeArea - 1; x >= 0; x--)
-        {
-            for (int y = 0; y < _sizeArea; y++)
-            {
-                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
-                yield return new WaitForSeconds(time);
-            }
-        }
-        yield return coroutine;
-    }
-    //4
-    private IEnumerator Show_BX_BY_Coroutine(float time)
-    {
-        Coroutine coroutine = null;
-        for (int x = _sizeArea - 1; x >= 0; x--)
-        {
-            for (int y = _sizeArea - 1; y >= 0; y--)
-            {
-                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
-                yield return new WaitForSeconds(time);
-            }
-        }
-        yield return coroutine;
-    }
-    //5
-    private IEnumerator Show_FY_FX_Coroutine(float time)
-    {
-        Coroutine coroutine = null;
-        for (int y = 0; y < _sizeArea; y++)
-        {
-            for (int x = 0; x < _sizeArea; x++)
-            {
-                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
-                yield return new WaitForSeconds(time);
-            }
-        }
-        yield return coroutine;
-    }
-    //6
-    private IEnumerator Show_FY_BX_Coroutine(float time)
-    {
-        Coroutine coroutine = null;
-        for (int y = 0; y < _sizeArea; y++)
-        {
-            for (int x = _sizeArea - 1; x >= 0; x--)
-            {
-                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
-                yield return new WaitForSeconds(time);
-            }
-        }
-        yield return coroutine;
-    }
-    //7
-    private IEnumerator Show_BY_FX_Coroutine(float time)
-    {
-        Coroutine coroutine = null;
-        for (int y = _sizeArea - 1; y >= 0; y--)
-        {
-            for (int x = 0; x < _sizeArea; x++)
-            {
-                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
-                yield return new WaitForSeconds(time);
-            }
-        }
-        yield return coroutine;
-    }
-    //8
-    private IEnumerator Show_BY_BX_Coroutine(float time)
-    {
-        Coroutine coroutine = null;
-        for (int y = _sizeArea - 1; y >= 0; y--)
-        {
-            for (int x = _sizeArea - 1; x >= 0; x--)
-            {
-                coroutine = StartCoroutine(_cardsActive[x, y].Show_Coroutine());
-                yield return new WaitForSeconds(time);
-            }
-        }
-        yield return coroutine;
-    }
-    #endregion
+    #region Traversing
+    protected Coroutine TraversingRandom(float delay, Func<T, IEnumerator> funcCoroutine) => StartCoroutine(_funcTraversing[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay, funcCoroutine));
+    protected Coroutine TraversingRepeat(float delay, Func<T, IEnumerator> funcCoroutine) => StartCoroutine(_funcTraversing[_indexFunc](delay, funcCoroutine));
 
-    #region Turn
     //1
-    private IEnumerator Turn_FX_FY_Coroutine(float time)
+    private IEnumerator Traversing_FX_FY_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
         for (int x = 0; x < _sizeArea; x++)
         {
             for (int y = 0; y < _sizeArea; y++)
             {
-                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
                 yield return new WaitForSeconds(time);
             }
         }
         yield return coroutine;
     }
     //2
-    private IEnumerator Turn_FX_BY_Coroutine(float time)
+    private IEnumerator Traversing_FX_BY_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
         for (int x = 0; x < _sizeArea; x++)
         {
             for (int y = _sizeArea - 1; y >= 0; y--)
             {
-                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
                 yield return new WaitForSeconds(time);
             }
         }
         yield return coroutine;
     }
     //3
-    private IEnumerator Turn_BX_FY_Coroutine(float time)
+    private IEnumerator Traversing_BX_FY_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
         for (int x = _sizeArea - 1; x >= 0; x--)
         {
             for (int y = 0; y < _sizeArea; y++)
             {
-                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
                 yield return new WaitForSeconds(time);
             }
         }
         yield return coroutine;
     }
     //4
-    private IEnumerator Turn_BX_BY_Coroutine(float time)
+    private IEnumerator Traversing_BX_BY_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
         for (int x = _sizeArea - 1; x >= 0; x--)
         {
             for (int y = _sizeArea - 1; y >= 0; y--)
             {
-                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
                 yield return new WaitForSeconds(time);
             }
         }
         yield return coroutine;
     }
     //5
-    private IEnumerator Turn_FY_FX_Coroutine(float time)
+    private IEnumerator Traversing_FY_FX_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
         for (int y = 0; y < _sizeArea; y++)
         {
             for (int x = 0; x < _sizeArea; x++)
             {
-                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
                 yield return new WaitForSeconds(time);
             }
         }
         yield return coroutine;
     }
     //6
-    private IEnumerator Turn_FY_BX_Coroutine(float time)
+    private IEnumerator Traversing_FY_BX_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
         for (int y = 0; y < _sizeArea; y++)
         {
             for (int x = _sizeArea - 1; x >= 0; x--)
             {
-                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
                 yield return new WaitForSeconds(time);
             }
         }
         yield return coroutine;
     }
     //7
-    private IEnumerator Turn_BY_FX_Coroutine(float time)
+    private IEnumerator Traversing_BY_FX_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
         for (int y = _sizeArea - 1; y >= 0; y--)
         {
             for (int x = 0; x < _sizeArea; x++)
             {
-                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
                 yield return new WaitForSeconds(time);
             }
         }
         yield return coroutine;
     }
     //8
-    private IEnumerator Turn_BY_BX_Coroutine(float time)
+    private IEnumerator Traversing_BY_BX_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
         for (int y = _sizeArea - 1; y >= 0; y--)
         {
             for (int x = _sizeArea - 1; x >= 0; x--)
             {
-                coroutine = StartCoroutine(_cardsActive[x, y].Turn_Coroutine());
+                coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
                 yield return new WaitForSeconds(time);
             }
         }

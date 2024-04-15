@@ -10,7 +10,7 @@ public class GameLevel : MonoBehaviour
     [SerializeField] private Sprite[] _shapeSprites;
     [Space]
     [SerializeField] private float _timeShow = 1f;
-    [SerializeField] private float _delayTurn = 0.025f;
+    [SerializeField] private float _delayTurnPerAll = 2.5f;
     [Space]
     [SerializeField] private float _saturationMin = 0.275f;
     [SerializeField] private float _brightnessMin = 0.175f;
@@ -20,6 +20,7 @@ public class GameLevel : MonoBehaviour
     private Vector2 _sizeArea, _defaultSpacing;
 
     private int _size, _countShapes, _countTypes;
+    float _delayTurn;
     private bool _isMonochrome;
     private WaitForSeconds _waitShow;
 
@@ -50,6 +51,7 @@ public class GameLevel : MonoBehaviour
     {
         _size = size;
         _countShapes = size * size;
+        _delayTurn = _delayTurnPerAll / _countShapes;
         _countTypes = countTypes;
         _isMonochrome = isMonochrome;
 
@@ -91,7 +93,7 @@ public class GameLevel : MonoBehaviour
         EventStartRound?.Invoke();
     }
 
-    private void OnCardSelected(ACard card)
+    private void OnCardSelected(Card card)
     {
         int id = card.IdGroup;
         bool isContinue = id == 0;

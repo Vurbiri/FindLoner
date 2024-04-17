@@ -44,12 +44,13 @@ public class GameLevel : MonoBehaviour
         _spritesRandom = new(_shapeSprites);
     }
 
-    private void Start()
+    public void StartLevel()
     {
         int size = UnityEngine.Random.Range(2, 12);
         Setup(size, size, false);
-        StartCoroutine(StartRound_Coroutine(true));
     }
+
+    public void Play() => _cardsArea.ForEach((c) => c.IsInteractable = true);
 
     public void Setup(int size, int countTypes, bool isMonochrome)
     {
@@ -66,9 +67,8 @@ public class GameLevel : MonoBehaviour
         _groupsCard = new int[_countTypes];
 
         _cardsArea.CreateCards(size, OnCardSelected);
+        StartCoroutine(StartRound_Coroutine(true));
     }
-
-    public void Play() => _cardsArea.ForEach((c) => c.IsInteractable = true);
 
     private IEnumerator StartRound_Coroutine(bool isNew)
     {

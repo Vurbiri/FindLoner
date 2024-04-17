@@ -8,6 +8,7 @@ public abstract class ABonusLevel : MonoBehaviour
     protected TimeCardsArea _cardsArea;
 
     private int _attempts;
+    protected int _countShapes;
     protected float _delayOpen, _delayTurn;
 
     protected WaitForSeconds _waitShowEndLevel;
@@ -16,6 +17,7 @@ public abstract class ABonusLevel : MonoBehaviour
 
     public Action<int> EventSelectedCard;
     public event Action<int> EventChangedAttempts;
+    public event Action<int> EventChangedMaxAttempts;
     public Action EventEndLevel;
 
     public void Initialize(TimeCardsArea cardsArea, WaitForSeconds waitShowEndLevel)
@@ -24,10 +26,12 @@ public abstract class ABonusLevel : MonoBehaviour
         _waitShowEndLevel = waitShowEndLevel;
     }
 
-    public virtual void Setup(int size, int attempts, float delayOpen, float delayTurn)
+    public void Setup(int size, int attempts, float delayOpen, float delayTurn)
     {
         _delayOpen = delayOpen;
         _delayTurn = delayTurn;
+        _countShapes = size * size;
+        EventChangedMaxAttempts?.Invoke(attempts);
         Attempts = attempts;
         _cardsArea.CreateCards(size, OnCardSelected);
         _cardsArea.Shuffle();

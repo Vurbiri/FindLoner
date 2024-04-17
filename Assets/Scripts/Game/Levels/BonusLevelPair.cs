@@ -5,21 +5,14 @@ using UnityEngine;
 
 public class BonusLevelPair : ABonusLevel
 {
-    [SerializeField] private float _timeShowPair = 0.75f;
+    [SerializeField] private float _timeShowPair = 1.25f;
 
-    private int _countShapes;
     private TimeCard _cardSelect;
     private WaitForSeconds _waitShowPair;
 
     private void Awake()
     {
         _waitShowPair = new(_timeShowPair);
-    }
-
-    public override void Setup(int size, int attempts, float delayOpen, float delayTurn)
-    {
-        base.Setup(size, attempts, delayOpen, delayTurn);
-        _countShapes = size * size;
     }
 
     public IEnumerator StartRound_Coroutine(int size, float cellSize, Queue<BonusTime> values)
@@ -90,9 +83,10 @@ public class BonusLevelPair : ABonusLevel
         if (_cardSelect != null)
         {
             _cardsArea.ForEach((c) => c.InteractableOff());
-            Attempts--;
             isOne = false;
-            if (!(isClose = _cardSelect.Value != card.Value))
+            if (isClose = _cardSelect.Value != card.Value)
+                Attempts--;
+            else
                 EventSelectedCard?.Invoke(card.Value);
         }
         else
@@ -132,7 +126,8 @@ public class BonusLevelPair : ABonusLevel
             }
             else
             {
-                yield return _cardsArea.TurnToValueRandom(_delayTurn);
+                if (_countShapes > 0)
+                    yield return _cardsArea.TurnToValueRandom(_delayTurn);
                 yield return _waitShowEndLevel;
                 yield return _cardsArea.Turn90Random(_delayTurn / 2f);
 

@@ -2,15 +2,16 @@
   "Id": "1",
   "CodeISO639_1": "en",
 
-  "DBlocks": "Number Blocks",
+  "FindLoner": "Number Blocks",
 
   "Settings": "Settings",
   "Music": "Music",
   "SFX": "Sound",
-  "MaxDigit": "Max number",
-  "Score": "Score",
 
+  "Score": "Score",
   "MScore": "Best",
+  "Attempts": "Attempts",
+  "Time": "Time",
 
   "Stage": "Stage {0}",
 
@@ -25,8 +26,7 @@
   "Guest": "Guest",
   "Anonym": "Anonym",
 
-  "ToMenu": "To menu",
-  "Pause": "Pause",
+  "Menu": "Menu",
   "GameOver": "Game over",
 
   "Empty": "Empty",

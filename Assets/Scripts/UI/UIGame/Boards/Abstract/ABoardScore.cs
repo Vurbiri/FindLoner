@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public abstract class ABoard : MonoBehaviour
+public abstract class ABoardScore : MonoBehaviour
 {
     [SerializeField] protected TMP_Text _textScore;
 

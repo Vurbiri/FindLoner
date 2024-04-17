@@ -61,8 +61,8 @@ public class BonusLevelSingle : ABonusLevel
 
     protected override void OnCardSelected(TimeCard card)
     {
-        bool endLevel;
-        if(endLevel = --Attempts == 0)
+        bool continueLevel;
+        if(!(continueLevel = (card.Value > 0 || --Attempts > 0) && _countShapes > 0))
             _cardsArea.ForEach((c) => c.InteractableOff());
 
         EventSelectedCard?.Invoke(card.Value);
@@ -73,9 +73,10 @@ public class BonusLevelSingle : ABonusLevel
         {
             yield return StartCoroutine(card.CardSelected_Coroutine());
 
-            if (!endLevel) yield break;
+            if (continueLevel) yield break;
 
-            yield return _cardsArea.TurnToValueRandom(_delayTurn);
+            if (_countShapes > 0)
+                yield return _cardsArea.TurnToValueRandom(_delayTurn);
             yield return _waitShowEndLevel;
             yield return _cardsArea.Turn90Random(_delayTurn / 2f);
 

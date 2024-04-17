@@ -1,5 +1,5 @@
 
-public class ScoreBoard : ABoard
+public class ScoreBoard : ABoardScore
 {
     private void Start()
     {

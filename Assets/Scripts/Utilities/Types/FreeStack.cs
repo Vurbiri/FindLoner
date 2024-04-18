@@ -47,6 +47,7 @@ public class FreeStack<T> : IEnumerable<T>
     IEnumerator IEnumerable.GetEnumerator() => new FreeStackEnumerator(this);
     
     #region Nested class
+    //=====================================================
     private class FreeStackEnumerator : IEnumerator<T>
     {
         private readonly FreeStack<T> _freeStack;

@@ -3,20 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using URandom = UnityEngine.Random;
 
 [RequireComponent(typeof(BonusLevelSingle), typeof(BonusLevelPair))]
 [RequireComponent(typeof(TimeCardsArea), typeof(GridLayoutGroup))]
-public class BonusLevels : MonoBehaviour
+public class BonusLevels : MonoBehaviour, ILevelPlay
 {
-    [SerializeField] private float _saturationMin = 0.275f;
-    [SerializeField] private float _brightnessMin = 0.25f;
-    [Space]
     [SerializeField] private float _timeShowEndLevel = 1.75f;
     [Space]
-    [SerializeField] private float _delayOpenPerAll = 1.5f;
-    [SerializeField] private float _delayTurnPerAll = 2.5f;
+    [SerializeField] private float _timeOpenPerAll = 1.5f;
+    [SerializeField] private float _timeTurnPerAll = 2.5f;
+    [Space]
+    [SerializeField] private float _saturationMin = 0.275f;
+    [SerializeField] private float _brightnessMin = 0.25f;
 #if UNITY_EDITOR
+    [Space]
     [SerializeField] private BonusLevelTypes _type;
 #endif
 
@@ -24,13 +24,17 @@ public class BonusLevels : MonoBehaviour
     private BonusLevelPair _levelPair;
     private ABonusLevel _levelCurrent;
 
+    private int _time;
+
     private TimeCardsArea _cardsArea;
     private GridLayoutGroup _thisGrid;
     private Vector2 _sizeArea, _defaultSpacing;
 
-    public event Action<int> EventAddTime { add { _levelSingle.EventSelectedCard += value; _levelPair.EventSelectedCard += value; } remove { _levelSingle.EventSelectedCard -= value; _levelPair.EventSelectedCard -= value; } }
+    //public event Action<int> EventAddTime { add { _levelSingle.EventSelectedCard += value; _levelPair.EventSelectedCard += value; } remove { _levelSingle.EventSelectedCard -= value; _levelPair.EventSelectedCard -= value; } }
+    public event Action<int> EventSetMaxAttempts;
+    public event Action<int> EventSetTime;
+    public event Action<int> EventAddTime;
     public event Action<int> EventChangedAttempts { add { _levelSingle.EventChangedAttempts += value; _levelPair.EventChangedAttempts += value; } remove { _levelSingle.EventChangedAttempts -= value; _levelPair.EventChangedAttempts -= value; }}
-    public event Action<int> EventChangedMaxAttempts { add { _levelSingle.EventChangedMaxAttempts += value; _levelPair.EventChangedMaxAttempts += value; } remove { _levelSingle.EventChangedMaxAttempts -= value; _levelPair.EventChangedMaxAttempts -= value; } }
     public event Action EventEndLevel { add { _levelSingle.EventEndLevel += value; _levelPair.EventEndLevel += value; } remove { _levelSingle.EventEndLevel -= value; _levelPair.EventEndLevel -= value; } }
     
 
@@ -39,15 +43,15 @@ public class BonusLevels : MonoBehaviour
     {
         if (_type == BonusLevelTypes.Single)
         {
-            StartCoroutine(StartSingle_Coroutine(6, new(5, 2, 12), 3, false, 1));
+            StartCoroutine(StartSingle_Coroutine(new(6, 3, false, new(5, 2, 12), 60000, 3)));
             _levelSingle.EventSelectedCard += (t) => Debug.Log("+" + t);
-            _levelSingle.EventEndLevel += () => StartCoroutine(StartSingle_Coroutine(URandom.Range(4, 12), new(0, 3, 4), 3, URandom.Range(0, 100) < 50, URandom.Range(0, 2)));
+            _levelSingle.EventEndLevel += () => StartCoroutine(StartSingle_Coroutine(new(BonusLevelTypes.Single)));
         }
         else
         {
-            StartCoroutine(StartPair_Coroutine(5, new(1, 1, 5 * 2), 10, false));
+            StartCoroutine(StartPair_Coroutine(new(5, 10, false, new(1, 1, 5 * 2), 60000)));
             _levelPair.EventSelectedCard += (t) => Debug.Log("+" + t);
-            _levelPair.EventEndLevel += () => { int i = URandom.Range(4, 8); StartCoroutine(StartPair_Coroutine(i, new(1, 1, i * 4), i * 2, URandom.Range(0, 100) < 50)); };
+            _levelPair.EventEndLevel += () => StartCoroutine(StartPair_Coroutine(new(BonusLevelTypes.Pair)));
         }
     }
 #endif
@@ -64,32 +68,47 @@ public class BonusLevels : MonoBehaviour
         _levelSingle = GetComponent<BonusLevelSingle>();
         _levelPair = GetComponent<BonusLevelPair>();
 
+        _levelSingle.EventSelectedCard += AddTime;
+        _levelPair.EventSelectedCard += AddTime;
+
         _levelSingle.Initialize(_cardsArea, waitShowEndLevel);
         _levelPair.Initialize(_cardsArea, waitShowEndLevel);
+
+        void AddTime(int time)
+        {
+            _time += time;
+            EventAddTime?.Invoke(_time);
+        }
     }
 
     public void Play() => _levelCurrent.Play();
 
-    public IEnumerator StartSingle_Coroutine(int size, Increment range, int attempts, bool isMonochrome, int countShuffle)
+    public IEnumerator StartSingle_Coroutine(BonusLevelSetupData data)
     {
-        _levelCurrent = _levelSingle;
+        Setup(_levelSingle, data.Count, data.Time);
 
-        int countShapes = size * size;
-        float cellSize = GridSetup(size);
+        float cellSize = GridSetup(data.Size);
 
-        _levelSingle.Setup(size, attempts, _delayOpenPerAll / countShapes, _delayTurnPerAll / countShapes);
-        return _levelSingle.StartRound_Coroutine(size, cellSize, GetBonusTime(range, isMonochrome), countShuffle);
+        _levelSingle.Setup(data, _timeOpenPerAll / data.CountShapes, _timeTurnPerAll / data.CountShapes);
+        return _levelSingle.StartRound_Coroutine(data.Size, cellSize, GetBonusTime(data.Range, data.IsMonochrome), data.CountShuffle);
     }
 
-    public IEnumerator StartPair_Coroutine(int size, Increment range, int attempts, bool isMonochrome)
+    public IEnumerator StartPair_Coroutine(BonusLevelSetupData data)
     {
-        _levelCurrent = _levelPair;
+        Setup(_levelPair, data.Count, data.Time);
 
-        int countShapes = size * size;
-        float cellSize = GridSetup(size);
+        float cellSize = GridSetup(data.Size);
         
-        _levelPair.Setup(size, attempts, _delayOpenPerAll / countShapes, _delayTurnPerAll / countShapes);
-        return _levelPair.StartRound_Coroutine(size, cellSize, GetBonusTime(range, isMonochrome));
+        _levelPair.Setup(data, _timeOpenPerAll / data.CountShapes, _timeTurnPerAll / data.CountShapes);
+        return _levelPair.StartRound_Coroutine(data.Size, cellSize, GetBonusTime(data.Range, data.IsMonochrome));
+    }
+
+    private void Setup(ABonusLevel level,  int attempts, int time)
+    {
+        _levelCurrent = level;
+        _time = time;
+        EventSetMaxAttempts?.Invoke(attempts);
+        EventSetTime.Invoke(time);
     }
 
     private float GridSetup(int size)

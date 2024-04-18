@@ -5,14 +5,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CardsArea), typeof(GridLayoutGroup))]
-public class GameLevel : MonoBehaviour
+public class GameLevel : MonoBehaviour, ILevelPlay
 {
     [SerializeField] private Sprite[] _shapeSprites;
     [Space]
     [SerializeField] private float _timeShow = 1f;
     [SerializeField] private float _timeShowGameOver = 2.5f;
     [Space]
-    [SerializeField] private float _delayTurnPerAll = 2.5f;
+    [SerializeField] private float _timeTurnPerAll = 2.5f;
     [Space]
     [SerializeField] private float _saturationMin = 0.275f;
     [SerializeField] private float _brightnessMin = 0.175f;
@@ -21,14 +21,13 @@ public class GameLevel : MonoBehaviour
     private GridLayoutGroup _thisGrid;
     private Vector2 _sizeArea, _defaultSpacing;
 
-    private int _size, _countShapes, _countTypes;
+    private GameLevelSetupData _data;
     float _delayTurn;
-    private bool _isMonochrome;
     private WaitForSeconds _waitShow, _waitShowGameOver;
 
     private ShuffledArray<Sprite> _spritesRandom;
-    private int[] _groupsCard;
 
+    public event Action EventStartLevel;
     public event Action EventStartRound;
     public event Action<bool> EventEndRound;
     public event Action<bool> EventEndLevel;
@@ -46,63 +45,105 @@ public class GameLevel : MonoBehaviour
 
     public void StartLevel()
     {
-        int size = UnityEngine.Random.Range(2, 12);
-        Setup(size, size, false);
+        Setup(new());
+        StartCoroutine(StartRound_Coroutine(true));
     }
 
-    public void Play() => _cardsArea.ForEach((c) => c.IsInteractable = true);
-
-    public void Setup(int size, int countTypes, bool isMonochrome)
+    public void Play()
     {
-        _size = size;
-        _countShapes = size * size;
-        _delayTurn = _delayTurnPerAll / _countShapes;
-        _countTypes = countTypes;
-        _isMonochrome = isMonochrome;
+        _cardsArea.ForEach((c) => c.IsInteractable = true);
+        EventStartRound?.Invoke();
+    }
+
+    public void Setup(GameLevelSetupData data)
+    {
+        _data = data;
+        _delayTurn = _timeTurnPerAll / data.CountShapes;
+        int size = data.Size;
 
         _thisGrid.constraintCount = size;
         _thisGrid.cellSize = _sizeArea / size;
         _thisGrid.spacing = _defaultSpacing / (size - 1);
 
-        _groupsCard = new int[_countTypes];
-
         _cardsArea.CreateCards(size, OnCardSelected);
-        StartCoroutine(StartRound_Coroutine(true));
+        //StartCoroutine(StartRound_Coroutine(true));
     }
 
     private IEnumerator StartRound_Coroutine(bool isNew)
     {
-        WaitAll waitAll = new(this);
-        
-        CreateGroupsCard();
+        int[] groupsCard = CreateGroupsCard();
         _cardsArea.Shuffle();
-
         Stack<Shape> shapes = GetShapes();
-        Shape shape; Card card;
         Vector3 axis = Direction2D.Random;
-        
-        for (int i = 0; i < _groupsCard.Length; i++)
+        Shape shape; Card card;
+
+        for (int i = 0; i < groupsCard.Length; i++)
         {
             shape = shapes.Pop();
 
-            for (int j = 0; j < _groupsCard[i]; j++)
+            for (int j = 0; j < groupsCard[i]; j++)
             {
                 card = _cardsArea.RandomCard;
                 if (isNew)
-                    card.Setup(shape, _size, axis, i);
+                    card.Setup(shape, _data.Size, axis, i);
                 else
                     card.ReSetup(shape, axis, i);
             }
         }
 
         if (isNew)
+        {
             yield return _cardsArea.Turn90Random(_delayTurn);
+            Play(); //========= убрать потом
+        }
         else
+        {
             yield return _cardsArea.TurnRandom(_delayTurn);
+            Play();
+        }
 
-        Play(); //========= убрать потом
+        #region Local functions
+        //==============================================================
+        int[] CreateGroupsCard()
+        {
+            int[] groups = new int[_data.Count];
+            int currentCount = _data.CountShapes - 1, countTypes = _data.Count - 1,
+                avgSizeGroup = currentCount / countTypes,
+                delta = avgSizeGroup - 2, add = 0, count;
 
-        EventStartRound?.Invoke();
+            groups[0] = 1;
+            for (int i = 1; i < countTypes; i++)
+            {
+                if (delta > 0)
+                    add = add == 0 ? UnityEngine.Random.Range(-delta, delta + 1) : -add;
+
+                count = avgSizeGroup + add;
+                groups[i] = count;
+                currentCount -= count;
+            }
+            groups[countTypes] = currentCount;
+            
+            return groups;
+        }
+        //-----
+        Stack<Shape> GetShapes()
+        {
+            _spritesRandom.Shuffle();
+            Stack<Shape> shs = new(_data.Count);
+            Shape sh;
+            Color color = Color.white; color.Randomize(_saturationMin, _brightnessMin);
+
+            for (int i = 0; i < _data.Count; i++)
+            {
+                sh = new(_spritesRandom.Next, color);
+                if (!_data.IsMonochrome)
+                    sh.SetUniqueColor(shs, _saturationMin, _brightnessMin);
+                shs.Push(sh);
+            }
+
+            return shs;
+        }
+        #endregion
     }
 
     private void OnCardSelected(Card card)
@@ -131,46 +172,9 @@ public class GameLevel : MonoBehaviour
             EventEndLevel?.Invoke(false);
 
             int size = UnityEngine.Random.Range(2, 12);
-            Setup(size, size, false);
+            Setup(new());
             StartCoroutine(StartRound_Coroutine(true));
         }
         #endregion
-    }
-
-    private void CreateGroupsCard()
-    {
-        int currentCount = _countShapes - 1, countTypes = _countTypes - 1,
-            avgSizeGroup = currentCount / countTypes,
-            delta = avgSizeGroup - 2, add = 0, count;
-
-        _groupsCard[0] = 1;
-        for (int i = 1;  i < countTypes; i++) 
-        {
-            if (delta > 0)
-                add = add == 0 ? UnityEngine.Random.Range(-delta, delta + 1) : -add;
-
-            count = avgSizeGroup + add;
-            _groupsCard[i] = count;
-            currentCount -= count;
-        }
-        _groupsCard[countTypes] = currentCount;
-    }
-
-    private Stack<Shape> GetShapes() 
-    {
-        _spritesRandom.Shuffle();
-        Stack<Shape> shapes = new(_countTypes);
-        Shape shape;
-        Color color = Color.white; color.Randomize(_saturationMin, _brightnessMin);
-
-        for (int i = 0; i < _countTypes; i++)
-        {
-            shape = new(_spritesRandom.Next, color);
-            if (!_isMonochrome)
-                shape.SetUniqueColor(shapes, _saturationMin, _brightnessMin);
-            shapes.Push(shape);
-        }
-
-        return shapes;
     }
 }

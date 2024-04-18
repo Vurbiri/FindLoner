@@ -87,7 +87,7 @@ public class BonusLevelPair : ABonusLevel
             if (isClose = _cardSelect.Value != card.Value)
                 Attempts--;
             else
-                EventSelectedCard?.Invoke(card.Value);
+                EventSelectedCard?.Invoke(card.Value * 2000);
         }
         else
         {

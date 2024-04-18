@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class BonusLevelSingle : ABonusLevel
 {
     [SerializeField] private float _timeShuffle = 1.5f;
@@ -65,7 +64,7 @@ public class BonusLevelSingle : ABonusLevel
         if(!(continueLevel = (card.Value > 0 || --Attempts > 0) && _countShapes > 0))
             _cardsArea.ForEach((c) => c.InteractableOff());
 
-        EventSelectedCard?.Invoke(card.Value);
+        EventSelectedCard?.Invoke(card.Value * 1000);
         StartCoroutine(CardSelected_Coroutine());
 
         #region Local functions

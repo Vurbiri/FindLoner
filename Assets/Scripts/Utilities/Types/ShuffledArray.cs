@@ -45,14 +45,14 @@ public class ShuffledArray<T>
 
     public bool TryGetNext(out T value)
     {
-        if (_cursor == _count)
+        if (_cursor < _count)
         {
-            value = default;
-            return false;
+            value = _array[_cursor++];
+            return true;
         }
 
-        value = _array[_cursor++];
-        return true;
+        value = default;
+        return false;
     }
 
 

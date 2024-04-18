@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public abstract class ABonusLevel : MonoBehaviour
+public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
 {
     [SerializeField] protected float _ratioTimeShow = 0.5f;
 
@@ -17,7 +17,6 @@ public abstract class ABonusLevel : MonoBehaviour
 
     public Action<int> EventSelectedCard;
     public event Action<int> EventChangedAttempts;
-    public event Action<int> EventChangedMaxAttempts;
     public Action EventEndLevel;
 
     public void Initialize(TimeCardsArea cardsArea, WaitForSeconds waitShowEndLevel)
@@ -26,14 +25,13 @@ public abstract class ABonusLevel : MonoBehaviour
         _waitShowEndLevel = waitShowEndLevel;
     }
 
-    public void Setup(int size, int attempts, float delayOpen, float delayTurn)
+    public void Setup(GameLevelSetupData data, float delayOpen, float delayTurn)
     {
         _delayOpen = delayOpen;
         _delayTurn = delayTurn;
-        _countShapes = size * size;
-        EventChangedMaxAttempts?.Invoke(attempts);
-        Attempts = attempts;
-        _cardsArea.CreateCards(size, OnCardSelected);
+        _countShapes = data.CountShapes;
+        Attempts = data.Count;
+        _cardsArea.CreateCards(data.Size, OnCardSelected);
         _cardsArea.Shuffle();
     }
 

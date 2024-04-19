@@ -8,9 +8,6 @@ public class ProgressBar : MonoBehaviour
     [SerializeField] private RectTransform _fill;
     [Space]
     [SerializeField, Dropdown("GetAxisValues")] private int _axe = 1;
-    [SerializeField] private float _maxValue = 10f;
-    [SerializeField, Range(0f, 1f)] private float _progress = 0.5f;
-    [Space]
     [SerializeField] private float _speedChangeValue = 0.6f;
     [Space]
     [SerializeField] private Color _colorNormal = Color.green;
@@ -19,7 +16,8 @@ public class ProgressBar : MonoBehaviour
     [Space]
     [SerializeField] private float _valueWarning = 0.7f;
     [SerializeField] private float _valueDanger = 0.35f;
-    
+
+    private float _maxValue = 10f, _progress = 0f;
     private Graphic _imageFill;
     private Vector2 _anchorMin = Vector2.zero, _anchorMax = Vector2.one;
     private Coroutine _coroutine;
@@ -29,7 +27,11 @@ public class ProgressBar : MonoBehaviour
         set
         {
             _maxValue = value <= 0 ? 0.01f : value;
-            SetProgress(0f);
+            if (_coroutine != null)
+                StopCoroutine(_coroutine);
+
+            _progress = 0f;
+            _coroutine = StartCoroutine(SetProgress_Coroutine(1f));
         }
     }
 
@@ -38,7 +40,10 @@ public class ProgressBar : MonoBehaviour
         set 
         {
             if (_coroutine != null)
+            {
                 StopCoroutine(_coroutine);
+                _coroutine = null;
+            }
 
             SetProgress(Mathf.Clamp01(value / _maxValue));
         } 
@@ -52,22 +57,6 @@ public class ProgressBar : MonoBehaviour
                 StopCoroutine(_coroutine);
 
             _coroutine = StartCoroutine(SetProgress_Coroutine(Mathf.Clamp01(value / _maxValue)));
-
-            #region Local function
-            //=========================================================
-            IEnumerator SetProgress_Coroutine(float progressNew)
-            {
-                bool isUp = (progressNew - _progress) >= 0f;
-                float sign = isUp ? 1f : -1f;
-                while (_progress * sign < progressNew * sign)
-                {
-                    yield return null;
-                    SetProgress(_progress + _speedChangeValue * sign * Time.deltaTime, isUp);
-                }
-                SetProgress(progressNew);
-                _coroutine = null;
-            }
-            #endregion
         }
     }
 
@@ -75,12 +64,14 @@ public class ProgressBar : MonoBehaviour
     {
         _imageFill = _fill.GetComponent<Graphic>();
 
-        SetProgress(_progress);
+        SetProgress(0f);
     }
 
     private void SetProgress(float progressNew, bool staticColor = false)
     {
         _progress = progressNew;
+
+        //Canvas.ForceUpdateCanvases();
 
         // Set anchor
         _anchorMin[_axe] = 0.5f - progressNew * 0.5f;
@@ -102,6 +93,19 @@ public class ProgressBar : MonoBehaviour
             _imageFill.color = _colorWarning;
         else
             _imageFill.color = _colorDanger;
+    }
+
+    private IEnumerator SetProgress_Coroutine(float progressNew)
+    {
+        bool isUp = (progressNew - _progress) >= 0f;
+        float sign = isUp ? 1f : -1f;
+        while (_progress * sign < progressNew * sign)
+        {
+            yield return null;
+            SetProgress(_progress + _speedChangeValue * sign * Time.deltaTime, isUp);
+        }
+        SetProgress(progressNew);
+        _coroutine = null;
     }
 
 #if UNITY_EDITOR

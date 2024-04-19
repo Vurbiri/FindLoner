@@ -15,27 +15,31 @@ public class Card : ACard<Card>
     public int IdGroup => _idGroup;
     private int _idGroup;
 
+    private bool _isCheats;
+
     public bool IsInteractable { set => _isInteractable = value; }
 
-    public void Setup(Shape shape, int size, Vector3 axis, int idGroup)
+    public void Setup(Shape shape, int size, Vector3 axis, int idGroup, bool isCheats)
     {
         _isInteractable = false;
 
+        isCheats = isCheats && idGroup == 0;
         _idGroup = idGroup;
         _axis = axis;
 
         _cardShape.SetShape(shape);
         SetBackgroundPixelSize(size);
-        _cardBackground.SetColorBorder(_colorBorderNormal);
+        _cardBackground.SetColorBorder(isCheats ? Color.white : _colorBorderNormal);
 
         _cardShape.ResetAngle();
         _cardBackground.Set90Angle(axis);
     }
 
-    public void ReSetup(Shape shape, Vector3 axis, int idGroup)
+    public void ReSetup(Shape shape, Vector3 axis, int idGroup, bool isCheats)
     {
         _isInteractable = false;
 
+        _isCheats = isCheats && idGroup == 0;
         _idGroup = idGroup;
         _axis = axis;
         _shape = shape;
@@ -48,7 +52,7 @@ public class Card : ACard<Card>
 
         _cardShape.SetShape(_shape);
         _cardShape.Mirror(_axis);
-        _cardBackground.SetColorBorder(_colorBorderNormal);
+        _cardBackground.SetColorBorder(_isCheats ? Color.white : _colorBorderNormal);
 
         yield return null;
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));

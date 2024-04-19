@@ -7,18 +7,27 @@ public class DataGame : ASingleton<DataGame>
 {
     [Space]
     [SerializeField] private string _keySave = "gmd_test";
+    [Space]
+    [SerializeField] private float _timeStart = 24;
+    [SerializeField] private float _timePerLevel = 1;
+    [Space]
+    [SerializeField] private int _scoreStart = 8;
+    [SerializeField] private int _scorePerLevel = 2;
 
     private GameSave _data;
     private bool _isNewRecord = false;
 
     public bool IsNewGame => _data.modeStart == GameModeStart.New; 
     public bool IsRecord => _data.score > _data.maxScore;
-    public long Score { get => _data.score; private set { _data.score = value; EventChangeScore?.Invoke(value); } }
-    public long MaxScore { get => _data.maxScore; private set { _data.maxScore = value; EventChangeMaxScore?.Invoke(value.ToString()); } }
+    public int Level { get => _data.level; set => _data.level = value; }
+    public int Score { get => _data.score; private set { _data.score = value; EventChangeScore?.Invoke(value); } }
+    public int MaxScore { get => _data.maxScore; private set { _data.maxScore = value; EventChangeMaxScore?.Invoke(value); } }
+    public float StartTime => _timeStart + _timePerLevel * _data.level;
+    public float Time { get => _data.time; set => _data.time = value; }
 
 
-    public event Action<long> EventChangeScore;
-    public event Action<string> EventChangeMaxScore;
+    public event Action<int> EventChangeScore;
+    public event Action<int> EventChangeMaxScore;
     public event Action EventNewRecord;
 
     public bool Initialize(bool isLoad)
@@ -28,7 +37,7 @@ public class DataGame : ASingleton<DataGame>
         if (!result)
             _data = new();
 
-        _isNewRecord = IsRecord; ;
+        _isNewRecord = IsRecord;
 
         return result;
     }
@@ -54,16 +63,16 @@ public class DataGame : ASingleton<DataGame>
         if(IsRecord)
             MaxScore = Score;
 
-        _data.modeStart = GameModeStart.New;
-        _data.score = 0;
+        _data.Reset();
+        _data.time = _timeStart + _timePerLevel;
         _isNewRecord = false;
     }
 
     public void ResetScoreEvent() => EventChangeScore?.Invoke(0);
 
-    public void ScoreForAdd(int value)
+    public void ScoreAdd()
     {
-        Score += value;
+        Score += _scoreStart + _scorePerLevel * _data.level;
 
         if (!_isNewRecord && IsRecord && _data.maxScore > 0)
         {
@@ -77,23 +86,36 @@ public class DataGame : ASingleton<DataGame>
     {
         [JsonProperty("gms")]
         public GameModeStart modeStart = GameModeStart.New;
+        [JsonProperty("lvl")]
+        public int level = 1;
         [JsonProperty("scr")]
-        public long score = 0;
+        public int score = 0;
         [JsonProperty("msc")]
-        public long maxScore = 0;
-               
+        public int maxScore = 0;
+        [JsonProperty("tme")]
+        public float time = 0;
+
         [JsonConstructor]
-        public GameSave(GameModeStart modeStart,  long score, long maxScore) 
+        public GameSave(GameModeStart modeStart, int level, int score, int maxScore, float time) 
         {
             this.modeStart = modeStart;
+            this.level = level;
             this.score = score;
             this.maxScore = maxScore;
+            this.time = time;
         }
         public GameSave()
         {
-            modeStart = GameModeStart.New;
-            score = 0;
+            Reset();
             maxScore = 0;
+        }
+
+        public void Reset()
+        {
+            modeStart = GameModeStart.New;
+            level = 1;
+            score = 0;
+            time = 0;
         }
     }
     #endregion

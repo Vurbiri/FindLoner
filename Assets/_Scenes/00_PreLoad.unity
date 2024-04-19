@@ -475,6 +475,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isNotDestroying: 1
   _keySave: gmd_test
+  _timeStart: 24
+  _timePerLevel: 1
+  _scoreStart: 8
+  _scorePerLevel: 2
 --- !u!4 &523976399
 Transform:
   m_ObjectHideFlags: 0
@@ -955,12 +959,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1001 &1378848305
 PrefabInstance:
   m_ObjectHideFlags: 0

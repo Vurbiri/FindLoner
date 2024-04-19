@@ -53,9 +53,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _fill: {fileID: 2447255230046229456}
   _axe: 1
-  _maxValue: 10
-  _progress: 0
-  _speedChangeValue: 0.6
+  _speedChangeValue: 0.5
   _colorNormal: {r: 0.29803923, g: 0.6901961, b: 0.3137255, a: 1}
   _colorWarning: {r: 1, g: 0.9254902, b: 0.22745098, a: 1}
   _colorDanger: {r: 0.9607843, g: 0.2627451, b: 0.21568628, a: 1}

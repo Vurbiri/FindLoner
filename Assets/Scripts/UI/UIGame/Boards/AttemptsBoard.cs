@@ -1,16 +1,21 @@
-using TMPro;
 using UnityEngine;
 
-public class AttemptsBoard : MonoBehaviour
+public class AttemptsBoard : ABoard
 {
-    [SerializeField] private BonusLevels _bonusLevels;
     [Space]
-    [SerializeField] private TMP_Text _attempts;
+    [SerializeField] private BonusLevels _bonusLevels;
 
     private void Awake()
     {
-        _attempts.text = "0";
-        _bonusLevels.EventChangedAttempts += (v) => _attempts.text = v.ToString();
-        _bonusLevels.EventEndLevel += () => _attempts.text = "0";
+        Clear();
+
+        _bonusLevels.EventSetMaxAttempts += SetMaxValue;
+        _bonusLevels.EventChangedAttempts += SetValue;
+        _bonusLevels.EventEndLevel += _ => ClearSmoothForMaxValue();
     }
+
+    protected override void TextDefault() => _textBoard.text = "0";
+    protected override void ToText(int value) => _textBoard.text = value.ToString();
+
+
 }

@@ -1,16 +1,10 @@
-using TMPro;
-using UnityEngine;
-
-public abstract class ABoardScore : MonoBehaviour
+public abstract class ABoardScore : ABoard
 {
-    [SerializeField] protected TMP_Text _textScore;
-
-    public string Value => _textScore.text;
-
     protected DataGame _dataGame;
 
     protected virtual void Awake() => _dataGame = DataGame.InstanceF;
 
-    protected void SetText(string value) => _textScore.text = value;
-    
+    protected override void TextDefault() => _textBoard.text = "0";
+    protected override void ToText(int value) => _textBoard.text = value.ToString();
+
 }

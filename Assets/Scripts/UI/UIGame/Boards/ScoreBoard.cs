@@ -3,15 +3,14 @@ public class ScoreBoard : ABoardScore
 {
     private void Start()
     {
-        SetText(_dataGame.Score.ToString());
-        _dataGame.EventChangeScore += SetValue;
+        SetSmoothValue(_dataGame.Score);
+        _dataGame.EventChangeScore += SetSmoothValue;
     }
 
     private void OnDestroy()
     {
         if (DataGame.Instance != null)
-            _dataGame.EventChangeScore -= SetValue;
+            _dataGame.EventChangeScore -= SetSmoothValue;
     }
 
-    private void SetValue(long value) => SetText(value.ToString());
 }

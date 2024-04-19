@@ -5,25 +5,29 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CardsArea), typeof(GridLayoutGroup))]
-public class GameLevel : MonoBehaviour, ILevelPlay
+public class GameLevel : MonoBehaviour
 {
     [SerializeField] private Sprite[] _shapeSprites;
     [Space]
-    [SerializeField] private float _timeShow = 1f;
-    [SerializeField] private float _timeShowGameOver = 2.5f;
+    [SerializeField] private float _timeShowEndRound = 1f;
+    [SerializeField] private float _timeShowEndLevel = 2.5f;
     [Space]
     [SerializeField] private float _timeTurnPerAll = 2.5f;
     [Space]
     [SerializeField] private float _saturationMin = 0.275f;
     [SerializeField] private float _brightnessMin = 0.175f;
+    [Space]
+    [SerializeField] private bool _isCheats = true;
 
     private CardsArea _cardsArea;
     private GridLayoutGroup _thisGrid;
     private Vector2 _sizeArea, _defaultSpacing;
+    private bool _isFind = false;
 
-    private GameLevelSetupData _data;
+    private LevelSetupData _data;
     float _delayTurn;
-    private WaitForSeconds _waitShow, _waitShowGameOver;
+    private WaitForSeconds _waitShowEndRound, _waitShowEndLevel;
+    private Coroutine _coroutineNextRound, _coroutineEndLevel;
 
     private ShuffledArray<Sprite> _spritesRandom;
 
@@ -38,24 +42,12 @@ public class GameLevel : MonoBehaviour, ILevelPlay
         _thisGrid = GetComponent<GridLayoutGroup>();
         _defaultSpacing = _thisGrid.spacing;
         _sizeArea = GetComponent<RectTransform>().rect.size - _defaultSpacing * 2;
-        _waitShow = new(_timeShow);
-        _waitShowGameOver = new(_timeShowGameOver);
+        _waitShowEndRound = new(_timeShowEndRound);
+        _waitShowEndLevel = new(_timeShowEndLevel);
         _spritesRandom = new(_shapeSprites);
     }
-
-    public void StartLevel()
-    {
-        Setup(new());
-        StartCoroutine(StartRound_Coroutine(true));
-    }
-
-    public void Play()
-    {
-        _cardsArea.ForEach((c) => c.IsInteractable = true);
-        EventStartRound?.Invoke();
-    }
-
-    public void Setup(GameLevelSetupData data)
+    
+    public IEnumerator StartLevel_Coroutine(LevelSetupData data)
     {
         _data = data;
         _delayTurn = _timeTurnPerAll / data.CountShapes;
@@ -65,8 +57,24 @@ public class GameLevel : MonoBehaviour, ILevelPlay
         _thisGrid.cellSize = _sizeArea / size;
         _thisGrid.spacing = _defaultSpacing / (size - 1);
 
+        _isFind = false;
+        EventStartLevel?.Invoke();
+
         _cardsArea.CreateCards(size, OnCardSelected);
-        //StartCoroutine(StartRound_Coroutine(true));
+        return StartRound_Coroutine(true);
+    }
+
+    public void Run()
+    {
+        _cardsArea.ForEach((c) => c.IsInteractable = true);
+        EventStartRound?.Invoke();
+    }
+
+    public void Stop()
+    {
+        _cardsArea.ForEach((c) => c.CheckCroup(0));
+        if(_coroutineEndLevel == null)
+            StartCoroutine(EndLevel_Coroutine(!_isFind));
     }
 
     private IEnumerator StartRound_Coroutine(bool isNew)
@@ -85,21 +93,20 @@ public class GameLevel : MonoBehaviour, ILevelPlay
             {
                 card = _cardsArea.RandomCard;
                 if (isNew)
-                    card.Setup(shape, _data.Size, axis, i);
+                    card.Setup(shape, _data.Size, axis, i, _isCheats);
                 else
-                    card.ReSetup(shape, axis, i);
+                    card.ReSetup(shape, axis, i, _isCheats);
             }
         }
 
         if (isNew)
         {
             yield return _cardsArea.Turn90Random(_delayTurn);
-            Play(); //========= убрать потом
         }
         else
         {
             yield return _cardsArea.TurnRandom(_delayTurn);
-            Play();
+            Run();
         }
 
         #region Local functions
@@ -155,26 +162,32 @@ public class GameLevel : MonoBehaviour, ILevelPlay
         _cardsArea.ForEach((c) => c.CheckCroup(id));
 
         if (isContinue)
-            StartCoroutine(NextRound_Coroutine());
+            _coroutineNextRound = StartCoroutine(NextRound_Coroutine());
         else
-            StartCoroutine(NewRound_Coroutine());
+            _coroutineEndLevel = StartCoroutine(EndLevel_Coroutine(true));
 
         #region Local function
         IEnumerator NextRound_Coroutine()
         {
-            yield return _waitShow;
-            StartCoroutine(StartRound_Coroutine(false));
-        }
-        IEnumerator NewRound_Coroutine()
-        {
-            yield return _waitShowGameOver;
-            yield return _cardsArea.Turn90Random(_delayTurn / 2f);
-            EventEndLevel?.Invoke(false);
-
-            int size = UnityEngine.Random.Range(2, 12);
-            Setup(new());
-            StartCoroutine(StartRound_Coroutine(true));
+            _isFind = true;
+            yield return _waitShowEndRound;
+            yield return StartCoroutine(StartRound_Coroutine(false));
+            _coroutineNextRound = null;
         }
         #endregion
     }
+
+    private IEnumerator EndLevel_Coroutine(bool isGameOver)
+    {
+        Debug.Log(_coroutineNextRound);
+        yield return _coroutineNextRound;
+        yield return _waitShowEndLevel;
+        yield return _cardsArea.Turn90Random(_delayTurn / 2f);
+        _coroutineEndLevel = null;
+
+        EventEndLevel?.Invoke(isGameOver);
+        gameObject.SetActive(false);
+    }
+
+    public void SetActive(bool active) => gameObject.SetActive(active);
 }

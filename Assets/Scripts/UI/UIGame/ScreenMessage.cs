@@ -36,14 +36,14 @@ public class ScreenMessage : MonoBehaviour
 
         _dataGame.EventNewRecord += OnNewRecord;
 
-        #region Local Function
-        void OnGameOver()
-        {
-            _queueCoroutines.StopAndClear();
-            _gameOver.Send();
-            gameObject.SetActive(true);
-        }
-        #endregion
+        //#region Local Function
+        //void OnGameOver()
+        //{
+        //    _queueCoroutines.StopAndClear();
+        //    _gameOver.Send();
+        //    gameObject.SetActive(true);
+        //}
+        //#endregion
     }
 
     private void OnNewRecord()
@@ -81,6 +81,7 @@ public class ScreenMessage : MonoBehaviour
         [SerializeField] private string _key = string.Empty;
         [SerializeField] private string _textAdd = string.Empty;
         [SerializeField] private Color _color = Color.white;
+        [SerializeField] private float _fontSize = 50f;
         [Space]
         [SerializeField] private float _timeMessage = 1.5f;
 
@@ -105,6 +106,7 @@ public class ScreenMessage : MonoBehaviour
             _playSound?.Invoke();
             _text.text = _localization.GetText(_key) + _textAdd;
             _text.color = _color;
+            _text.fontSize = _fontSize;
         }
 
         public IEnumerator SendCoroutine()
@@ -112,15 +114,17 @@ public class ScreenMessage : MonoBehaviour
             _playSound?.Invoke();
             _text.text = _localization.GetText(_key) + _textAdd;
             _text.color = _color;
+            _text.fontSize = _fontSize;
 
             yield return new WaitForSecondsRealtime(_timeMessage);
         }
 
-        public IEnumerator SendFormatCoroutine( int value)
+        public IEnumerator SendFormatCoroutine(int value)
         {
             _playSound?.Invoke();
             _text.text = _localization.GetTextFormat(_key, value) + _textAdd;
             _text.color = _color;
+            _text.fontSize = _fontSize;
 
             yield return new WaitForSecondsRealtime(_timeMessage);
         }

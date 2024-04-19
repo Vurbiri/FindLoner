@@ -2,5 +2,5 @@
 
 public interface ILevelPlay
 {
-    public void Play();
+    public void Run();
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
@@ -15,7 +17,7 @@ public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
 
     protected int Attempts { get => _attempts;  set { _attempts = value; EventChangedAttempts?.Invoke(value); } }
 
-    public Action<int> EventSelectedCard;
+    public Action<float> EventSelectedCard;
     public event Action<int> EventChangedAttempts;
     public Action EventEndLevel;
 
@@ -25,7 +27,17 @@ public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
         _waitShowEndLevel = waitShowEndLevel;
     }
 
-    public void Setup(GameLevelSetupData data, float delayOpen, float delayTurn)
+    public virtual IEnumerator StartRound_Coroutine(int size, float cellSize, Queue<BonusTime> values, int countShuffle = 0)
+    {
+        SetupCards(size, cellSize, values);
+
+        yield return _cardsArea.Turn90Random(_delayOpen);
+        yield return new WaitForSeconds(size * _ratioTimeShow);
+
+        yield return _cardsArea.TurnToShirtRepeat(_delayOpen);
+    }
+
+    public void Setup(LevelSetupData data, float delayOpen, float delayTurn)
     {
         _delayOpen = delayOpen;
         _delayTurn = delayTurn;
@@ -35,7 +47,9 @@ public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
         _cardsArea.Shuffle();
     }
 
-    public void Play() => _cardsArea.ForEach((c) => c.InteractableOn());
+    public void Run() => _cardsArea.ForEach((c) => c.InteractableOn());
+
+    protected abstract void SetupCards(int size, float cellSize, Queue<BonusTime> values);
 
     protected abstract void OnCardSelected(TimeCard card);
 }

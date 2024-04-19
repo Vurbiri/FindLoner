@@ -3,13 +3,13 @@ public class MaxScoreBoard : ABoardScore
 {
     private void Start()
     {
-        SetText(_dataGame.MaxScore.ToString());
-        _dataGame.EventChangeMaxScore += SetText;
+        SetSmoothValue(_dataGame.MaxScore);
+        _dataGame.EventChangeMaxScore += SetSmoothValue;
     }
 
     private void OnDestroy()
     {
         if (DataGame.Instance != null)
-            _dataGame.EventChangeMaxScore -= SetText;
+            _dataGame.EventChangeMaxScore -= SetSmoothValue;
     }
 }

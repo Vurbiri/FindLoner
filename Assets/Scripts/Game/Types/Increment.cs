@@ -2,14 +2,12 @@
 public class Increment
 {
     private int _value, _count;
-    private readonly int _step;
 
     public int Count => _count;
 
-    public Increment(int start, int step, int count) 
+    public Increment(int count) 
     {  
-        _value = start - step; 
-        _step = step;
+        _value = 1; 
         _count = count;
     }
 
@@ -17,7 +15,7 @@ public class Increment
     { 
         if(_count >= 0) 
         {
-            value = _count == 0 ? 0 : _value += _step;
+            value = _count == 0 ? 0 : _value++;
             _count--;
             return true;
         }

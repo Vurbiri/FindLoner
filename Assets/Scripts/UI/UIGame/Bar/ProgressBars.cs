@@ -16,7 +16,7 @@ public class ProgressBars : MonoBehaviour
 
         _bonusLevels.EventSetMaxAttempts += (v) => SetMaxValue(v);
         _bonusLevels.EventChangedAttempts += SetSmoothValue;
-        _bonusLevels.EventEndLevel += _ => Clear();
+        //_bonusLevels.EventEndLevel += _ => Clear();
 
         #region Local functions
         //===========================================================================================

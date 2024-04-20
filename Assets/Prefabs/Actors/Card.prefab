@@ -53,7 +53,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _border: {fileID: 8547025343492284364}
-  _pixelSizeDefault: 0.25
 --- !u!222 &708291850916292370
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -315,10 +314,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  _speedRotation: 90
   _cardBackground: {fileID: 3160696305786567843}
+  _pixelSizeDefault: 0.25
+  _speedRotation: 90
   _cardShape: {fileID: 636569344112238900}
   _colorBorderNormal: {r: 0.050980393, g: 0.07058824, b: 0.16470589, a: 1}
   _colorBorderTrue: {r: 0.29803923, g: 0.77254903, b: 0.3137255, a: 1}

@@ -5,6 +5,14 @@ using UnityEngine;
 public class BonusLevelSingle : ABonusLevel
 {
     [SerializeField] private float _timeShuffle = 1.5f;
+    [SerializeField] private float _delayShuffle = 0.25f;
+
+    private WaitForSeconds _waitShuffle;
+
+    private void Awake()
+    {
+        _waitShuffle = new(_delayShuffle);
+    }
 
     public override IEnumerator StartRound_Coroutine(int size, float cellSize, Queue<BonusTime> values, int countShuffle)
     {
@@ -25,9 +33,8 @@ public class BonusLevelSingle : ABonusLevel
             while (countShuffle > 0)
             {
                 cards = _cardsArea.RandomSquadCards;
-                bonus = cards[0].Bonus;
-
-                for (i = 0; i < cards.Length - 1; i++)
+                bonus = cards[3].Bonus;
+                for (i = cards.Length - 2; i >= 0; i--)
                     waitAll.Add(cards[i].ReplaceCard_Coroutine(cards[i + 1], _timeShuffle));
                 waitAll.Add(cards[3].ReplaceCard_Coroutine(cards[0], bonus, _timeShuffle));
 
@@ -37,6 +44,8 @@ public class BonusLevelSingle : ABonusLevel
                     cards[i].ResetPosition();
 
                 countShuffle--;
+
+                yield return _waitShuffle;
             }
 
             yield return null;
@@ -53,15 +62,16 @@ public class BonusLevelSingle : ABonusLevel
         {
             if (values.Count > 0)
                 bonus = values.Dequeue();
-            card.Setup(bonus, cellSize, size, axis);
+            card.Setup(bonus, cellSize, size, axis, OnCardSelected);
         }
     }
 
     protected override void OnCardSelected(TimeCard card)
     {
         bool continueLevel;
-        if(!(continueLevel = (card.Value > 0 || --Attempts > 0) && _countShapes > 0))
-            _cardsArea.ForEach((c) => c.InteractableOff());
+        //if(!(continueLevel = (card.Value > 0 || --Attempts > 0) && _countShapes > 0))
+        if (!(continueLevel = --Attempts > 0 && _countShapes > 0))
+            _cardsArea.ForEach((c) => c.raycastTarget = false);
 
         EventSelectedCard?.Invoke(card.Value);
         StartCoroutine(CardSelected_Coroutine());
@@ -76,10 +86,9 @@ public class BonusLevelSingle : ABonusLevel
             if (_countShapes > 0)
                 yield return _cardsArea.TurnToValueRandom(_delayTurn);
             yield return _waitShowEndLevel;
-            yield return _cardsArea.Turn90Random(_delayTurn / 2f);
+            yield return _cardsArea.CardHideAndUnsubscribeRandom(_delayTurn / 2f);
 
             EventEndLevel?.Invoke();
-            gameObject.SetActive(false);
         }
         #endregion
     }

@@ -26,7 +26,7 @@ public class BonusLevelPair : ABonusLevel
         if (_countShapes % 2 != 0)
         {
             _cardSelect = _cardsArea.CardCenter;
-            _cardSelect.Setup(null, cellSize, size, axis, true);
+            _cardSelect.Setup(null, cellSize, size, axis, null, true);
             setup = SetupNotCardCenter;
             _countShapes--;
         }
@@ -45,7 +45,7 @@ public class BonusLevelPair : ABonusLevel
         void Setup()
         {
             card = _cardsArea.RandomCard;
-            card.Setup(bonus, cellSize, size, axis);
+            card.Setup(bonus, cellSize, size, axis, OnCardSelected);
         }
         void SetupNotCardCenter()
         {
@@ -56,7 +56,7 @@ public class BonusLevelPair : ABonusLevel
                 setup = Setup;
                 _cardSelect = null;
             }
-            card.Setup(bonus, cellSize, size, axis);
+            card.Setup(bonus, cellSize, size, axis, OnCardSelected);
         }
         #endregion
     }
@@ -67,8 +67,11 @@ public class BonusLevelPair : ABonusLevel
         
         if (_cardSelect != null)
         {
-            _cardsArea.ForEach((c) => c.InteractableOff());
+            _cardsArea.ForEach((c) => c.raycastTarget = false);
             isOne = false;
+            //Attempts--;
+            //if (!(isClose = _cardSelect.Value != card.Value))
+            //    EventSelectedCard?.Invoke(card.Value);
             if (isClose = _cardSelect.Value != card.Value)
                 Attempts--;
             else
@@ -108,17 +111,16 @@ public class BonusLevelPair : ABonusLevel
 
             if (Attempts > 0 && _countShapes > 0)
             {
-                _cardsArea.ForEach((c) => c.InteractableOn());
+                _cardsArea.ForEach((c) => c.raycastTarget = true);
             }
             else
             {
                 if (_countShapes > 0)
                     yield return _cardsArea.TurnToValueRandom(_delayTurn);
                 yield return _waitShowEndLevel;
-                yield return _cardsArea.Turn90Random(_delayTurn / 2f);
+                yield return _cardsArea.CardHideAndUnsubscribeRandom(_delayTurn / 2f);
 
                 EventEndLevel?.Invoke();
-                gameObject.SetActive(false);
             }
         }
         #endregion

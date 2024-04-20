@@ -17,7 +17,7 @@ public class GameArea : MonoBehaviour
     {
         _timer.EventEndTime += _gameLevel.Stop;
 
-        //_gameLevel.EventStartRound += () => _timer.IsPause = false;
+        _gameLevel.EventStartRound += () => _timer.IsPause = false;
         _gameLevel.EventEndRound += OnEndRound;
 
         #region Local function
@@ -25,23 +25,26 @@ public class GameArea : MonoBehaviour
         void OnEndRound(bool isContinue)
         {
             if (isContinue)
+            {
+                _timer.IsPause = true;
                 EventScoreAdd?.Invoke();
+            }
             else
+            {
                 _timer.Stop();
+            }
         }
         #endregion
     }
 
     public void StartGameLevel(LevelSetupData data)
     {
-        _gameLevel.SetActive(true);
-
         StartCoroutine(StartGameLevel_Coroutine());
 
         IEnumerator StartGameLevel_Coroutine()
         {
             _timer.MaxTime = data.Time;
-            yield return StartCoroutine(_gameLevel.StartLevel_Coroutine(data));
+            yield return _gameLevel.StartLevel_Routine(data);
             _gameLevel.Run();
             _timer.Run();
         }
@@ -49,8 +52,6 @@ public class GameArea : MonoBehaviour
 
     public void StartBonusLevelSingle(LevelSetupData data)
     {
-        _bonusLevels.SetActive(true);
-
         StartCoroutine(StartBonusLevelSingle_Coroutine());
 
         IEnumerator StartBonusLevelSingle_Coroutine()
@@ -62,8 +63,6 @@ public class GameArea : MonoBehaviour
 
     public void StartBonusLevelPair(LevelSetupData data)
     {
-        _bonusLevels.SetActive(true);
-
         StartCoroutine(StartBonusLevelPair_Coroutine());
 
         IEnumerator StartBonusLevelPair_Coroutine()

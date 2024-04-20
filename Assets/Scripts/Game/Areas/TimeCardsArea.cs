@@ -22,14 +22,49 @@ public class TimeCardsArea : ACardsArea<TimeCard>
 
     public TimeCard CardCenter => _cardsActive[_sizeArea / 2, _sizeArea / 2];
 
-
     public Coroutine TurnToValueRandom(float delay) => TraversingRandom(delay, TurnToValue);
     public Coroutine TurnToValueRepeat(float delay) => TraversingRepeat(delay, TurnToValue);
 
     public Coroutine TurnToShirtRandom(float delay) => TraversingRandom(delay, TurnToShirt);
     public Coroutine TurnToShirtRepeat(float delay) => TraversingRepeat(delay, TurnToShirt);
 
+    public Coroutine CardHideAndUnsubscribeRandom(float delay) => TraversingRandom(delay, CardHideAndUnsubscribe);
+    public Coroutine CardHideAndUnsubscribeRepeat(float delay) => TraversingRepeat(delay, CardHideAndUnsubscribe);
+
     private IEnumerator TurnToValue(TimeCard card) => card.TurnToValue_Coroutine();
     private IEnumerator TurnToShirt(TimeCard card) => card.TurnToShirt_Coroutine();
+    private IEnumerator CardHideAndUnsubscribe(TimeCard card) => card.CardHideAndUnsubscribe_Coroutine();
 
+    public void CreateCards(int size)
+    {
+        int countNew = size * size;
+        if (_cardsActive.Count == countNew)
+            return;
+
+        TimeCard card;
+        while (_cardsActive.Count > countNew)
+        {
+            card = _cardsActive.Pop();
+            card.Deactivate(_repository);
+            _cardsRepository.Push(card);
+
+        }
+        while (_cardsActive.Count < countNew)
+        {
+            if (_cardsRepository.Count > 0)
+            {
+                card = _cardsRepository.Pop();
+                card.Activate(_thisTransform);
+            }
+            else
+            {
+                card = Instantiate(_prefabCard, _thisTransform);
+            }
+
+            _cardsActive.Push(card);
+        }
+
+        _cardsActive.Size = _sizeArea = size;
+        _cardsActive.CopyToShuffledArray(_cardsRandom);
+    }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 [RequireComponent(typeof(CardsArea), typeof(GridLayoutGroup))]
 public class GameLevel : MonoBehaviour
@@ -27,7 +28,7 @@ public class GameLevel : MonoBehaviour
     private LevelSetupData _data;
     float _delayTurn;
     private WaitForSeconds _waitShowEndRound, _waitShowEndLevel;
-    private Coroutine _coroutineNextRound, _coroutineEndLevel;
+    //private Coroutine _coroutineNextRound, _coroutineEndLevel;
 
     private ShuffledArray<Sprite> _spritesRandom;
 
@@ -47,7 +48,7 @@ public class GameLevel : MonoBehaviour
         _spritesRandom = new(_shapeSprites);
     }
     
-    public IEnumerator StartLevel_Coroutine(LevelSetupData data)
+    public Coroutine StartLevel_Routine(LevelSetupData data)
     {
         _data = data;
         _delayTurn = _timeTurnPerAll / data.CountShapes;
@@ -61,23 +62,23 @@ public class GameLevel : MonoBehaviour
         EventStartLevel?.Invoke();
 
         _cardsArea.CreateCards(size, OnCardSelected);
-        return StartRound_Coroutine(true);
+        SetupCards(true);
+        return _cardsArea.Turn90Random(_delayTurn);
     }
 
     public void Run()
     {
-        _cardsArea.ForEach((c) => c.IsInteractable = true);
+        _cardsArea.ForEach((c) => c.raycastTarget = true);
         EventStartRound?.Invoke();
     }
 
     public void Stop()
     {
         _cardsArea.ForEach((c) => c.CheckCroup(0));
-        if(_coroutineEndLevel == null)
-            StartCoroutine(EndLevel_Coroutine(!_isFind));
+        StartCoroutine(EndLevel_Coroutine(!_isFind));
     }
 
-    private IEnumerator StartRound_Coroutine(bool isNew)
+    private void SetupCards(bool isNew)
     {
         int[] groupsCard = CreateGroupsCard();
         _cardsArea.Shuffle();
@@ -97,16 +98,6 @@ public class GameLevel : MonoBehaviour
                 else
                     card.ReSetup(shape, axis, i, _isCheats);
             }
-        }
-
-        if (isNew)
-        {
-            yield return _cardsArea.Turn90Random(_delayTurn);
-        }
-        else
-        {
-            yield return _cardsArea.TurnRandom(_delayTurn);
-            Run();
         }
 
         #region Local functions
@@ -162,32 +153,27 @@ public class GameLevel : MonoBehaviour
         _cardsArea.ForEach((c) => c.CheckCroup(id));
 
         if (isContinue)
-            _coroutineNextRound = StartCoroutine(NextRound_Coroutine());
+            StartCoroutine(NextRound_Coroutine());
         else
-            _coroutineEndLevel = StartCoroutine(EndLevel_Coroutine(true));
+            StartCoroutine(EndLevel_Coroutine(true));
 
         #region Local function
         IEnumerator NextRound_Coroutine()
         {
             _isFind = true;
             yield return _waitShowEndRound;
-            yield return StartCoroutine(StartRound_Coroutine(false));
-            _coroutineNextRound = null;
+            SetupCards(false);
+            yield return _cardsArea.TurnRandom(_delayTurn);
+            Run();
         }
         #endregion
     }
 
     private IEnumerator EndLevel_Coroutine(bool isGameOver)
     {
-        Debug.Log(_coroutineNextRound);
-        yield return _coroutineNextRound;
         yield return _waitShowEndLevel;
         yield return _cardsArea.Turn90Random(_delayTurn / 2f);
-        _coroutineEndLevel = null;
 
         EventEndLevel?.Invoke(isGameOver);
-        gameObject.SetActive(false);
     }
-
-    public void SetActive(bool active) => gameObject.SetActive(active);
 }

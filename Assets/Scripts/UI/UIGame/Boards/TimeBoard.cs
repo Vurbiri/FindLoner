@@ -14,9 +14,8 @@ public class TimeBoard : ABoard
         _timer.EventTick += SetValue;
         _timer.EventStop += ClearSmoothForMaxValue;
 
-        _bonusLevels.EventSetTime += SetSmoothValue;
-        _bonusLevels.EventAddTime += SetSmoothValue;
-        //_bonusLevels.EventEndLevel += () => _time.text = "0";
+        _bonusLevels.EventSetTime += SetMaxValue;
+        _bonusLevels.EventAddTime += SetSmoothValueAndMaxValue;
     }
 
     protected override void TextDefault() => _textBoard.text = "0:00";

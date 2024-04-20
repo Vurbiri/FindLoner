@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Card : ACard<Card>
+public class Card : ACard
 {
     [Space]
     [SerializeField] private CardShape _cardShape;
@@ -17,11 +19,11 @@ public class Card : ACard<Card>
 
     private bool _isCheats;
 
-    public bool IsInteractable { set => _isInteractable = value; }
+    public event Action<Card> EventSelected;
 
     public void Setup(Shape shape, int size, Vector3 axis, int idGroup, bool isCheats)
     {
-        _isInteractable = false;
+        raycastTarget = false;
 
         isCheats = isCheats && idGroup == 0;
         _idGroup = idGroup;
@@ -37,7 +39,7 @@ public class Card : ACard<Card>
 
     public void ReSetup(Shape shape, Vector3 axis, int idGroup, bool isCheats)
     {
-        _isInteractable = false;
+        raycastTarget = false;
 
         _isCheats = isCheats && idGroup == 0;
         _idGroup = idGroup;
@@ -56,17 +58,21 @@ public class Card : ACard<Card>
 
         yield return null;
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));
-
-        _isInteractable = true;
     }
 
     public void CheckCroup(int idGroup) 
     {
-        _isInteractable = false;
+        raycastTarget = false;
 
         if (_idGroup != 0 && _idGroup != idGroup) 
             return;
 
         _cardBackground.SetColorBorder(_idGroup == 0 ? _colorBorderTrue : _colorBorderError);
+    }
+
+    public override void OnPointerDown(PointerEventData eventData)
+    {
+        raycastTarget = false;
+        EventSelected?.Invoke(this);
     }
 }

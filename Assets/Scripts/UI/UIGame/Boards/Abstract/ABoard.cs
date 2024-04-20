@@ -13,6 +13,9 @@ public abstract class ABoard : MonoBehaviour
     protected void SetMaxValue(int value) => SetMaxValue((float)value);
     protected void SetMaxValue(float value)
     {
+        if (Mathf.Approximately(value, _maxValue))
+            return;
+
         StopAllCoroutines();
 
         _maxValue = value <= 0 ? 0.01f : value;
@@ -45,6 +48,12 @@ public abstract class ABoard : MonoBehaviour
             ToText(Mathf.RoundToInt(value));
         }
         #endregion
+    }
+
+    protected void SetSmoothValueAndMaxValue(float value)
+    {
+        _maxValue = value <= 0 ? 0.01f : value;
+        SetSmoothValue(value);
     }
 
     protected void SetSmoothValueForMaxValue(int value) => SetSmoothValueForMaxValue((float)value);

@@ -3,15 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class ACardsArea<T> : MonoBehaviour where T : ACard<T>
+public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
 {
-    [SerializeField] private T _prefabCard;
-    [SerializeField] private Transform _repository;
-    private Transform _thisTransform;
+    [SerializeField] protected T _prefabCard;
+    [SerializeField] protected Transform _repository;
+    protected Transform _thisTransform;
 
     protected readonly FreeStack<T> _cardsActive = new(CAPACITY_LIST);
-    private readonly ShuffledArray<T> _cardsRandom = new(CAPACITY_LIST);
-    private readonly Stack<T> _cardsRepository = new(CAPACITY_STACK);
+    protected readonly ShuffledArray<T> _cardsRandom = new(CAPACITY_LIST);
+    protected readonly Stack<T> _cardsRepository = new(CAPACITY_STACK);
 
     protected int _sizeArea;
 
@@ -45,40 +45,6 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard<T>
             action(item);
     }
     
-    public void CreateCards(int size, Action<T> action)
-    {
-        int countNew = size * size;
-        if (_cardsActive.Count == countNew) 
-            return;
-
-        T card;
-        while (_cardsActive.Count > countNew)
-        {
-            card = _cardsActive.Pop();
-            card.Deactivate(_repository);
-            _cardsRepository.Push(card);
-
-        }
-        while (_cardsActive.Count < countNew)
-        {
-            if (_cardsRepository.Count > 0)
-            {
-                card = _cardsRepository.Pop();
-                card.Activate(_thisTransform);
-            }
-            else
-            {
-                card = Instantiate(_prefabCard, _thisTransform);
-                card.EventSelected += action;
-            }
-
-            _cardsActive.Push(card);
-        }
-
-        _cardsActive.Size = _sizeArea = size;
-        _cardsActive.CopyToShuffledArray(_cardsRandom);
-    }
-
     #region Traversing
     protected Coroutine TraversingRandom(float delay, Func<T, IEnumerator> funcCoroutine) => StartCoroutine(_funcTraversing[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay, funcCoroutine));
     protected Coroutine TraversingRepeat(float delay, Func<T, IEnumerator> funcCoroutine) => StartCoroutine(_funcTraversing[_indexFunc](delay, funcCoroutine));

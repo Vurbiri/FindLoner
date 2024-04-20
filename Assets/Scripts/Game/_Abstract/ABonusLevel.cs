@@ -43,11 +43,11 @@ public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
         _delayTurn = delayTurn;
         _countShapes = data.CountShapes;
         Attempts = data.Count;
-        _cardsArea.CreateCards(data.Size, OnCardSelected);
+        _cardsArea.CreateCards(data.Size);
         _cardsArea.Shuffle();
     }
 
-    public void Run() => _cardsArea.ForEach((c) => c.InteractableOn());
+    public void Run() => _cardsArea.ForEach((c) => c.raycastTarget = true);
 
     protected abstract void SetupCards(int size, float cellSize, Queue<BonusTime> values);
 

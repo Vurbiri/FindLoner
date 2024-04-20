@@ -115,6 +115,4 @@ public class BonusLevels : MonoBehaviour
     }
 
     public void Run() => _levelCurrent.Run();
-
-    public void SetActive(bool active) => gameObject.SetActive(active);
 }

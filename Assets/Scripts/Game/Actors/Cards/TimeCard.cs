@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class TimeCard : ACard<TimeCard>
+public class TimeCard : ACard
 {
     [Space]
     [SerializeField] private CardTimeShirt _cardShirt;
@@ -13,22 +15,21 @@ public class TimeCard : ACard<TimeCard>
     [SerializeField] private Color _colorBorderTrue = Color.gray;
     [SerializeField] private Color _colorBorderError = Color.gray;
 
-    private bool _isShowShirt, _isDisable;
+    private bool _isShowShirt, _isFixed;
     private BonusTime _bonus;
+
+    private Action<TimeCard> actionSelected;
 
     public int Value => _bonus.Value;
     public BonusTime Bonus => _bonus;
-
-
-    public void InteractableOn() => _isInteractable = !_isDisable;
-    public void InteractableOff() => _isInteractable = false;
-
-    public void Setup(BonusTime bonus, float sizeCard, float count, Vector3 axis, bool isDisable = false)
+    public override bool raycastTarget { get => base.raycastTarget; set => base.raycastTarget = value && !_isFixed; }
+    
+    public void Setup(BonusTime bonus, float sizeCard, float count, Vector3 axis, Action<TimeCard> action, bool isFixed = false)
     {
         _bonus = bonus;
         _axis = axis;
-        _isInteractable = false;
-        _isDisable = isDisable;
+        base.raycastTarget = false;
+        _isFixed = isFixed;
 
         _cardText.Setup(sizeCard * _scaleFontSize, bonus);
         SetBackgroundPixelSize(count);
@@ -41,11 +42,13 @@ public class TimeCard : ACard<TimeCard>
         _cardText.SetActive(true);
 
         _cardBackground.Set90Angle(axis);
+
+        actionSelected = action;
     }
     
     public IEnumerator TurnToShirt_Coroutine()
     {
-        if (_isShowShirt || _isDisable) yield break;
+        if (_isShowShirt || _isFixed) yield break;
 
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));
         yield return null;
@@ -62,8 +65,8 @@ public class TimeCard : ACard<TimeCard>
     public IEnumerator TurnToValue_Coroutine()
     {
         if (!_isShowShirt) yield break;
-        
-        _isInteractable = false;
+
+        base.raycastTarget = false;
 
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(-_axis, _speedRotation));
         yield return null;
@@ -79,8 +82,8 @@ public class TimeCard : ACard<TimeCard>
 
     public void Fixed()
     {
-        _isDisable = true;
-        _isInteractable = false;
+        _isFixed = true;
+        base.raycastTarget = false;
         _cardBackground.SetColorBorder(_colorBorderTrue);
     }
 
@@ -90,6 +93,12 @@ public class TimeCard : ACard<TimeCard>
     {
         _cardBackground.SetColorBorder(_colorBorderSelect);
         return TurnToValue_Coroutine();
+    }
+
+    public IEnumerator CardHideAndUnsubscribe_Coroutine()
+    {
+        actionSelected = null;
+        yield return _cardBackground.Rotation90Angle_Coroutine(-_axis, _speedRotation);
     }
 
     public IEnumerator CardClose_Coroutine()
@@ -105,20 +114,30 @@ public class TimeCard : ACard<TimeCard>
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));
 
         _isShowShirt = true;
-        _isInteractable = true;
+        raycastTarget = true;
     }
 
     public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, BonusTime bonus, float time)
     {
-        _bonus = bonus;
-        _cardText.ReSetup(bonus);
+        targetCard.SetBonus(bonus);
         return _cardBackground.MoveTo_Coroutine(targetCard._cardBackground, time);
     }
-    public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, float time) => ReplaceCard_Coroutine(targetCard, targetCard._bonus, time);
+    public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, float time) => ReplaceCard_Coroutine(targetCard, _bonus, time);
     public void ResetPosition() => _cardBackground.ResetPosition();
+    private void SetBonus(BonusTime bonus)
+    {
+        _bonus = bonus;
+        _cardText.ReSetup(bonus);
+    }
 
-//#if UNITY_EDITOR
-//    public static implicit operator string(TimeCard obj) => obj.ToString();
-//    public override string ToString() => Value.ToString();
-//#endif
+    public override void OnPointerDown(PointerEventData eventData)
+    {
+        base.raycastTarget = false;
+        actionSelected?.Invoke(this);
+    }
+
+    //#if UNITY_EDITOR
+    //    public static implicit operator string(TimeCard obj) => obj.ToString();
+    //    public override string ToString() => Value.ToString();
+    //#endif
 }

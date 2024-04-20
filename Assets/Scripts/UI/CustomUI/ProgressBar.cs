@@ -17,7 +17,7 @@ public class ProgressBar : MonoBehaviour
     [SerializeField] private float _valueWarning = 0.7f;
     [SerializeField] private float _valueDanger = 0.35f;
 
-    private float _maxValue = 10f, _progress = 0f;
+    private float _maxValue = 0.01f, _progress = 0f;
     private Graphic _imageFill;
     private Vector2 _anchorMin = Vector2.zero, _anchorMax = Vector2.one;
     private Coroutine _coroutine;
@@ -26,6 +26,9 @@ public class ProgressBar : MonoBehaviour
     {
         set
         {
+            if (Mathf.Approximately(value, _maxValue))
+                return;
+            
             _maxValue = value <= 0 ? 0.01f : value;
             if (_coroutine != null)
                 StopCoroutine(_coroutine);

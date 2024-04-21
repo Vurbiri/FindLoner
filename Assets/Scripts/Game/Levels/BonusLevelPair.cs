@@ -75,7 +75,7 @@ public class BonusLevelPair : ABonusLevel
             if (isClose = _cardSelect.Value != card.Value)
                 Attempts--;
             else
-                EventSelectedCard?.Invoke(card.Value * 2);
+                EventSelectedCard?.Invoke(card.Value);
         }
         else
         {
@@ -105,6 +105,7 @@ public class BonusLevelPair : ABonusLevel
                 card.Fixed();
                 _cardSelect.Fixed();
                 _countShapes -= 2;
+                // если остались нули - конец
             }
 
             _cardSelect = null;

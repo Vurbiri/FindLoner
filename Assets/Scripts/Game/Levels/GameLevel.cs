@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
+using Random = UnityEngine.Random;
+
 
 [RequireComponent(typeof(CardsArea), typeof(GridLayoutGroup))]
 public class GameLevel : MonoBehaviour
 {
-    [SerializeField] private Sprite[] _shapeSprites;
+    [SerializeField] private CreatorShapes _creatorShapes;
     [Space]
     [SerializeField] private float _timeShowEndRound = 1f;
     [SerializeField] private float _timeShowEndLevel = 2.5f;
@@ -16,7 +17,7 @@ public class GameLevel : MonoBehaviour
     [SerializeField] private float _timeTurnPerAll = 2.5f;
     [Space]
     [SerializeField] private float _saturationMin = 0.275f;
-    [SerializeField] private float _brightnessMin = 0.175f;
+    [SerializeField] private float _brightnessMin = 0.3f;
     [Space]
     [SerializeField] private bool _isCheats = true;
 
@@ -29,8 +30,6 @@ public class GameLevel : MonoBehaviour
     float _delayTurn;
     private WaitForSeconds _waitShowEndRound, _waitShowEndLevel;
     //private Coroutine _coroutineNextRound, _coroutineEndLevel;
-
-    private ShuffledArray<Sprite> _spritesRandom;
 
     public event Action EventStartLevel;
     public event Action EventStartRound;
@@ -45,9 +44,8 @@ public class GameLevel : MonoBehaviour
         _sizeArea = GetComponent<RectTransform>().rect.size - _defaultSpacing * 2;
         _waitShowEndRound = new(_timeShowEndRound);
         _waitShowEndLevel = new(_timeShowEndLevel);
-        _spritesRandom = new(_shapeSprites);
     }
-    
+
     public Coroutine StartLevel_Routine(LevelSetupData data)
     {
         _data = data;
@@ -120,20 +118,20 @@ public class GameLevel : MonoBehaviour
                 currentCount -= count;
             }
             groups[countTypes] = currentCount;
-            
+
             return groups;
         }
         //-----
         Stack<Shape> GetShapes()
         {
-            _spritesRandom.Shuffle();
+            _creatorShapes.Create(_data.Count, _data.CountShuffle == 0);
             Stack<Shape> shs = new(_data.Count);
             Shape sh;
             Color color = Color.white; color.Randomize(_saturationMin, _brightnessMin);
 
             for (int i = 0; i < _data.Count; i++)
             {
-                sh = new(_spritesRandom.Next, color);
+                sh = new(_creatorShapes.Next, color);
                 if (!_data.IsMonochrome)
                     sh.SetUniqueColor(shs, _saturationMin, _brightnessMin);
                 shs.Push(sh);
@@ -148,7 +146,7 @@ public class GameLevel : MonoBehaviour
     {
         int id = card.IdGroup;
         bool isContinue = id == 0;
-        
+
         EventEndRound?.Invoke(isContinue);
         _cardsArea.ForEach((c) => c.CheckCroup(id));
 
@@ -175,5 +173,62 @@ public class GameLevel : MonoBehaviour
         yield return _cardsArea.Turn90Random(_delayTurn / 2f);
 
         EventEndLevel?.Invoke(isGameOver);
+    }
+
+    #region Nested Classe
+    //***********************************
+    [Serializable]
+    private class CreatorShapes
+    {
+        [SerializeField] private Sprite[] _mainSprites;
+        [SerializeField] private Sprite[] _centerSprites;
+        [SerializeField] private Sprite[] _outerSprites;
+
+        public Sprite[] Next => _sprites.Dequeue();
+
+        private readonly Queue<Sprite[]> _sprites = new();
+
+        private const int COUNT = 6;
+
+        public void Create(int count, bool isSimilar)
+        {
+            _sprites.Clear();
+            Sprite temp = null;
+            for (int i = 0; i < count; i++)
+            {
+                Sprite[] sprites = new Sprite[COUNT];
+                do
+                {
+                    sprites[0] = _mainSprites[Random.Range(0, _mainSprites.Length)];
+                    sprites[1] = _centerSprites[Random.Range(0, _centerSprites.Length)];
+                    for (int j = 2; j < COUNT; j++)
+                    {
+                        if (!isSimilar || j == 2)
+                            temp = _outerSprites[Random.Range(0, _outerSprites.Length)];
+                        sprites[j] = temp;
+                    }
+                }
+                while (Equality(sprites));
+
+                _sprites.Enqueue(sprites);
+            }
+
+            #region Local functions
+            //===============================
+            bool Equality(Sprite[] sprites)
+            {
+                foreach (var array in _sprites)
+                {
+                    for (int i = 0; i < COUNT; i++)
+                    {
+                        if (array[i] != sprites[i])
+                            return false;
+                    }
+                }
+                return _sprites.Count > 0;
+            }
+            #endregion
+        }
+        #endregion
     }
 }

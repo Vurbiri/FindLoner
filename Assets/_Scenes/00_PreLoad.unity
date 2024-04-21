@@ -477,8 +477,8 @@ MonoBehaviour:
   _keySave: gmd_test
   _timeStart: 24
   _timePerLevel: 1
-  _scoreStart: 8
-  _scorePerLevel: 2
+  _scoreStart: 4
+  _scorePerLevel: 1
 --- !u!4 &523976399
 Transform:
   m_ObjectHideFlags: 0

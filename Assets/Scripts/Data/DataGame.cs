@@ -11,8 +11,8 @@ public class DataGame : ASingleton<DataGame>
     [SerializeField] private float _timeStart = 24;
     [SerializeField] private float _timePerLevel = 1;
     [Space]
-    [SerializeField] private int _scoreStart = 8;
-    [SerializeField] private int _scorePerLevel = 2;
+    [SerializeField] private int _scoreStart = 4;
+    [SerializeField] private int _scorePerLevel = 1;
 
     private GameSave _data;
     private bool _isNewRecord = false;
@@ -82,6 +82,7 @@ public class DataGame : ASingleton<DataGame>
     }
 
     #region Nested Classe
+    //***********************************
     private class GameSave
     {
         [JsonProperty("gms")]

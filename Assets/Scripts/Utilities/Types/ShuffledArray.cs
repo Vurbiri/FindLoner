@@ -54,8 +54,4 @@ public class ShuffledArray<T>
         value = default;
         return false;
     }
-
-
-
-    
 }

@@ -7,7 +7,7 @@ public abstract class ACardComponent : MonoBehaviour
     protected Image _thisImage;
     protected Transform _thisTransform;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         _thisImage = GetComponent<Image>();
         _thisTransform = transform;

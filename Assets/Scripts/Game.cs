@@ -15,7 +15,7 @@ public class Game : MonoBehaviour
     
     private DataGame _dataGame;
     private int _currentSize, _currentSqrSize, _currentTypes, _maxTypes;
-    private bool _isMonochrome = false, _isBonusSingle = true;
+    private bool _isMonochrome = false, _isSimilar = true;
 
 
     private void Awake()
@@ -40,7 +40,7 @@ public class Game : MonoBehaviour
         void Initialize()
         {
             _isMonochrome = false;
-            _isBonusSingle = true;
+            _isSimilar = true;
             _currentSize = _startSize;
             _currentSqrSize = _currentSize * _currentSize;
             _currentTypes = _startTypes;
@@ -56,7 +56,7 @@ public class Game : MonoBehaviour
 
     private void GameStart()
     {
-        _gameArea.StartGameLevel(new(_startTime, _currentSize, _currentTypes, _isMonochrome));
+        _gameArea.StartGameLevel(new(_startTime, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1));
     }
 
     private void GameOver()
@@ -72,17 +72,17 @@ public class Game : MonoBehaviour
 
         CalkGameLevelData();
 
-        _gameArea.StartGameLevel(new(time, _currentSize, _currentTypes, _isMonochrome));
+        _gameArea.StartGameLevel(new(time, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1));
     }
 
     private void StartNextBonusLevel()
     {
         //_dataGame.Save();
 
-        if(_isBonusSingle)
-            _gameArea.StartBonusLevelSingle(new(_startTime, _currentSize, _currentTypes, _isMonochrome, new(Mathf.FloorToInt(_maxTypes * 0.9f)), Mathf.FloorToInt(_currentSize * 1.4f)));
+        if(_isSimilar)
+            _gameArea.StartBonusLevelSingle(new(_startTime, _currentSize, _currentTypes, _isMonochrome, Mathf.FloorToInt(_currentSize * 1.3f), new(_maxTypes)));
         else
-            _gameArea.StartBonusLevelPair(new(_startTime, _currentSize, _currentTypes + 1, _isMonochrome, new(Mathf.FloorToInt(_maxTypes * 0.9f))));
+            _gameArea.StartBonusLevelPair(new(_startTime, _currentSize, _currentTypes + 1, _isMonochrome, 0, new(_maxTypes - 1)));
     }
 
     private void CalkGameLevelData()
@@ -92,7 +92,10 @@ public class Game : MonoBehaviour
         if (_isMonochrome)
             return;
 
-        _isBonusSingle = !_isBonusSingle;
+        _isSimilar = !_isSimilar;
+
+        if (!_isSimilar)
+            return;
 
         if ((_currentTypes += _stepTypes) <= _maxTypes)
             return;

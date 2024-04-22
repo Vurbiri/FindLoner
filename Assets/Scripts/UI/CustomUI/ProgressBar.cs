@@ -105,6 +105,7 @@ public class ProgressBar : MonoBehaviour
         while (_progress * sign < progressNew * sign)
         {
             yield return null;
+
             SetProgress(_progress + _speedChangeValue * sign * Time.deltaTime, isUp);
         }
         SetProgress(progressNew);

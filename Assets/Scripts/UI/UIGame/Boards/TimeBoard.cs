@@ -12,6 +12,7 @@ public class TimeBoard : ABoard
 
         _timer.EventSetTime += SetMaxValue;
         _timer.EventTick += SetValue;
+        _timer.EventEndTime += Clear;
         _timer.EventStop += ClearSmoothForMaxValue;
 
         _bonusLevels.EventSetTime += SetMaxValue;

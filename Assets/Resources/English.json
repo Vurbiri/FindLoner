@@ -13,7 +13,12 @@
   "Attempts": "Attempts",
   "Time": "Time",
 
-  "Stage": "Stage {0}",
+  "Level": "Level {0}",
+  "LevelComment": "Choose a shape that is different from the other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time, the game is over.",
+  "BonusS": "Bonus level A",
+  "BonusSComment": "Choose a shape that is different from the other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time, the game is over.",
+  "BonusP": "Bonus level B",
+  "BonusPComment": "Choose a shape that is different from the other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time, the game is over.",
 
   "Game": "Game",
   "Start": "Start",

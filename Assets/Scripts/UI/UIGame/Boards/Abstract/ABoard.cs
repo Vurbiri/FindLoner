@@ -78,6 +78,7 @@ public abstract class ABoard : MonoBehaviour
     {
         StopAllCoroutines();
 
+        _maxValue = 0.01f;
         _current = 0;
         TextDefault();
     }
@@ -94,6 +95,7 @@ public abstract class ABoard : MonoBehaviour
         {
             yield return StartCoroutine(SmoothChangeValue_Coroutine(0f, (_current / _maxValue) * _timeChangeValue));
 
+            _maxValue = 0.01f;
             _current = 0;
             TextDefault();
         }
@@ -115,8 +117,8 @@ public abstract class ABoard : MonoBehaviour
         while (time > 0)
         {
             yield return null;
-            time -= Time.deltaTime;
-            current = Mathf.RoundToInt(_current += speed * Time.deltaTime);
+            time -= Time.unscaledDeltaTime;
+            current = Mathf.RoundToInt(_current += speed * Time.unscaledDeltaTime);
 
             if (current != old)
                 ToText(old = current);

@@ -189,6 +189,7 @@ public class GameLevel : MonoBehaviour
         private readonly Queue<Sprite[]> _sprites = new();
 
         private const int COUNT = 6;
+        private const int COUNT_SPRITES = 9;
 
         public void Create(int count, bool isSimilar)
         {
@@ -199,33 +200,30 @@ public class GameLevel : MonoBehaviour
                 Sprite[] sprites = new Sprite[COUNT];
                 do
                 {
-                    sprites[0] = _mainSprites[Random.Range(0, _mainSprites.Length)];
-                    sprites[1] = _centerSprites[Random.Range(0, _centerSprites.Length)];
+                    sprites[0] = _mainSprites[Random.Range(0, COUNT_SPRITES)];
+                    sprites[1] = _centerSprites[Random.Range(0, COUNT_SPRITES)];
                     for (int j = 2; j < COUNT; j++)
                     {
                         if (!isSimilar || j == 2)
-                            temp = _outerSprites[Random.Range(0, _outerSprites.Length)];
+                            temp = _outerSprites[Random.Range(0, COUNT_SPRITES)];
                         sprites[j] = temp;
                     }
                 }
-                while (Equality(sprites));
+                while (_sprites.Contains(sprites, Comparison));
 
                 _sprites.Enqueue(sprites);
             }
 
             #region Local functions
             //===============================
-            bool Equality(Sprite[] sprites)
+            static bool Comparison(Sprite[] spritesA, Sprite[] spritesB)
             {
-                foreach (var array in _sprites)
+                for (int i = 0; i < COUNT; i++)
                 {
-                    for (int i = 0; i < COUNT; i++)
-                    {
-                        if (array[i] != sprites[i])
-                            return false;
-                    }
+                    if (spritesA[i] != spritesB[i])
+                        return false;
                 }
-                return _sprites.Count > 0;
+                return true;
             }
             #endregion
         }

@@ -20,6 +20,7 @@ public class TimeCard : ACard
 
     private Action<TimeCard> actionSelected;
 
+    public bool IsNotZero => !_isFixed && _bonus.Value != 0;
     public int Value => _bonus.Value;
     public BonusTime Bonus => _bonus;
     public override bool raycastTarget { get => base.raycastTarget; set => base.raycastTarget = value && !_isFixed; }
@@ -114,7 +115,6 @@ public class TimeCard : ACard
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));
 
         _isShowShirt = true;
-        raycastTarget = true;
     }
 
     public IEnumerator ReplaceCard_Coroutine(TimeCard targetCard, BonusTime bonus, float time)
@@ -135,9 +135,4 @@ public class TimeCard : ACard
         base.raycastTarget = false;
         actionSelected?.Invoke(this);
     }
-
-    //#if UNITY_EDITOR
-    //    public static implicit operator string(TimeCard obj) => obj.ToString();
-    //    public override string ToString() => Value.ToString();
-    //#endif
 }

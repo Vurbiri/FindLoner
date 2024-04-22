@@ -14,8 +14,6 @@ public abstract class ACard : Graphic, IPointerDownHandler
     protected Transform _thisTransform;
     protected Vector3 _axis;
 
-    //public virtual bool IsInteractable { get => raycastTarget; set => raycastTarget = value; }
-
     protected override void Awake()
     {
         base.Awake();

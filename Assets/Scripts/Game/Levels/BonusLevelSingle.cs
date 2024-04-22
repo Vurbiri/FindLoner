@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class BonusLevelSingle : ABonusLevel
 {
-    [SerializeField] private float _timeShuffle = 1.5f;
-    [SerializeField] private float _delayShuffle = 0.25f;
+    [SerializeField] private float _timeShuffle = 1.2f;
+    [SerializeField] private float _delayShuffle = 0.3f;
 
     private WaitForSeconds _waitShuffle;
 
@@ -83,6 +83,7 @@ public class BonusLevelSingle : ABonusLevel
 
             if (continueLevel) yield break;
 
+            Attempts = 0;
             if (_countShapes > 0)
                 yield return _cardsArea.TurnToValueRandom(_delayTurn);
             yield return _waitShowEndLevel;

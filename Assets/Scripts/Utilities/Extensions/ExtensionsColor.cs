@@ -26,6 +26,12 @@ public static class ExtensionsColor
                (Mathf.Abs(self.r - other.r) < variance && (Mathf.Abs(self.g - other.g) < variance || Mathf.Abs(self.b - other.b) < variance));
     }
 
+    public static Color SetAlpha(this ref Color self, float alpha)
+    {
+        self.a = alpha;
+        return self;
+    }
+
     //public static float Saturation(this Color self)
     //{
     //    float max = self.maxColorComponent;

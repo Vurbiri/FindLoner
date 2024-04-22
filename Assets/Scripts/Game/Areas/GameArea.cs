@@ -8,6 +8,8 @@ public class GameArea : MonoBehaviour
     [SerializeField] private BonusLevels _bonusLevels;
     [Space]
     [SerializeField] private Timer _timer;
+    [Space]
+    [SerializeField] private ScreenMessage _screenMessage;
 
     public event Action EventScoreAdd;
     public event Action<bool> EventEndGameLevel { add { _gameLevel.EventEndLevel += value; }  remove { _gameLevel.EventEndLevel -= value; } }
@@ -44,6 +46,7 @@ public class GameArea : MonoBehaviour
         IEnumerator StartGameLevel_Coroutine()
         {
             _timer.MaxTime = data.Time;
+            yield return _screenMessage.GameLevel_Wait();
             yield return _gameLevel.StartLevel_Routine(data);
             _gameLevel.Run();
             _timer.Run();
@@ -56,6 +59,7 @@ public class GameArea : MonoBehaviour
 
         IEnumerator StartBonusLevelSingle_Coroutine()
         {
+            yield return _screenMessage.BonusLevelSingle_Wait();
             yield return StartCoroutine(_bonusLevels.StartLevelSingle_Coroutine(data));
             _bonusLevels.Run();
         }
@@ -67,6 +71,7 @@ public class GameArea : MonoBehaviour
 
         IEnumerator StartBonusLevelPair_Coroutine()
         {
+            yield return _screenMessage.BonusLevelPair_Wait();
             yield return StartCoroutine(_bonusLevels.StartLevelPair_Coroutine(data));
             _bonusLevels.Run();
         }

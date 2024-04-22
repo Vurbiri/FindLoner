@@ -3,7 +3,8 @@ using UnityEngine;
 
 public abstract class AFace<T, U> where T : AFace<T, U>
 {
-    public U Value { get; protected set; }
+    public U Value => _value;
+    protected U _value;
     public Color Color => _color;
     protected Color _color = Color.white;
 
@@ -11,7 +12,7 @@ public abstract class AFace<T, U> where T : AFace<T, U>
 
     public AFace(U value, Color color)
     {
-        Value = value;
+        _value = value;
         _color = color;
     }
 

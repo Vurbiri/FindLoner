@@ -49,8 +49,9 @@ public class Game : MonoBehaviour
         #endregion
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        yield return new WaitForSeconds(1f);
         GameStart();
     }
 
@@ -80,9 +81,9 @@ public class Game : MonoBehaviour
         //_dataGame.Save();
 
         if(_isSimilar)
-            _gameArea.StartBonusLevelSingle(new(_startTime, _currentSize, _currentTypes, _isMonochrome, Mathf.FloorToInt(_currentSize * 1.3f), new(_maxTypes)));
+            _gameArea.StartBonusLevelSingle(new(_startTime, _currentSize, _currentTypes + 1, _isMonochrome, Mathf.FloorToInt(_currentSize * 1.3f), new(_maxTypes)));
         else
-            _gameArea.StartBonusLevelPair(new(_startTime, _currentSize, _currentTypes + 1, _isMonochrome, 0, new(_maxTypes - 1)));
+            _gameArea.StartBonusLevelPair(new(_startTime, _currentSize, _currentTypes, _isMonochrome, 0, new(_maxTypes - 1)));
     }
 
     private void CalkGameLevelData()

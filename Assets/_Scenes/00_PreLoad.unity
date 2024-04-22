@@ -1241,15 +1241,13 @@ MonoBehaviour:
   _clipFixed: {fileID: 8300000, guid: 1e2ca625d0634b64dbb04f8aa4827984, type: 3}
   _clipToStart: {fileID: 8300000, guid: 0a52b343da11a1442b1719f24e268ee2, type: 3}
   _clipRemove: {fileID: 8300000, guid: db20cae43fc37fc46a2610a806ab8ff5, type: 3}
-  _clipExplode: {fileID: 8300000, guid: 64ac7d95ca91ef645aa4cfe79b7cd6cd, type: 3}
   _clipTickingBomb: {fileID: 8300000, guid: 2e493e8e532004d43a141f3271fa1837, type: 3}
   _clipNewRecord: {fileID: 8300000, guid: 88bcad178545109429cc8914c6b9878c, type: 3}
-  _clipNewStage: {fileID: 8300000, guid: d8fc9099a4d75e5428fdd8b02cbe94cd, type: 3}
-  _clipReset: {fileID: 8300000, guid: 5b453b36844c7ac41af0c75c5ce0a337, type: 3}
+  _clipNewLevel: {fileID: 8300000, guid: 5b453b36844c7ac41af0c75c5ce0a337, type: 3}
+  _clipReset: {fileID: 0}
   _clipGameOver: {fileID: 8300000, guid: 7175a9b546ea88b4893a69824903074e, type: 3}
   _SwitchWindows: {fileID: 8300000, guid: 08695dee322415b45aa74bf3a070a861, type: 3}
   _clipMove: {fileID: 8300000, guid: f9b81a11d5dbff440b3d4298670d970f, type: 3}
-  _timePausePlayMove: 0.03
 --- !u!4 &1461806351
 Transform:
   m_ObjectHideFlags: 0

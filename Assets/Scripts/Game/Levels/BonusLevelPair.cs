@@ -63,7 +63,7 @@ public class BonusLevelPair : ABonusLevel
 
     protected override void OnCardSelected(TimeCard card)
     {
-        bool isClose = false, isOne = true;
+        bool isClose = false, isOne = true, isContinue = true;
         
         if (_cardSelect != null)
         {
@@ -104,18 +104,22 @@ public class BonusLevelPair : ABonusLevel
             {
                 card.Fixed();
                 _cardSelect.Fixed();
-                _countShapes -= 2;
-                // если остались нули - конец
+
+                if(isContinue = (_countShapes -= 2) > 0)
+                    foreach (var c in _cardsArea)
+                        if(isContinue = c.IsNotZero)
+                            break;
             }
 
             _cardSelect = null;
 
-            if (Attempts > 0 && _countShapes > 0)
+            if (isContinue && Attempts > 0)
             {
                 _cardsArea.ForEach((c) => c.raycastTarget = true);
             }
             else
             {
+                Attempts = 0;
                 if (_countShapes > 0)
                     yield return _cardsArea.TurnToValueRandom(_delayTurn);
                 yield return _waitShowEndLevel;

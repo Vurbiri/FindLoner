@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
+public abstract class ACardsArea<T> : MonoBehaviour, IEnumerable<T> where T : ACard
 {
     [SerializeField] protected T _prefabCard;
     [SerializeField] protected Transform _repository;
@@ -44,7 +44,10 @@ public abstract class ACardsArea<T> : MonoBehaviour where T : ACard
         foreach (var item in _cardsActive)
             action(item);
     }
-    
+
+    public IEnumerator<T> GetEnumerator() => _cardsActive.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => _cardsActive.GetEnumerator();
+
     #region Traversing
     protected Coroutine TraversingRandom(float delay, Func<T, IEnumerator> funcCoroutine) => StartCoroutine(_funcTraversing[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay, funcCoroutine));
     protected Coroutine TraversingRepeat(float delay, Func<T, IEnumerator> funcCoroutine) => StartCoroutine(_funcTraversing[_indexFunc](delay, funcCoroutine));

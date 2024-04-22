@@ -13,7 +13,12 @@
 	"Attempts": "Попыток",
 	"Time": "Время",
 
-	"Stage": "Фаза {0}",
+	"Level": "Уровень {0}",
+	"LevelComment": "Выберите фигуру, которая отличается от других фигур.\nЕсли вы ошибетесь или не сможете выбрать фигуру в течение отведенного времени, игра закончится.",
+	"BonusS": "Бонус уровень А",
+	"BonusSComment": "Choose a shape that is different from the other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time, the game is over.",
+	"BonusP": "Бонус уровень Б",
+	"BonusPComment": "Choose a shape that is different from the other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time, the game is over.",
 
 	"Game": "Игра",
 	"Start": "Старт",

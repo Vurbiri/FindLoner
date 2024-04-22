@@ -4,11 +4,8 @@ using UnityEngine;
 
 public class Timer : MonoBehaviour
 {
-    [SerializeField] private float _timeStep = 1f;
-
     private float _time;
     private bool _pause;
-    private WaitForSeconds _waitTime;
     private Coroutine _coroutine;
 
     public float MaxTime { get => _time; set { _time = value; EventSetTime?.Invoke(value); } }
@@ -18,11 +15,6 @@ public class Timer : MonoBehaviour
     public event Action<float> EventTick;
     public event Action EventStop;
     public event Action EventEndTime;
-
-    private void Awake()
-    {
-        _waitTime = new(_timeStep);
-    }
 
     public void Run()
     {
@@ -46,21 +38,6 @@ public class Timer : MonoBehaviour
             _coroutine = null;
             EventEndTime?.Invoke();
         }
-        //IEnumerator Run_Coroutine()
-        //{
-        //    while (_time > 0)
-        //    {
-        //        yield return _waitTime;
-        //        if (_pause) continue;
-
-        //        _time -= _timeStep;//Time.deltaTime;
-        //        EventTick?.Invoke(_time);
-        //    }
-
-        //    _time = 0;
-        //    _coroutine = null;
-        //    EventEndTime?.Invoke();
-        //}
         #endregion
     }
 
@@ -75,6 +52,4 @@ public class Timer : MonoBehaviour
             EventStop?.Invoke();
         }
     }
-
-    
 }

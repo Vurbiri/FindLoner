@@ -5,7 +5,7 @@ public class AttemptsBoard : ABoard
     [Space]
     [SerializeField] private BonusLevels _bonusLevels;
 
-    private void Awake()
+    private void Start()
     {
         Clear();
 

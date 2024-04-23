@@ -1,13 +1,8 @@
 using UnityEngine;
 
-public class CardTimeShirt : MonoBehaviour
+public class CardTimeShirt : ACardComponent
 {
-    private Transform _thisTransform;
-
-    private void Awake()
-    {
-        _thisTransform = transform;
-    }
+    public void SetOrderInLayer(int id) => _thisSprite.sortingOrder = id;
 
     public void SetActive(bool active) => gameObject.SetActive(active);
 

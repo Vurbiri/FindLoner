@@ -12,7 +12,7 @@ public partial class Localization : ASingleton<Localization>
     private Dictionary<string, string> _language = new();
 
     public LanguageType[] Languages { get; private set; }
-    public int CurrentIdLang { get; private set; } = -1;
+    public int CurrentId { get; private set; } = -1;
 
     public event Action EventSwitchLanguage;
 
@@ -55,7 +55,7 @@ public partial class Localization : ASingleton<Localization>
 
     public bool SwitchLanguage(int id)
     {
-        if (CurrentIdLang == id) return true;
+        if (CurrentId == id) return true;
 
         foreach (LanguageType language in Languages)
             if (language.Id == id)
@@ -69,7 +69,7 @@ public partial class Localization : ASingleton<Localization>
         if (_language.TryGetValue(key, out string str))
             return str;
 
-        return "ERROR!";
+        return "ERROR!" + key;
     }
 
     //public string GetTextFormat(string key, params object[] args) => string.Format(GetText(key), args);
@@ -82,7 +82,7 @@ public partial class Localization : ASingleton<Localization>
         Return<Dictionary<string, string>> d = StorageResources.LoadFromJson<Dictionary<string, string>>(type.File);
         if (d.Result)
         {
-            CurrentIdLang = type.Id;
+            CurrentId = type.Id;
             _language = new(d.Value, new StringComparer());
             EventSwitchLanguage?.Invoke();
         }

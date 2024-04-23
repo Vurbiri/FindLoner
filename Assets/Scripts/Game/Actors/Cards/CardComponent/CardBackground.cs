@@ -1,10 +1,9 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class CardBackground : ACardComponent
 {
-    [SerializeField] private Image _border;
+    [SerializeField] private SpriteRenderer _border;
 
     public IEnumerator Rotation90Angle_Coroutine(Vector3 axis, float speed)
     {
@@ -43,5 +42,15 @@ public class CardBackground : ACardComponent
 
     public void SetColorBorder(Color color) => _border.color = color;
 
-    public void SetPixelSize(float pixelsPerUnitMultiplier) => _thisImage.pixelsPerUnitMultiplier = _border.pixelsPerUnitMultiplier = pixelsPerUnitMultiplier;
+    public override void SetSize(Vector2 size)
+    {
+        _thisSprite.size =  size;
+        _border.size = size;
+    }
+
+    public void SetOrderInLayer(Increment layers)
+    {
+        _thisSprite.sortingOrder = layers.Next;
+        _border.sortingOrder = layers.Next;
+    }
 }

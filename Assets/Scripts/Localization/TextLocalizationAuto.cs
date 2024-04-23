@@ -4,5 +4,5 @@ using UnityEngine;
 [RequireComponent(typeof(TMP_Text))]
 public class TextLocalizationAuto : TextLocalization
 {
-    private void Awake() => Setup(null);
+    private void Awake() => Setup();
 }

@@ -15,7 +15,7 @@ public class BonusLevelPair : ABonusLevel
         _waitShowPair = new(_timeShowPair);
     }
 
-    protected override void SetupCards(int size, float cellSize, Queue<BonusTime> values)
+    protected override void SetupCards(Queue<BonusTime> values)
     {
         Vector3 axis = Direction2D.Random;
         BonusTime bonus = null;
@@ -26,7 +26,7 @@ public class BonusLevelPair : ABonusLevel
         if (_countShapes % 2 != 0)
         {
             _cardSelect = _cardsArea.CardCenter;
-            _cardSelect.Setup(null, cellSize, size, axis, null, true);
+            _cardSelect.Setup(null, axis, null, true);
             setup = SetupNotCardCenter;
             _countShapes--;
         }
@@ -45,7 +45,7 @@ public class BonusLevelPair : ABonusLevel
         void Setup()
         {
             card = _cardsArea.RandomCard;
-            card.Setup(bonus, cellSize, size, axis, OnCardSelected);
+            card.Setup(bonus, axis, OnCardSelected);
         }
         void SetupNotCardCenter()
         {
@@ -56,7 +56,7 @@ public class BonusLevelPair : ABonusLevel
                 setup = Setup;
                 _cardSelect = null;
             }
-            card.Setup(bonus, cellSize, size, axis, OnCardSelected);
+            card.Setup(bonus, axis, OnCardSelected);
         }
         #endregion
     }
@@ -67,7 +67,7 @@ public class BonusLevelPair : ABonusLevel
         
         if (_cardSelect != null)
         {
-            _cardsArea.ForEach((c) => c.raycastTarget = false);
+            _cardsArea.ForEach((c) => c.IsInteractable = false);
             isOne = false;
             //Attempts--;
             //if (!(isClose = _cardSelect.Value != card.Value))
@@ -115,7 +115,7 @@ public class BonusLevelPair : ABonusLevel
 
             if (isContinue && Attempts > 0)
             {
-                _cardsArea.ForEach((c) => c.raycastTarget = true);
+                _cardsArea.ForEach((c) => c.IsInteractable = true);
             }
             else
             {

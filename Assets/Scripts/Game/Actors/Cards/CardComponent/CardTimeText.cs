@@ -1,22 +1,30 @@
 using TMPro;
 using UnityEngine;
 
-
 [RequireComponent(typeof(TMP_Text))]
 public class CardTimeText : MonoBehaviour
 {
-    protected TMP_Text _thisText;
-    protected Transform _thisTransform;
+    [SerializeField] private float _scaleFontSize = 5.2f;
+
+    private TMP_Text _thisText;
+    private Transform _thisTransform;
+    private RectTransform _thisRectTransform;
 
     private void Awake()
     {
         _thisText = GetComponent<TMP_Text>();
+        _thisRectTransform = GetComponent<RectTransform>();
         _thisTransform = transform;
     }
 
-    public void Setup(float size, BonusTime bonus)
+    public void SetSize(Vector2 size)
     {
-        _thisText.fontSize = size;
+        _thisRectTransform.sizeDelta = size;
+        _thisText.fontSize = size.x * _scaleFontSize;
+    }
+
+    public void Setup(BonusTime bonus)
+    {
         if (bonus == null)
         {
             _thisText.text = "";
@@ -30,8 +38,6 @@ public class CardTimeText : MonoBehaviour
         _thisText.color = bonus.Color;
         _thisText.text = bonus.Value.ToString();
     }
-
-    public void Clear() => _thisText.text = "";
 
     public void SetActive(bool active) => gameObject.SetActive(active);
 

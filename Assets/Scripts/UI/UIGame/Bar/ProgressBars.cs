@@ -8,7 +8,7 @@ public class ProgressBars : MonoBehaviour
     [SerializeField] private ProgressBar _progressBarRight;
     [SerializeField] private ProgressBar _progressBarLeft;
 
-    private void Awake()
+    private void Start()
     {
         _timer.EventSetTime += SetMaxValue;
         _timer.EventTick += SetValue;

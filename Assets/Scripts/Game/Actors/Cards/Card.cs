@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class Card : ACard
 {
@@ -12,26 +11,19 @@ public class Card : ACard
     [SerializeField] private Color _colorBorderTrue = Color.gray;
     [SerializeField] private Color _colorBorderError = Color.gray;
 
-    private Shape _shape;
-
     public int IdGroup => _idGroup;
     private int _idGroup;
-
+    private Shape _shape;
     private bool _isCheats;
 
     public event Action<Card> EventSelected;
 
-    public void Setup(Shape shape, int size, Vector3 axis, int idGroup, bool isCheats)
+    public void Setup(Shape shape, Vector2 axis, int idGroup, bool isCheats)
     {
-        raycastTarget = false;
-
-        isCheats = isCheats && idGroup == 0;
-        _idGroup = idGroup;
-        _axis = axis;
+        ReSetup(shape, axis, idGroup, isCheats);
 
         _cardShape.SetShape(shape);
-        SetBackgroundPixelSize(size);
-        _cardBackground.SetColorBorder(isCheats ? Color.white : _colorBorderNormal);
+        _cardBackground.SetColorBorder(_isCheats ? Color.white : _colorBorderNormal);
 
         _cardShape.ResetAngle();
         _cardBackground.Set90Angle(axis);
@@ -39,12 +31,21 @@ public class Card : ACard
 
     public void ReSetup(Shape shape, Vector3 axis, int idGroup, bool isCheats)
     {
-        raycastTarget = false;
+        _collider.enabled = false;
 
         _isCheats = isCheats && idGroup == 0;
         _idGroup = idGroup;
         _axis = axis;
         _shape = shape;
+    }
+
+    public override void SetSize(Vector2 size)
+    {
+        if (_currentSize == size)
+            return;
+
+        base.SetSize(size);
+        _cardShape.SetSize(size * _scaleSizeShape);
     }
 
     public IEnumerator Turn_Coroutine()
@@ -62,7 +63,7 @@ public class Card : ACard
 
     public void CheckCroup(int idGroup) 
     {
-        raycastTarget = false;
+        _collider.enabled = false;
 
         if (_idGroup != 0 && _idGroup != idGroup) 
             return;
@@ -70,9 +71,10 @@ public class Card : ACard
         _cardBackground.SetColorBorder(_idGroup == 0 ? _colorBorderTrue : _colorBorderError);
     }
 
-    public override void OnPointerDown(PointerEventData eventData)
+    protected override void OnMouseDown()
     {
-        raycastTarget = false;
+        _collider.enabled = false;
         EventSelected?.Invoke(this);
     }
+
 }

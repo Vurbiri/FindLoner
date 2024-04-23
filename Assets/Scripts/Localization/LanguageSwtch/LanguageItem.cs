@@ -34,7 +34,7 @@ public class LanguageItem : MonoBehaviour
 
         _animator.runtimeAnimatorController = _id % 2 == 0 ? _controllerCounterclockwise : _controllerClockwise;
 
-        _toggle.isOn = _localization.CurrentIdLang == _id;
+        _toggle.SetIsOnWithoutNotify(_localization.CurrentId == _id);
         _toggle.group = toggleGroup;
         _toggle.onValueChanged.AddListener(OnSelect);
         _localization.EventSwitchLanguage += OnSwitchLanguage;
@@ -48,12 +48,7 @@ public class LanguageItem : MonoBehaviour
         if(_isSave) _settings.Save();
     }
 
-    private void OnSwitchLanguage()
-    {
-        _toggle.onValueChanged.RemoveListener(OnSelect);
-        _toggle.isOn = _localization.CurrentIdLang == _id;
-        _toggle.onValueChanged.AddListener(OnSelect);
-    }
+    private void OnSwitchLanguage() => _toggle.SetIsOnWithoutNotify(_localization.CurrentId == _id);
 
     private void OnDestroy()
     {

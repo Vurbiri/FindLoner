@@ -2,10 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(BonusLevelSingle), typeof(BonusLevelPair))]
-[RequireComponent(typeof(TimeCardsArea), typeof(GridLayoutGroup))]
+[RequireComponent(typeof(TimeCardsArea))]
 public class BonusLevels : MonoBehaviour
 {
     [SerializeField] private float _timeShowEndLevel = 1.75f;
@@ -23,8 +22,6 @@ public class BonusLevels : MonoBehaviour
     private float _time;
 
     private TimeCardsArea _cardsArea;
-    private GridLayoutGroup _thisGrid;
-    private Vector2 _sizeArea, _defaultSpacing;
        
     public event Action<int> EventSetMaxAttempts;
     public event Action<float> EventSetTime;
@@ -32,14 +29,12 @@ public class BonusLevels : MonoBehaviour
     public event Action<int> EventChangedAttempts { add { _levelSingle.EventChangedAttempts += value; _levelPair.EventChangedAttempts += value; } remove { _levelSingle.EventChangedAttempts -= value; _levelPair.EventChangedAttempts -= value; }}
     public event Action<float> EventEndLevel;
 
-    private void Awake()
+    public void Initialize(float sizeArea, float startSpacing)
     {
         WaitForSeconds waitShowEndLevel = new(_timeShowEndLevel);
 
         _cardsArea = GetComponent<TimeCardsArea>();
-        _thisGrid = GetComponent<GridLayoutGroup>();
-        _defaultSpacing = _thisGrid.spacing;
-        _sizeArea = GetComponent<RectTransform>().rect.size - _defaultSpacing * 2;
+        _cardsArea.Initialize(sizeArea, startSpacing);
 
         _levelSingle = GetComponent<BonusLevelSingle>();
         _levelPair = GetComponent<BonusLevelPair>();
@@ -77,24 +72,11 @@ public class BonusLevels : MonoBehaviour
         EventSetMaxAttempts?.Invoke(data.Count);
         EventSetTime.Invoke(data.Time);
 
-        float cellSize = GridSetup(data.Size);
-
         level.Setup(data, _timeOpenPerAll / data.CountShapes, _timeTurnPerAll / data.CountShapes);
-        return level.StartRound_Coroutine(data.Size, cellSize, GetBonusTime(data.Range, data.IsMonochrome), data.CountShuffle);
+        return level.StartRound_Coroutine(GetBonusTime(data.Range, data.IsMonochrome), data.CountShuffle);
 
         #region Local function
         //=========================================================
-        float GridSetup(int size)
-        {
-            Vector2 cellSize = _sizeArea / size;
-
-            _thisGrid.constraintCount = size;
-            _thisGrid.cellSize = cellSize;
-            _thisGrid.spacing = _defaultSpacing / (size - 1);
-
-            return cellSize.x;
-        }
-        //-----------------
         Queue<BonusTime> GetBonusTime(Increment range, bool isMonochrome)
         {
             Queue<BonusTime> bonuses = new(range.Count);

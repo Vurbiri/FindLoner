@@ -12,9 +12,9 @@ TagManager:
   - Water
   - UI
   - ScriptObject
-  - 
-  - 
-  - 
+  - Actor
+  - UIGame
+  - UIMenu
   - 
   - 
   - 
@@ -41,12 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Background
-    uniqueID: 4014037631
+  - name: UIBackground
+    uniqueID: 4274692733
     locked: 0
   - name: Actor
     uniqueID: 2870205795
     locked: 0
-  - name: UI
-    uniqueID: 4274692733
+  - name: UIGame
+    uniqueID: 2308974419
+    locked: 0
+  - name: UIMenu
+    uniqueID: 2501357613
     locked: 0

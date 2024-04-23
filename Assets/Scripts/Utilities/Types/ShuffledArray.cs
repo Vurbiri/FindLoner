@@ -5,10 +5,13 @@ public class ShuffledArray<T>
     private const int CAPACITY_DEFAULT = 8;
 
     private T[] _array;
-    private int _count, _cursor, _capacity = CAPACITY_DEFAULT;
+    private int _size, _count, _cursor, _capacity = CAPACITY_DEFAULT;
 
     public T this[int i] { set => _array[i] = value; }
+    public T this[int i, int j] { get => _array[i * _size + j]; set => _array[i * _size + j] = value; }
     public T Next => _array[_cursor++];
+
+    public int Size { get => _size; set => _size = value; }
 
     public ShuffledArray() => _array = new T[_capacity];
     public ShuffledArray(int capacity)
@@ -21,14 +24,16 @@ public class ShuffledArray<T>
     public ShuffledArray(T[] array)
     {
         _capacity = _count = array.Length;
+        _size = _capacity / 2;
         _array = array;
     }
 
     public void ReSize(int size)
     {
-        if (_count == size) return;
+        if (_size == size) return;
 
-        _count = size;
+        _size = size;
+        _count = size * size;
         if (_count > _capacity)
             _array = new T[_capacity = _count];
     }

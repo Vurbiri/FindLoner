@@ -14,9 +14,9 @@ public class BonusLevelSingle : ABonusLevel
         _waitShuffle = new(_delayShuffle);
     }
 
-    public override IEnumerator StartRound_Coroutine(int size, float cellSize, Queue<BonusTime> values, int countShuffle)
+    public override IEnumerator StartRound_Coroutine(Queue<BonusTime> values, int countShuffle)
     {
-        yield return StartCoroutine(base.StartRound_Coroutine(size, cellSize, values));
+        yield return StartCoroutine(base.StartRound_Coroutine(values));
         yield return StartCoroutine(Shuffle_Coroutine());
 
         #region Local function
@@ -53,7 +53,7 @@ public class BonusLevelSingle : ABonusLevel
         #endregion
     }
 
-    protected override void SetupCards(int size, float cellSize, Queue<BonusTime> values)
+    protected override void SetupCards(Queue<BonusTime> values)
     {
         Vector3 axis = Direction2D.Random;
         BonusTime bonus = null;
@@ -62,7 +62,7 @@ public class BonusLevelSingle : ABonusLevel
         {
             if (values.Count > 0)
                 bonus = values.Dequeue();
-            card.Setup(bonus, cellSize, size, axis, OnCardSelected);
+            card.Setup(bonus, axis, OnCardSelected);
         }
     }
 
@@ -71,7 +71,7 @@ public class BonusLevelSingle : ABonusLevel
         bool continueLevel;
         //if(!(continueLevel = (card.Value > 0 || --Attempts > 0) && _countShapes > 0))
         if (!(continueLevel = --Attempts > 0 && _countShapes > 0))
-            _cardsArea.ForEach((c) => c.raycastTarget = false);
+            _cardsArea.ForEach((c) => c.IsInteractable = false);
 
         EventSelectedCard?.Invoke(card.Value);
         StartCoroutine(CardSelected_Coroutine());

@@ -12,6 +12,7 @@ public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
     private int _attempts;
     protected int _countShapes;
     protected float _delayOpen, _delayTurn;
+    private readonly Increment _layers = new(-256, 0);
 
     protected WaitForSeconds _waitShowEndLevel;
 
@@ -27,9 +28,9 @@ public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
         _waitShowEndLevel = waitShowEndLevel;
     }
 
-    public virtual IEnumerator StartRound_Coroutine(int size, float cellSize, Queue<BonusTime> values, int countShuffle = 0)
+    public virtual IEnumerator StartRound_Coroutine(Queue<BonusTime> values, int countShuffle = 0)
     {
-        SetupCards(size, cellSize, values);
+        SetupCards(values);
 
         yield return _cardsArea.Turn90Random(_delayOpen);
         yield return new WaitForSeconds(_countShapes * _ratioTimeShow);
@@ -43,13 +44,13 @@ public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
         _delayTurn = delayTurn;
         _countShapes = data.CountShapes;
         Attempts = data.Count;
-        _cardsArea.CreateCards(data.Size);
+        _cardsArea.CreateCards(data.Size, _layers);
         _cardsArea.Shuffle();
     }
 
-    public void Run() => _cardsArea.ForEach((c) => c.raycastTarget = true);
+    public void Run() => _cardsArea.ForEach((c) => c.IsInteractable = true);
 
-    protected abstract void SetupCards(int size, float cellSize, Queue<BonusTime> values);
+    protected abstract void SetupCards(Queue<BonusTime> values);
 
     protected abstract void OnCardSelected(TimeCard card);
 }

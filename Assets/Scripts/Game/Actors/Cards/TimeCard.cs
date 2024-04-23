@@ -1,14 +1,13 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class TimeCard : ACard
 {
     [Space]
     [SerializeField] private CardTimeShirt _cardShirt;
     [SerializeField] private CardTimeText _cardText;
-    [SerializeField] private float _scaleFontSize = 0.45f;
+    
     [Space]
     [SerializeField] private Color _colorBorderNormal = Color.gray;
     [SerializeField] private Color _colorBorderSelect = Color.gray;
@@ -23,17 +22,17 @@ public class TimeCard : ACard
     public bool IsNotZero => !_isFixed && _bonus.Value != 0;
     public int Value => _bonus.Value;
     public BonusTime Bonus => _bonus;
-    public override bool raycastTarget { get => base.raycastTarget; set => base.raycastTarget = value && !_isFixed; }
+    public override bool IsInteractable { get => _collider.enabled; set => _collider.enabled = value && !_isFixed; }
     
-    public void Setup(BonusTime bonus, float sizeCard, float count, Vector3 axis, Action<TimeCard> action, bool isFixed = false)
+    public void Setup(BonusTime bonus, Vector2 axis, Action<TimeCard> action, bool isFixed = false)
     {
         _bonus = bonus;
         _axis = axis;
-        base.raycastTarget = false;
+        _collider.enabled = false;
         _isFixed = isFixed;
 
-        _cardText.Setup(sizeCard * _scaleFontSize, bonus);
-        SetBackgroundPixelSize(count);
+        _cardText.Setup(bonus);
+
         _cardBackground.SetColorBorder(_colorBorderNormal);
 
         _cardShirt.Set180Angle(axis);
@@ -46,7 +45,23 @@ public class TimeCard : ACard
 
         actionSelected = action;
     }
-    
+
+    public override void SetSize(Vector2 size)
+    {
+        if (_currentSize == size)
+            return;
+
+        base.SetSize(size);
+        _cardShirt.SetSize(size * _scaleSizeShape);
+        _cardText.SetSize(size);
+    }
+
+    public void SetOrderInLayer(Increment layers)
+    {
+        _cardBackground.SetOrderInLayer(layers);
+        _cardShirt.SetOrderInLayer(layers.Current);
+    }
+
     public IEnumerator TurnToShirt_Coroutine()
     {
         if (_isShowShirt || _isFixed) yield break;
@@ -67,7 +82,7 @@ public class TimeCard : ACard
     {
         if (!_isShowShirt) yield break;
 
-        base.raycastTarget = false;
+        _collider.enabled = false;
 
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(-_axis, _speedRotation));
         yield return null;
@@ -84,7 +99,7 @@ public class TimeCard : ACard
     public void Fixed()
     {
         _isFixed = true;
-        base.raycastTarget = false;
+        base.IsInteractable = false;
         _cardBackground.SetColorBorder(_colorBorderTrue);
     }
 
@@ -130,9 +145,9 @@ public class TimeCard : ACard
         _cardText.ReSetup(bonus);
     }
 
-    public override void OnPointerDown(PointerEventData eventData)
+    protected override void OnMouseDown()
     {
-        base.raycastTarget = false;
+        _collider.enabled = false;
         actionSelected?.Invoke(this);
     }
 }

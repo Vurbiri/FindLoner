@@ -35,14 +35,6 @@ public class FreeStack<T> : IEnumerable<T>
 
     public T Pop() => _array[--_count];
 
-    public void CopyToShuffledArray(ShuffledArray<T> array)
-    {
-        array.ReSize(_count);
-
-        for (int i = 0; i < _count; i++)
-            array[i] = _array[i];
-    }
-
     public IEnumerator<T> GetEnumerator() => new FreeStackEnumerator(this);
     IEnumerator IEnumerable.GetEnumerator() => new FreeStackEnumerator(this);
     

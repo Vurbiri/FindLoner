@@ -2,11 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 
-[RequireComponent(typeof(CardsArea), typeof(GridLayoutGroup))]
+[RequireComponent(typeof(CardsArea))]
 public class GameLevel : MonoBehaviour
 {
     [SerializeField] private CreatorShapes _creatorShapes;
@@ -22,8 +21,6 @@ public class GameLevel : MonoBehaviour
     [SerializeField] private bool _isCheats = true;
 
     private CardsArea _cardsArea;
-    private GridLayoutGroup _thisGrid;
-    private Vector2 _sizeArea, _defaultSpacing;
     private bool _isFind = false;
 
     private LevelSetupData _data;
@@ -36,12 +33,11 @@ public class GameLevel : MonoBehaviour
     public event Action<bool> EventEndRound;
     public event Action<bool> EventEndLevel;
 
-    private void Awake()
+    public void Initialize(float sizeArea, float startSpacing)
     {
         _cardsArea = GetComponent<CardsArea>();
-        _thisGrid = GetComponent<GridLayoutGroup>();
-        _defaultSpacing = _thisGrid.spacing;
-        _sizeArea = GetComponent<RectTransform>().rect.size - _defaultSpacing * 2;
+        _cardsArea.Initialize(sizeArea, startSpacing);
+
         _waitShowEndRound = new(_timeShowEndRound);
         _waitShowEndLevel = new(_timeShowEndLevel);
     }
@@ -51,10 +47,6 @@ public class GameLevel : MonoBehaviour
         _data = data;
         _delayTurn = _timeTurnPerAll / data.CountShapes;
         int size = data.Size;
-
-        _thisGrid.constraintCount = size;
-        _thisGrid.cellSize = _sizeArea / size;
-        _thisGrid.spacing = _defaultSpacing / (size - 1);
 
         _isFind = false;
         EventStartLevel?.Invoke();
@@ -66,7 +58,7 @@ public class GameLevel : MonoBehaviour
 
     public void Run()
     {
-        _cardsArea.ForEach((c) => c.raycastTarget = true);
+        _cardsArea.ForEach((c) => c.IsInteractable = true);
         EventStartRound?.Invoke();
     }
 
@@ -92,7 +84,7 @@ public class GameLevel : MonoBehaviour
             {
                 card = _cardsArea.RandomCard;
                 if (isNew)
-                    card.Setup(shape, _data.Size, axis, i, _isCheats);
+                    card.Setup(shape, axis, i, _isCheats);
                 else
                     card.ReSetup(shape, axis, i, _isCheats);
             }

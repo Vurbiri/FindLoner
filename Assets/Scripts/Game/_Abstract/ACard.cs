@@ -1,25 +1,28 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
-public abstract class ACard : Graphic, IPointerDownHandler
+[RequireComponent(typeof(BoxCollider2D))]
+public abstract class ACard : MonoBehaviour
 {
+    [SerializeField] protected float _scaleSizeShape = 0.85f;
     [Space]
     [SerializeField] protected CardBackground _cardBackground;
-    [SerializeField] private float _pixelSizeDefault = 0.25f;
     [Space]
     [SerializeField] protected float _speedRotation = 90f;
     
     protected Transform _thisTransform;
+    protected BoxCollider2D _collider;
     protected Vector3 _axis;
+    protected Vector2 _currentSize;
 
-    protected override void Awake()
+    public virtual bool IsInteractable { get => _collider.enabled; set => _collider.enabled = value; }
+    public Vector3 LocalPosition { set => _thisTransform.localPosition = value; }
+
+    protected void Awake()
     {
-        base.Awake();
-
         _thisTransform = transform;
-        raycastTarget = false;
+        _collider = GetComponent<BoxCollider2D>();
+        IsInteractable = false;
     }
 
     public void Activate(Transform parent)
@@ -34,12 +37,19 @@ public abstract class ACard : Graphic, IPointerDownHandler
         _thisTransform.SetParent(parent);
     }
 
-    public abstract void OnPointerDown(PointerEventData eventData);
+    public virtual void SetSize(Vector2 size)
+    {
+        _currentSize = size;
 
-    protected void SetBackgroundPixelSize(float ratio) => _cardBackground.SetPixelSize(1 + _pixelSizeDefault * ratio);
+        _collider.size = size;
+        _cardBackground.SetSize(size);
+    }
 
     public IEnumerator Turn90_Coroutine()
     {
         yield return _cardBackground.Rotation90Angle_Coroutine(-_axis, _speedRotation);
     }
+
+    protected abstract void OnMouseDown();
+        
 }

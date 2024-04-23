@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class GameArea : MonoBehaviour
 {
+    [SerializeField] private float _size = 920f;
+    [SerializeField] private float _startSpacing = 12f;
+    [Space]
     [SerializeField] private GameLevel _gameLevel;
     [SerializeField] private BonusLevels _bonusLevels;
     [Space]
@@ -17,10 +20,14 @@ public class GameArea : MonoBehaviour
 
     private void Awake()
     {
+        _gameLevel.Initialize(_size, _startSpacing);
+        _bonusLevels.Initialize(_size, _startSpacing);
+
         _timer.EventEndTime += _gameLevel.Stop;
 
         _gameLevel.EventStartRound += () => _timer.IsPause = false;
         _gameLevel.EventEndRound += OnEndRound;
+        
 
         #region Local function
         //======================

@@ -69,7 +69,7 @@ public class SettingsGame : ASingleton<SettingsGame>
 
     public void Save(Action<bool> callback = null)
     {
-        _profileCurrent.idLang = _localization.CurrentIdLang;
+        _profileCurrent.idLang = _localization.CurrentId;
         foreach (var mixer in Enum<MixerGroup>.GetValues())
         {
             _audioMixer.GetFloat(mixer.ToString(), out float volumeDB);

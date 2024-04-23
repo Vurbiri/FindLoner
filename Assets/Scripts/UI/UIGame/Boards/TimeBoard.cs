@@ -6,7 +6,7 @@ public class TimeBoard : ABoard
     [SerializeField] private BonusLevels _bonusLevels;
     [SerializeField] private Timer _timer;
 
-    private void Awake()
+    private void Start()
     {
         Clear();
 

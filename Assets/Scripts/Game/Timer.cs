@@ -41,6 +41,34 @@ public class Timer : MonoBehaviour
         #endregion
     }
 
+    public WaitActivate Run_Wait()
+    {
+        WaitActivate wait = new();
+        _pause = false;
+        _coroutine = StartCoroutine(Run_Wait_Coroutine());
+        return wait;
+
+        #region Local function
+        //=========================================================
+        IEnumerator Run_Wait_Coroutine()
+        {
+            while (_time > 0)
+            {
+                yield return null;
+                if (_pause) continue;
+
+                _time -= Time.deltaTime;
+                EventTick?.Invoke(_time);
+            }
+
+            _time = 0;
+            _coroutine = null;
+            wait.Activate();
+        }
+        #endregion
+    }
+
+
     public void Stop()
     {
         if (_coroutine != null)

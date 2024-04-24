@@ -10,11 +10,10 @@ public class GameUI : MonoBehaviour
     [SerializeField] private MenuGroup _start;
     [SerializeField] private MenuGroup _settings;
     [SerializeField] private MenuGroup _leaderboard;
-    [SerializeField] private MenuGroup _help;
 
     private void Start()
     {
-        EnableMenus(SettingsGame.Instance.IsFirstStart);
+        EnableMenus();
     }
 
     public void Open()
@@ -29,26 +28,24 @@ public class GameUI : MonoBehaviour
         _start.Enable = false;
         _settings.Enable = false;
         _leaderboard.Enable = false;
-        _help.Enable = false;
     }
     public void OpenLeaderboard()
     {
         _start.Enable = false;
         _settings.Enable = false;
         _leaderboard.Enable = true;
-        _help.Enable = false;
 
         _menus.PlayNormal();
     }
 
     public void SetScore(long score) => StartCoroutine(_leaderboardUI.SetScore(score));
 
-    private void EnableMenus(bool isFirst = false)
+    private void EnableMenus()
     {
-        _start.Enable = !isFirst;
+        _start.Enable = true;
         _settings.Enable = false;
         _leaderboard.Enable = false;
-        _help.Enable = isFirst;
+
     }
 
 

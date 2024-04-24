@@ -2,55 +2,48 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class ScreenMessage : MonoBehaviour
 {
-    [SerializeField] private TMP_Text _textCaption;
-    [SerializeField] private TMP_Text _textComment;
-    [SerializeField] private Image _imageSeparator;
-    [SerializeField] private Button  _buttonStart;
+    [SerializeField] private ObjectsMessage _objects;
     [Space]
     [SerializeField] private Message _gameLevel;
     [SerializeField] private Message _bonusLevelS;
     [SerializeField] private Message _bonusLevelP;
     [SerializeField] private Message _gameOver;
-    [SerializeField] private Message _best;
+    [SerializeField] private Message _levelComplete;
 
     private readonly WaitActivate _waitActivate = new();
 
-    private DataGame _dataGame;
-
-
     private void Awake()
     {
-        GameObject _goButton = _buttonStart.gameObject;
+        _objects.Initialize();
 
-        _dataGame = DataGame.Instance;
-        SoundSingleton sound = SoundSingleton.InstanceF;
+        SoundSingleton sound = SoundSingleton.Instance;
 
-        _gameLevel.Initialize(_textCaption, _textComment, _imageSeparator, _goButton, sound.PlayNewStage);
-        _bonusLevelS.Initialize(_textCaption, _textComment, _imageSeparator, _goButton, null);
-        _bonusLevelP.Initialize(_textCaption, _textComment, _imageSeparator, _goButton, null);
-        _gameOver.Initialize(_textCaption, _textComment, _imageSeparator, _goButton, sound.PlayGameOver);
-        _best.Initialize(_textCaption, _textComment, _imageSeparator, _goButton, sound.PlayNewRecord);
+        _gameLevel.Initialize(_objects, sound.PlayNewLevel);
+        _bonusLevelS.Initialize(_objects, sound.PlayNewLevel);
+        _bonusLevelP.Initialize(_objects, sound.PlayNewLevel);
+        _gameOver.Initialize(_objects, sound.PlayGameOver);
+        _levelComplete.Initialize(_objects, sound.PlayLevelComplete);
 
         Clear();
 
-        _buttonStart.onClick.AddListener(OnClick);
-        _dataGame.EventNewRecord += OnNewRecord;
+        _objects.AddListener(OnClick);
 
         #region Local function
         //======================
         void OnClick()
         {
             _waitActivate.Activate();
-            _goButton.SetActive(false);
+            _objects.ButtonHide();
         }
         #endregion
     }
 
-    public WaitActivate GameLevel_Wait()
+    public WaitActivate GameLevel_Wait(int level, int time)
     {
         WaitActivate wait = new();
         gameObject.SetActive(true);
@@ -61,8 +54,7 @@ public class ScreenMessage : MonoBehaviour
         //=================================
         IEnumerator GameLevel_Coroutine()
         {
-
-            _gameLevel.SendFormatCaption_Wait(_dataGame.Level.ToString());
+            _gameLevel.SendFormat_Wait(level.ToString(), time.ToStringTime());
             yield return _waitActivate.Deactivate();
             yield return _gameLevel.Fide();
             wait.Activate();
@@ -71,59 +63,43 @@ public class ScreenMessage : MonoBehaviour
         #endregion
     }
 
-    public WaitActivate BonusLevelSingle_Wait()
+    public WaitActivate BonusLevelSingle_Wait(int attempts) => BonusLevel_Wait(_bonusLevelS, attempts);
+    public WaitActivate BonusLevelPair_Wait(int attempts) => BonusLevel_Wait(_bonusLevelP, attempts);
+    private WaitActivate BonusLevel_Wait(Message bonusLevel, int attempts)
     {
         WaitActivate wait = new();
         gameObject.SetActive(true);
-        StartCoroutine(BonusLevelSingle_Coroutine());
+        StartCoroutine(BonusLevel_Coroutine());
         return wait;
 
         #region Local function
         //=================================
-        IEnumerator BonusLevelSingle_Coroutine()
+        IEnumerator BonusLevel_Coroutine()
         {
-
-            yield return _bonusLevelS.Send_Wait();
-            yield return _bonusLevelS.Fide();
+            yield return bonusLevel.SendFormatComment_Wait(attempts.ToString());
+            yield return _waitActivate.Deactivate();
+            yield return bonusLevel.Fide();
             wait.Activate();
             Clear();
         }
         #endregion
     }
 
-    public WaitActivate BonusLevelPair_Wait()
+    public void GameOver() => SimpleMessage(_gameOver);
+
+    public void LevelComplete() => SimpleMessage(_levelComplete);
+
+    private void SimpleMessage(Message message)
     {
-        WaitActivate wait = new();
         gameObject.SetActive(true);
-        StartCoroutine(BonusLevelPair_Coroutine());
-        return wait;
+        StartCoroutine(GameOver_Coroutine());
 
         #region Local function
         //=================================
-        IEnumerator BonusLevelPair_Coroutine()
+        IEnumerator GameOver_Coroutine()
         {
-
-            yield return _bonusLevelP.Send_Wait();
-            yield return _bonusLevelP.Fide();
-            wait.Activate();
-            Clear();
-        }
-        #endregion
-    }
-
-
-
-    private void OnNewRecord()
-    {
-        gameObject.SetActive(true);
-        StartCoroutine(OnNewRecord_Coroutine());
-
-        #region Local function
-        //=================================
-        IEnumerator OnNewRecord_Coroutine()
-        {
-            yield return _best.Send_Wait();
-            yield return _best.Fide();
+            yield return message.Send_Wait();
+            yield return message.Fide();
             Clear();
         }
         #endregion
@@ -131,26 +107,20 @@ public class ScreenMessage : MonoBehaviour
 
     private void Clear()
     {
-        _textCaption.text = string.Empty;
-        _textComment.text = string.Empty;
-        //_imageSeparator.gameObject.SetActive(false);
-        //_buttonStart.gameObject.SetActive(false);
+        _objects.TextEmpty();
         gameObject.SetActive(false);
     }
 
     private void OnDestroy()
     {
-        if (DataGame.Instance != null)
-            _dataGame.EventNewRecord -= OnNewRecord;
-
         _gameLevel.OnDestroy();
         _bonusLevelS.OnDestroy();
         _bonusLevelP.OnDestroy();
         _gameOver.OnDestroy();
-        _best.OnDestroy();
+        _levelComplete.OnDestroy();
     }
 
-    #region Nested Classe
+    #region Nested classes
     //********************************************
     [Serializable]
     private class Message
@@ -165,18 +135,14 @@ public class ScreenMessage : MonoBehaviour
         [SerializeField] private float _appearDuration = 0.5f;
         [SerializeField] private float _fadeDuration = 0.5f;
 
-        private Image _separator;
-        private GameObject _objButton;
-        private GameObject _objSeparator;
+        private ObjectsMessage _objects;
         private Action _playSound;
         
-        public void Initialize(TMP_Text caption, TMP_Text comment, Image separator, GameObject button, Action playSound)
+        public void Initialize(ObjectsMessage objects, Action playSound)
         {
-            _caption.Initialize(caption);
-            _comment.Initialize(comment);
-            _separator = separator;
-            _objSeparator = separator.gameObject;
-            _objButton = button;
+            _caption.Initialize(objects.textCaption);
+            _comment.Initialize(objects.textComment);
+            _objects = objects;
             _playSound = playSound;
         }
 
@@ -186,7 +152,7 @@ public class ScreenMessage : MonoBehaviour
             _caption.Send(_appearDuration);
             _comment.Send(_appearDuration);
             if (_isSeparator)
-                _separator.Appear(_separator.color, _appearDuration);
+                _objects.SeparatorAppear(_appearDuration);
 
             return new WaitForSeconds(Mathf.Max(_timeMessage, _appearDuration));
         }
@@ -197,7 +163,7 @@ public class ScreenMessage : MonoBehaviour
             _caption.SendFormat(value1, _appearDuration);
             _comment.SendFormat(value2, _appearDuration);
             if (_isSeparator)
-                _separator.Appear(_separator.color, _appearDuration);
+                _objects.SeparatorAppear(_appearDuration);
 
             return new WaitForSeconds(Mathf.Max(_timeMessage, _appearDuration));
         }
@@ -208,7 +174,7 @@ public class ScreenMessage : MonoBehaviour
             _caption.SendFormat(value, _appearDuration);
             _comment.Send(_appearDuration);
             if (_isSeparator)
-                _separator.Appear(_separator.color, _appearDuration);
+                _objects.SeparatorAppear(_appearDuration);
 
             return new WaitForSeconds(Mathf.Max(_timeMessage, _appearDuration));
         }
@@ -219,7 +185,7 @@ public class ScreenMessage : MonoBehaviour
             _caption.Send(_appearDuration);
             _comment.SendFormat(value, _appearDuration);
             if (_isSeparator)
-                _separator.Appear(_separator.color, _appearDuration);
+                _objects.SeparatorAppear(_appearDuration);
 
             return new WaitForSeconds(Mathf.Max(_timeMessage, _appearDuration));
         }
@@ -229,7 +195,7 @@ public class ScreenMessage : MonoBehaviour
             _caption.Fade(_fadeDuration);
             _comment.Fade(_fadeDuration);
             if (_isSeparator)
-                _separator.Fade(_separator.color, _fadeDuration);
+                _objects.SeparatorFade(_fadeDuration);
 
             return new WaitForSeconds(_fadeDuration);
         }
@@ -243,8 +209,7 @@ public class ScreenMessage : MonoBehaviour
         private void ActivateObject()
         {
             _playSound?.Invoke();
-            _objSeparator.SetActive(_isSeparator);
-            _objButton.SetActive(_isButton);
+            _objects.ActivateObject(_isSeparator, _isButton);
         }
 
         #region Nested Classe
@@ -311,6 +276,43 @@ public class ScreenMessage : MonoBehaviour
         }
         #endregion
 
+    }
+    //************************************
+    [Serializable]
+    private class ObjectsMessage
+    {
+        public TMP_Text textCaption;
+        public TMP_Text textComment;
+        public Image imageSeparator;
+        public Button buttonStart;
+
+        private GameObject _objButton;
+        private GameObject _objSeparator;
+
+        public void Initialize()
+        {
+            _objButton = buttonStart.gameObject;
+            _objSeparator = imageSeparator.gameObject;
+        }
+
+        public void SeparatorAppear(float duration) => imageSeparator.Appear(imageSeparator.color, duration);
+        public void SeparatorFade(float duration) => imageSeparator.Fade(imageSeparator.color, duration);
+
+        public void ActivateObject(bool isSeparator, bool isButton)
+        {
+            _objSeparator.SetActive(isSeparator);
+            _objButton.SetActive(isButton);
+        }
+
+        public void TextEmpty()
+        {
+            textCaption.text = string.Empty;
+            textComment.text = string.Empty;
+        }
+
+        public void AddListener(UnityAction call) => buttonStart.onClick.AddListener(call);
+
+        public void ButtonHide() => _objButton.SetActive(false);
     }
     #endregion
 }

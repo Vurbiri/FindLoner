@@ -64,24 +64,25 @@ public class BonusLevelPair : ABonusLevel
     protected override void OnCardSelected(TimeCard card)
     {
         bool isClose = false, isOne = true, isContinue = true;
-        
+
         if (_cardSelect != null)
         {
             _cardsArea.ForEach((c) => c.IsInteractable = false);
             isOne = false;
-            //Attempts--;
-            //if (!(isClose = _cardSelect.Value != card.Value))
-            //    EventSelectedCard?.Invoke(card.Value);
-            if (isClose = _cardSelect.Value != card.Value)
-                Attempts--;
-            else
-                EventSelectedCard?.Invoke(card.Value);
+            Attempts--;
+            if (!(isClose = _cardSelect.Value != card.Value))
+                AddTime(card.Value);
+            //if (isClose = _cardSelect.Value != card.Value)
+            //    Attempts--;
+            //else
+            //    AddTime(card.Value);
         }
         else
         {
             _cardSelect = card;
         }
 
+        _sound.PlayTurn();
         StartCoroutine(CardSelected_Coroutine());
 
         #region Local functions
@@ -95,6 +96,7 @@ public class BonusLevelPair : ABonusLevel
 
             if (isClose)
             {
+                _sound.PlayError();
                 card.SetColorError();
                 _cardSelect.SetColorError();
                 yield return _waitShowPair;
@@ -102,6 +104,7 @@ public class BonusLevelPair : ABonusLevel
             }
             else
             {
+                _sound.PlaySelect();
                 card.Fixed();
                 _cardSelect.Fixed();
 
@@ -125,7 +128,7 @@ public class BonusLevelPair : ABonusLevel
                 yield return _waitShowEndLevel;
                 yield return _cardsArea.CardHideAndUnsubscribeRandom(_delayTurn / 2f);
 
-                EventEndLevel?.Invoke();
+                LevelEnd();
             }
         }
         #endregion

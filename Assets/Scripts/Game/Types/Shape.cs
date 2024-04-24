@@ -9,7 +9,7 @@ public class Shape : AFace<Shape, Sprite[]>
     public Sprite Bottom => _value[4];
     public Sprite Right => _value[5];
 
-    protected override float Variance => 0.175f;
+    protected override float Variance => 0.2f;
 
     public Shape(Sprite[] sprite, Color color) : base(sprite, color) { }
 }

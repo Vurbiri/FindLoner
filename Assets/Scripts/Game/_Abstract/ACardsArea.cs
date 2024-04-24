@@ -20,8 +20,8 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
     private int _indexFunc;
 
     private const int COUNT_FUNC = 8;
-    private const int CAPACITY_LIST = 144;
-    private const int CAPACITY_STACK = 140;
+    private const int CAPACITY_LIST = 64;
+    private const int CAPACITY_STACK = 55;
 
     public T RandomCard => _cardsRandom.Next;
     public bool TryGetRandomCard(out T card) => _cardsRandom.TryGetNext(out card);

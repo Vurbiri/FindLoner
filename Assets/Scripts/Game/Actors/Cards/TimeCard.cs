@@ -99,7 +99,7 @@ public class TimeCard : ACard
     public void Fixed()
     {
         _isFixed = true;
-        base.IsInteractable = false;
+        _collider.enabled = false;
         _cardBackground.SetColorBorder(_colorBorderTrue);
     }
 

@@ -14,11 +14,12 @@
   "Time": "Time",
 
   "Level": "Level {0}",
-  "LevelComment": "Choose a shape that is different from the other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time, the game is over.",
+  "LevelComment": "Choose a shape that is different from all other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time ({0}), the game is over.",
   "BonusS": "Bonus level A",
-  "BonusSComment": "Choose a shape that is different from the other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time, the game is over.",
+  "BonusSComment": "Win bonus time by revealing any {0} cards.",
   "BonusP": "Bonus level B",
-  "BonusPComment": "Choose a shape that is different from the other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time, the game is over.",
+  "BonusPComment": "Win bonus time by revealing pairs of cards with the same numbers in {0} attempts.",
+  "LevelComplete": "Level complete",
 
   "Game": "Game",
   "Start": "Start",
@@ -42,16 +43,8 @@
   "GoodSaveSettings": "Settings is saved",
   "WarningAuthorization": "Cloud save, personalization and leaderboard are not available without authorization",
 
-  "Leaderboard": "Numbuilders",
+  "Leaderboard": "Seekers",
 
   "Help": "Help",
-  "Control": "Control",
-  "GameControlDesktop": "  Control is by drag and drop:\n  · move the pointer to the shape;\n  · press and hold the left mouse button to 'grab' the shape;\n  · 'drag' the shape to the desired location by moving the pointer to this one;\n  · 'drop' the shape by releasing the button.",
-  "GameControlMobile": "  Control is by drag and drop:\n  · move the finger to the shape;\n  · press and hold the finger to 'grab' the shape;\n  · 'drag' the shape to the desired location by moving the finger to this one;\n  · 'drop' the shape by releasing the finger.",
-  "GameRules": "Game rules",
-  "Enjoy": "Have fun playing!",
-  "GameRulesPart1": "  The goal of the game is to arrange blocks of numbers into clusters according to their value. The cluster contains blocks that are adjacent in a straight line (top, left, bottom, right). To remove a cluster of 2s, you only need two blocks, a cluster of 3s - three blocks, and so on up to 9s - there must be at least nine of them.",
-  "GameRulesPart2": "  When a cluster is removed, all adjacent 1s and their clusters are destroyed.",
-  "GameRulesPart3": "  You have Zero-Bombs at your disposal. When the Zero-Bombs is placed on the board, it will explode and destroy blocks (without scoring any points) within a one-cell radius.",
-  "GameRulesPart4": "  When a block is placed on the board, it scores points equal to its value. The points for removing a block are twice the value of the block. Each block removed that exceeds the required minimum in the cluster gives double points (value multiplied by four).\n  1s score points based on the value of the cluster they join (no bonus points for exceeding the minimum)."
+  "Control": "Control"
 }

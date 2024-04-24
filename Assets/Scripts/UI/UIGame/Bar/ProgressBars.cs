@@ -3,16 +3,20 @@ using UnityEngine;
 public class ProgressBars : MonoBehaviour
 {
     [SerializeField] private BonusLevels _bonusLevels;
-    [SerializeField] private Timer _timer;
+    [SerializeField] private Timer _timerGameLevel;
+    [SerializeField] private Timer _timerBonusLevel;
     [Space]
     [SerializeField] private ProgressBar _progressBarRight;
     [SerializeField] private ProgressBar _progressBarLeft;
 
     private void Start()
     {
-        _timer.EventSetTime += SetMaxValue;
-        _timer.EventTick += SetValue;
-        _timer.EventStop += Clear;
+        _timerGameLevel.EventSetTime += SetMaxValue;
+        _timerGameLevel.EventTick += SetValue;
+        _timerGameLevel.EventStop += Clear;
+
+        _timerBonusLevel.EventSetTime += SetMaxValue;
+        _timerBonusLevel.EventTick += SetValue;
 
         _bonusLevels.EventSetMaxAttempts += (v) => SetMaxValue(v);
         _bonusLevels.EventChangedAttempts += SetSmoothValue;

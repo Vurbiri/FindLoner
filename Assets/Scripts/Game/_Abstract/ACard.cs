@@ -9,7 +9,7 @@ public abstract class ACard : MonoBehaviour
     [SerializeField] protected CardBackground _cardBackground;
     [Space]
     [SerializeField] protected float _speedRotation = 90f;
-    
+
     protected Transform _thisTransform;
     protected BoxCollider2D _collider;
     protected Vector3 _axis;
@@ -22,7 +22,7 @@ public abstract class ACard : MonoBehaviour
     {
         _thisTransform = transform;
         _collider = GetComponent<BoxCollider2D>();
-        IsInteractable = false;
+        _collider.enabled = false;
     }
 
     public void Activate(Transform parent)

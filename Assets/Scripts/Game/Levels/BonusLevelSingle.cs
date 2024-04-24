@@ -9,6 +9,7 @@ public class BonusLevelSingle : ABonusLevel
 
     private WaitForSeconds _waitShuffle;
 
+
     private void Awake()
     {
         _waitShuffle = new(_delayShuffle);
@@ -32,6 +33,7 @@ public class BonusLevelSingle : ABonusLevel
             int i;
             while (countShuffle > 0)
             {
+                _sound.PlayShuffle();
                 cards = _cardsArea.RandomSquadCards;
                 bonus = cards[3].Bonus;
                 for (i = cards.Length - 2; i >= 0; i--)
@@ -73,7 +75,8 @@ public class BonusLevelSingle : ABonusLevel
         if (!(continueLevel = --Attempts > 0 && _countShapes > 0))
             _cardsArea.ForEach((c) => c.IsInteractable = false);
 
-        EventSelectedCard?.Invoke(card.Value);
+        _sound.PlayTurn();
+        
         StartCoroutine(CardSelected_Coroutine());
 
         #region Local functions
@@ -81,7 +84,15 @@ public class BonusLevelSingle : ABonusLevel
         {
             yield return StartCoroutine(card.CardSelected_Coroutine());
 
-            if (continueLevel) yield break;
+            if (card.Value > 0)  {  AddTime(card.Value); _sound.PlaySelect(); card.Fixed(); }
+            else { _sound.PlayError(); }
+
+            if (continueLevel)
+            {
+                foreach (var c in _cardsArea)
+                    if (c.IsNotZero)
+                        yield break;
+            }
 
             Attempts = 0;
             if (_countShapes > 0)
@@ -89,7 +100,7 @@ public class BonusLevelSingle : ABonusLevel
             yield return _waitShowEndLevel;
             yield return _cardsArea.CardHideAndUnsubscribeRandom(_delayTurn / 2f);
 
-            EventEndLevel?.Invoke();
+            LevelEnd();
         }
         #endregion
     }

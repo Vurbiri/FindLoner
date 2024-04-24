@@ -20,6 +20,8 @@ public class GameLevel : MonoBehaviour
     [Space]
     [SerializeField] private bool _isCheats = true;
 
+    private SoundSingleton _sound;
+
     private CardsArea _cardsArea;
     private bool _isFind = false;
 
@@ -35,6 +37,8 @@ public class GameLevel : MonoBehaviour
 
     public void Initialize(float sizeArea, float startSpacing)
     {
+        _sound = SoundSingleton.Instance;
+
         _cardsArea = GetComponent<CardsArea>();
         _cardsArea.Initialize(sizeArea, startSpacing);
 
@@ -62,10 +66,11 @@ public class GameLevel : MonoBehaviour
         EventStartRound?.Invoke();
     }
 
-    public void Stop()
+    public bool Stop()
     {
         _cardsArea.ForEach((c) => c.CheckCroup(0));
         StartCoroutine(EndLevel_Coroutine(!_isFind));
+        return _isFind;
     }
 
     private void SetupCards(bool isNew)
@@ -151,6 +156,7 @@ public class GameLevel : MonoBehaviour
         IEnumerator NextRound_Coroutine()
         {
             _isFind = true;
+            _sound.PlaySelect();
             yield return _waitShowEndRound;
             SetupCards(false);
             yield return _cardsArea.TurnRandom(_delayTurn);

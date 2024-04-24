@@ -76,5 +76,4 @@ public class Card : ACard
         _collider.enabled = false;
         EventSelected?.Invoke(this);
     }
-
 }

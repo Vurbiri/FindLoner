@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BonusLevelSingle), typeof(BonusLevelPair))]
-[RequireComponent(typeof(TimeCardsArea))]
+[RequireComponent(typeof(TimeCardsArea), typeof(Timer))]
 public class BonusLevels : MonoBehaviour
 {
+    [SerializeField] protected float _ratioTimeShowStartLevel = 0.1f;
     [SerializeField] private float _timeShowEndLevel = 1.75f;
     [Space]
     [SerializeField] private float _timeOpenPerAll = 1.5f;
@@ -19,19 +20,19 @@ public class BonusLevels : MonoBehaviour
     private BonusLevelPair _levelPair;
     private ABonusLevel _levelCurrent;
 
-    private float _time;
-
     private TimeCardsArea _cardsArea;
-       
-    public event Action<int> EventSetMaxAttempts;
-    public event Action<float> EventSetTime;
-    public event Action<float> EventAddTime;
+    
+    public event Action<float> EventSetTime { add { _levelSingle.EventSetTime += value; _levelPair.EventSetTime += value; } remove { _levelSingle.EventSetTime -= value; _levelPair.EventSetTime -= value; } }
+    public event Action<float> EventAddTime { add { _levelSingle.EventAddTime += value; _levelPair.EventAddTime += value; } remove { _levelSingle.EventAddTime -= value; _levelPair.EventAddTime -= value; } }
+
+    public event Action<int> EventSetMaxAttempts { add { _levelSingle.EventSetMaxAttempts += value; _levelPair.EventSetMaxAttempts += value; } remove { _levelSingle.EventSetMaxAttempts -= value; _levelPair.EventSetMaxAttempts -= value; } }
     public event Action<int> EventChangedAttempts { add { _levelSingle.EventChangedAttempts += value; _levelPair.EventChangedAttempts += value; } remove { _levelSingle.EventChangedAttempts -= value; _levelPair.EventChangedAttempts -= value; }}
-    public event Action<float> EventEndLevel;
+    public event Action<float> EventEndLevel { add { _levelSingle.EventEndLevel += value; _levelPair.EventEndLevel += value; } remove { _levelSingle.EventEndLevel -= value; _levelPair.EventEndLevel -= value; } }
 
     public void Initialize(float sizeArea, float startSpacing)
     {
         WaitForSeconds waitShowEndLevel = new(_timeShowEndLevel);
+        Timer timer = GetComponent<Timer>();
 
         _cardsArea = GetComponent<TimeCardsArea>();
         _cardsArea.Initialize(sizeArea, startSpacing);
@@ -39,26 +40,12 @@ public class BonusLevels : MonoBehaviour
         _levelSingle = GetComponent<BonusLevelSingle>();
         _levelPair = GetComponent<BonusLevelPair>();
 
-        _levelSingle.EventSelectedCard += AddTime;
-        _levelPair.EventSelectedCard += AddTime;
-
-        _levelSingle.EventEndLevel += OnEndLevel;
-        _levelPair.EventEndLevel += OnEndLevel;
-
-        _levelSingle.Initialize(_cardsArea, waitShowEndLevel);
-        _levelPair.Initialize(_cardsArea, waitShowEndLevel);
+        _levelSingle.Initialize(_cardsArea, timer, waitShowEndLevel);
+        _levelPair.Initialize(_cardsArea, timer, waitShowEndLevel);
 
         #region Local function
         //======================
-        void AddTime(float addTime)
-        {
-            _time += addTime;
-            EventAddTime?.Invoke(_time);
-        }
-        void OnEndLevel()
-        {
-            EventEndLevel?.Invoke(_time);
-        }
+
         #endregion
     }
 
@@ -67,10 +54,6 @@ public class BonusLevels : MonoBehaviour
     private IEnumerator StartLevel_Coroutine(ABonusLevel level, LevelSetupData data)
     {
         _levelCurrent = level;
-        _time = data.Time;
-
-        EventSetMaxAttempts?.Invoke(data.Count);
-        EventSetTime.Invoke(data.Time);
 
         level.Setup(data, _timeOpenPerAll / data.CountShapes, _timeTurnPerAll / data.CountShapes);
         return level.StartRound_Coroutine(GetBonusTime(data.Range, data.IsMonochrome), data.CountShuffle);
@@ -97,4 +80,6 @@ public class BonusLevels : MonoBehaviour
     }
 
     public void Run() => _levelCurrent.Run();
+
+    public float TimeShowStart(float count) => _ratioTimeShowStartLevel * count;
 }

@@ -22,21 +22,20 @@ public class Game : MonoBehaviour
     {
         _dataGame = DataGame.Instance;
 
+        _gameArea.Initialize();
+
         _gameArea.EventScoreAdd += _dataGame.ScoreAdd;
+
         _gameArea.EventEndBonusLevel += StartNextGameLevel;
-        _gameArea.EventEndGameLevel += OnEndGameLevel;
+        _gameArea.EventEndGameLevel += StartNextBonusLevel;
+
+        _gameArea.EventGameLevelFail += ResetGame;
+        _gameArea.EventGameOver += GameOver;
 
         Initialize();
 
         #region Local function
         //======================
-        void OnEndGameLevel(bool isGameOver)
-        {
-            if (isGameOver)
-                GameOver();
-            else
-                StartNextBonusLevel();
-        }
         void Initialize()
         {
             _isMonochrome = false;
@@ -57,7 +56,13 @@ public class Game : MonoBehaviour
 
     private void GameStart()
     {
-        _gameArea.StartGameLevel(new(_startTime, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1));
+        _gameArea.StartGameLevel(new(_startTime, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1), 1);
+    }
+
+    private void ResetGame()
+    {
+        _dataGame.ResetGame();
+        Debug.Log("-= ResetGame =-");
     }
 
     private void GameOver()
@@ -73,17 +78,17 @@ public class Game : MonoBehaviour
 
         CalkGameLevelData();
 
-        _gameArea.StartGameLevel(new(time, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1));
+        _gameArea.StartGameLevel(new(time, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1), _dataGame.Level);
     }
 
     private void StartNextBonusLevel()
     {
         //_dataGame.Save();
 
-        if(_isSimilar)
-            _gameArea.StartBonusLevelSingle(new(_startTime, _currentSize, _currentTypes + 1, _isMonochrome, Mathf.FloorToInt(_currentSize * 1.3f), new(_maxTypes)));
+        if(!_isSimilar)
+            _gameArea.StartBonusLevelSingle(new(_startTime, _currentSize, _currentTypes, _isMonochrome, _currentSize, new(_maxTypes - 1)));
         else
-            _gameArea.StartBonusLevelPair(new(_startTime, _currentSize, _currentTypes, _isMonochrome, 0, new(_maxTypes - 1)));
+            _gameArea.StartBonusLevelPair(new(_startTime, _currentSize, _currentTypes * 2, _isMonochrome, 0, new(_maxTypes - 1)));
     }
 
     private void CalkGameLevelData()

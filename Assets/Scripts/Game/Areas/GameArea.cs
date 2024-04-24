@@ -10,53 +10,80 @@ public class GameArea : MonoBehaviour
     [SerializeField] private GameLevel _gameLevel;
     [SerializeField] private BonusLevels _bonusLevels;
     [Space]
-    [SerializeField] private Timer _timer;
+    [SerializeField] private Timer _timerGameLevel;
+    [SerializeField] private Timer _timerBonusLevels;
     [Space]
     [SerializeField] private ScreenMessage _screenMessage;
 
     public event Action EventScoreAdd;
-    public event Action<bool> EventEndGameLevel { add { _gameLevel.EventEndLevel += value; }  remove { _gameLevel.EventEndLevel -= value; } }
+    public event Action EventGameLevelFail;
+    public event Action EventEndGameLevel;
+    public event Action EventGameOver;
     public event Action<float> EventEndBonusLevel { add { _bonusLevels.EventEndLevel += value; } remove { _bonusLevels.EventEndLevel -= value; } }
 
-    private void Awake()
+    public void Initialize()
     {
         _gameLevel.Initialize(_size, _startSpacing);
         _bonusLevels.Initialize(_size, _startSpacing);
 
-        _timer.EventEndTime += _gameLevel.Stop;
+        _timerGameLevel.EventEndTime += OnEndTime;
 
-        _gameLevel.EventStartRound += () => _timer.IsPause = false;
+        _gameLevel.EventStartRound += () => _timerGameLevel.IsPause = false;
         _gameLevel.EventEndRound += OnEndRound;
-        
+        _gameLevel.EventEndLevel += OnEndGameLevel;
+
 
         #region Local function
+        //======================
+        void OnEndTime()
+        {
+            if (!_gameLevel.Stop())
+            {
+                EventGameLevelFail?.Invoke();
+                _screenMessage.GameOver();
+            }
+            else
+            {
+                _screenMessage.LevelComplete();
+            }
+        }
         //======================
         void OnEndRound(bool isContinue)
         {
             if (isContinue)
             {
-                _timer.IsPause = true;
+                _timerGameLevel.IsPause = true;
                 EventScoreAdd?.Invoke();
             }
             else
             {
-                _timer.Stop();
+                EventGameLevelFail?.Invoke();
+                _timerGameLevel.Stop();
+                _screenMessage.GameOver();
             }
+        }
+        //======================
+        void OnEndGameLevel(bool isGameOver)
+        {
+            if (isGameOver)
+                EventGameOver?.Invoke();
+            else
+                EventEndGameLevel?.Invoke();
         }
         #endregion
     }
 
-    public void StartGameLevel(LevelSetupData data)
+    public void StartGameLevel(LevelSetupData data, int level)
     {
         StartCoroutine(StartGameLevel_Coroutine());
 
         IEnumerator StartGameLevel_Coroutine()
         {
-            _timer.MaxTime = data.Time;
-            yield return _screenMessage.GameLevel_Wait();
+            _timerGameLevel.MaxTime = data.Time;
+            yield return _screenMessage.GameLevel_Wait(level, Mathf.RoundToInt(data.Time));
             yield return _gameLevel.StartLevel_Routine(data);
             _gameLevel.Run();
-            _timer.Run();
+            _timerGameLevel.Run();
         }
     }
 
@@ -66,7 +93,8 @@ public class GameArea : MonoBehaviour
 
         IEnumerator StartBonusLevelSingle_Coroutine()
         {
-            yield return _screenMessage.BonusLevelSingle_Wait();
+            _timerBonusLevels.MaxTime = _bonusLevels.TimeShowStart(data.CountShapes);
+            yield return _screenMessage.BonusLevelSingle_Wait(data.Count);
             yield return StartCoroutine(_bonusLevels.StartLevelSingle_Coroutine(data));
             _bonusLevels.Run();
         }
@@ -78,7 +106,8 @@ public class GameArea : MonoBehaviour
 
         IEnumerator StartBonusLevelPair_Coroutine()
         {
-            yield return _screenMessage.BonusLevelPair_Wait();
+            _timerBonusLevels.MaxTime = _bonusLevels.TimeShowStart(data.CountShapes);
+            yield return _screenMessage.BonusLevelPair_Wait(data.Count);
             yield return StartCoroutine(_bonusLevels.StartLevelPair_Coroutine(data));
             _bonusLevels.Run();
         }

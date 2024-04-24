@@ -214,7 +214,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 1365277349}
-  m_PlaneDistance: 6
+  m_PlaneDistance: 250
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -340,7 +340,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -368,7 +368,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!224 &394035159
 RectTransform:
@@ -619,9 +619,9 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -4224683327630618531, guid: 9e32bed4354ee284785e950309e531f2, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 77cc0df8d3711b846897ae1427622532, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 6e555f95a27b58a47bc115a4cd66331e, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.9
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -630,7 +630,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 30
+  MaxDistance: 800
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -728,7 +728,7 @@ Transform:
   m_GameObject: {fileID: 907229198}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.75, y: 7, z: 0}
+  m_LocalPosition: {x: 400, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -887,10 +887,10 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 10
+  far clip plane: 500
   field of view: 60
   orthographic: 1
-  orthographic size: 14
+  orthographic size: 500
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -915,7 +915,7 @@ Transform:
   m_GameObject: {fileID: 1365277347}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -5}
+  m_LocalPosition: {x: 400, y: 0, z: -250}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1148,7 +1148,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 20
+  MaxDistance: 800
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -1236,18 +1236,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isNotDestroying: 1
-  _clipSpawn: {fileID: 8300000, guid: 39e10db952d8a02408734b454274a772, type: 3}
-  _clipSpawnBomb: {fileID: 8300000, guid: 5c2cfdd7e155cbb418e8a5aab681052f, type: 3}
-  _clipFixed: {fileID: 8300000, guid: 1e2ca625d0634b64dbb04f8aa4827984, type: 3}
-  _clipToStart: {fileID: 8300000, guid: 0a52b343da11a1442b1719f24e268ee2, type: 3}
-  _clipRemove: {fileID: 8300000, guid: db20cae43fc37fc46a2610a806ab8ff5, type: 3}
-  _clipTickingBomb: {fileID: 8300000, guid: 2e493e8e532004d43a141f3271fa1837, type: 3}
-  _clipNewRecord: {fileID: 8300000, guid: 88bcad178545109429cc8914c6b9878c, type: 3}
   _clipNewLevel: {fileID: 8300000, guid: 5b453b36844c7ac41af0c75c5ce0a337, type: 3}
-  _clipReset: {fileID: 0}
+  _clipLevelComplete: {fileID: 8300000, guid: 88bcad178545109429cc8914c6b9878c, type: 3}
   _clipGameOver: {fileID: 8300000, guid: 7175a9b546ea88b4893a69824903074e, type: 3}
-  _SwitchWindows: {fileID: 8300000, guid: 08695dee322415b45aa74bf3a070a861, type: 3}
-  _clipMove: {fileID: 8300000, guid: f9b81a11d5dbff440b3d4298670d970f, type: 3}
+  _clipSelect: {fileID: 8300000, guid: 39e10db952d8a02408734b454274a772, type: 3}
+  _clipError: {fileID: 8300000, guid: f49e368a841bde24d8475e32aaa0dec0, type: 3}
+  _clipTurn: {fileID: 8300000, guid: f9b81a11d5dbff440b3d4298670d970f, type: 3}
+  _clipShuffle: {fileID: 8300000, guid: 0a52b343da11a1442b1719f24e268ee2, type: 3}
 --- !u!4 &1461806351
 Transform:
   m_ObjectHideFlags: 0
@@ -1257,7 +1252,7 @@ Transform:
   m_GameObject: {fileID: 1461806348}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.75, y: 7, z: 0}
+  m_LocalPosition: {x: 400, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

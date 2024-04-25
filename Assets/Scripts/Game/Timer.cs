@@ -68,7 +68,6 @@ public class Timer : MonoBehaviour
         #endregion
     }
 
-
     public void Stop()
     {
         if (_coroutine != null)

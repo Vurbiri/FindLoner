@@ -76,7 +76,7 @@ public class SettingsGame : ASingleton<SettingsGame>
             _profileCurrent.volumes[mixer.ToInt()] = MathF.Round(ConvertFromDB(volumeDB), 3);
         }
 
-        StartCoroutine(Storage.SaveCoroutine(_profileCurrent.key, _profileCurrent, callback));
+        StartCoroutine(Storage.Save_Coroutine(_profileCurrent.key, _profileCurrent, callback));
 
         #region Local Function
         static float ConvertFromDB(float dB)

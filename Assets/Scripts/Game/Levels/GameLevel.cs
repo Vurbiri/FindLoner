@@ -17,8 +17,6 @@ public class GameLevel : MonoBehaviour
     [Space]
     [SerializeField] private float _saturationMin = 0.275f;
     [SerializeField] private float _brightnessMin = 0.3f;
-    [Space]
-    [SerializeField] private bool _isCheats = true;
 
     private SoundSingleton _sound;
 
@@ -28,7 +26,8 @@ public class GameLevel : MonoBehaviour
     private LevelSetupData _data;
     float _delayTurn;
     private WaitForSeconds _waitShowEndRound, _waitShowEndLevel;
-    //private Coroutine _coroutineNextRound, _coroutineEndLevel;
+
+    public bool ControlEnable { set => _cardsArea.ForEach((c) => c.ControlEnable = value); }
 
     public event Action EventStartLevel;
     public event Action EventStartRound;
@@ -89,9 +88,9 @@ public class GameLevel : MonoBehaviour
             {
                 card = _cardsArea.RandomCard;
                 if (isNew)
-                    card.Setup(shape, axis, i, _isCheats);
+                    card.Setup(shape, axis, i);
                 else
-                    card.ReSetup(shape, axis, i, _isCheats);
+                    card.ReSetup(shape, axis, i);
             }
         }
 
@@ -192,23 +191,30 @@ public class GameLevel : MonoBehaviour
         public void Create(int count, bool isSimilar)
         {
             _sprites.Clear();
+            int constId = Random.Range(0, 4); // в 3 из 4 случаев одно сотавляющая будет одинакова
+            Sprite[] constElements = GetConstElement();
             Sprite temp = null;
             for (int i = 0; i < count; i++)
             {
                 Sprite[] sprites = new Sprite[COUNT];
                 do
                 {
-                    sprites[0] = _mainSprites[Random.Range(0, COUNT_SPRITES)];
-                    sprites[1] = _centerSprites[Random.Range(0, COUNT_SPRITES)];
-                    for (int j = 2; j < COUNT; j++)
+                    sprites[0] = constId == 0 ? constElements[0] : _mainSprites[Random.Range(0, COUNT_SPRITES)];
+                    sprites[1] = constId == 1 ? constElements[0] : _centerSprites[Random.Range(0, COUNT_SPRITES)];
+                    for (int j = 2, k = 0; j < COUNT; j++, k++)
                     {
+                        if(constId == 2)
+                        {
+                            sprites[j] = constElements[k];
+                            continue;
+                        }
+                        
                         if (!isSimilar || j == 2)
                             temp = _outerSprites[Random.Range(0, COUNT_SPRITES)];
                         sprites[j] = temp;
                     }
                 }
                 while (_sprites.Contains(sprites, Comparison));
-
                 _sprites.Enqueue(sprites);
             }
 
@@ -222,6 +228,23 @@ public class GameLevel : MonoBehaviour
                         return false;
                 }
                 return true;
+            }
+            Sprite[] GetConstElement()
+            {
+                Sprite[] elements = null;
+                if (constId < 2)
+                {
+                    elements = new Sprite[1];
+                    elements[0] = constId == 0 ? _mainSprites[Random.Range(0, COUNT_SPRITES)] : _centerSprites[Random.Range(0, COUNT_SPRITES)];
+                }
+                else if (constId == 2)
+                {
+                    elements = new Sprite[4];
+                    elements[0] = _outerSprites[Random.Range(0, COUNT_SPRITES)];
+                    for (int j = 1; j < 4; j++)
+                        elements[j] = isSimilar ? elements[0] : _outerSprites[Random.Range(0, COUNT_SPRITES)];
+                }
+                return elements;
             }
             #endregion
         }

@@ -14,26 +14,26 @@ public class Card : ACard
     public int IdGroup => _idGroup;
     private int _idGroup;
     private Shape _shape;
-    private bool _isCheats;
+
+    public static bool IsCheat = false;
 
     public event Action<Card> EventSelected;
 
-    public void Setup(Shape shape, Vector2 axis, int idGroup, bool isCheats)
+    public void Setup(Shape shape, Vector2 axis, int idGroup)
     {
-        ReSetup(shape, axis, idGroup, isCheats);
+        ReSetup(shape, axis, idGroup);
 
         _cardShape.SetShape(shape);
-        _cardBackground.SetColorBorder(_isCheats ? Color.white : _colorBorderNormal);
+        _cardBackground.SetColorBorder(IsCheat && idGroup == 0 ? Color.white : _colorBorderNormal);
 
         _cardShape.ResetAngle();
         _cardBackground.Set90Angle(axis);
     }
 
-    public void ReSetup(Shape shape, Vector3 axis, int idGroup, bool isCheats)
+    public void ReSetup(Shape shape, Vector3 axis, int idGroup)
     {
-        _collider.enabled = false;
+        IsInteractable = false;
 
-        _isCheats = isCheats && idGroup == 0;
         _idGroup = idGroup;
         _axis = axis;
         _shape = shape;
@@ -55,7 +55,7 @@ public class Card : ACard
 
         _cardShape.SetShape(_shape);
         _cardShape.Mirror(_axis);
-        _cardBackground.SetColorBorder(_isCheats ? Color.white : _colorBorderNormal);
+        _cardBackground.SetColorBorder(IsCheat && _idGroup == 0 ? Color.white : _colorBorderNormal);
 
         yield return null;
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));
@@ -63,7 +63,7 @@ public class Card : ACard
 
     public void CheckCroup(int idGroup) 
     {
-        _collider.enabled = false;
+        IsInteractable = false;
 
         if (_idGroup != 0 && _idGroup != idGroup) 
             return;
@@ -73,7 +73,9 @@ public class Card : ACard
 
     protected override void OnMouseDown()
     {
-        _collider.enabled = false;
+        if(!ControlEnable) return;
+        
+        IsInteractable = false;
         EventSelected?.Invoke(this);
     }
 }

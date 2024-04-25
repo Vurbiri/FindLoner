@@ -15,14 +15,15 @@ public abstract class ACard : MonoBehaviour
     protected Vector3 _axis;
     protected Vector2 _currentSize;
 
-    public virtual bool IsInteractable { get => _collider.enabled; set => _collider.enabled = value; }
+    public bool ControlEnable { get; set; }
+    public virtual bool IsInteractable { set => _collider.enabled = value; }
     public Vector3 LocalPosition { set => _thisTransform.localPosition = value; }
 
     protected void Awake()
     {
         _thisTransform = transform;
         _collider = GetComponent<BoxCollider2D>();
-        _collider.enabled = false;
+        IsInteractable = false;
     }
 
     public void Activate(Transform parent)

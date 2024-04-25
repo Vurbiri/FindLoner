@@ -17,16 +17,16 @@ public class BonusLevelPair : ABonusLevel
 
     protected override void SetupCards(Queue<BonusTime> values)
     {
+        _cardSelect = null;
         Vector3 axis = Direction2D.Random;
         BonusTime bonus = null;
-        TimeCard card;
-        Action setup = Setup;
+        TimeCard card, cardCenter = null;
+        Action<BonusTime> setup = Setup;
 
-        _cardSelect = null;
         if (_countShapes % 2 != 0)
         {
-            _cardSelect = _cardsArea.CardCenter;
-            _cardSelect.Setup(null, axis, null, true);
+            cardCenter = _cardsArea.CardCenter;
+            cardCenter.Setup(null, axis, null, true);
             setup = SetupNotCardCenter;
             _countShapes--;
         }
@@ -36,27 +36,27 @@ public class BonusLevelPair : ABonusLevel
         {
             if (values.Count > 0)
                 bonus = values.Dequeue();
-            setup();
-            setup();
+            setup(bonus);
+            setup(bonus);
             count--;
         }
 
         #region Local function
-        void Setup()
+        void Setup(BonusTime bonusTime)
         {
             card = _cardsArea.RandomCard;
-            card.Setup(bonus, axis, OnCardSelected);
+            card.Setup(bonusTime, axis, OnCardSelected);
         }
-        void SetupNotCardCenter()
+        void SetupNotCardCenter(BonusTime bonusTime)
         {
             card = _cardsArea.RandomCard;
-            if (card == _cardSelect)
+            if (card == cardCenter)
             {
                 card = _cardsArea.RandomCard;
                 setup = Setup;
-                _cardSelect = null;
+                cardCenter = null;
             }
-            card.Setup(bonus, axis, OnCardSelected);
+            card.Setup(bonusTime, axis, OnCardSelected);
         }
         #endregion
     }
@@ -104,7 +104,7 @@ public class BonusLevelPair : ABonusLevel
             }
             else
             {
-                _sound.PlaySelect();
+                _sound.PlayFixed();
                 card.Fixed();
                 _cardSelect.Fixed();
 

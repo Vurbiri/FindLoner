@@ -1,120 +1,105 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
 public class Game : MonoBehaviour
 {
+    [SerializeField] private GameUI _gameUI;
     [SerializeField] private GameArea _gameArea;
     [Space]
-    [SerializeField] private float _startTime = 10;
+    [SerializeField] private float _timePreStart = 1.5f;
     [Space]
-    [SerializeField] private int _startSize = 4;
-    [SerializeField] private int _startTypes = 4;
-    [SerializeField] private int _stepTypes = 2;
-    [SerializeField] private int _maxSize = 12;
-    
-    private DataGame _dataGame;
-    private int _currentSize, _currentSqrSize, _currentTypes, _maxTypes;
-    private bool _isMonochrome = false, _isSimilar = true;
+    [SerializeField] private bool _isCheat = false;
 
+    private DataGame _dataGame;
+    private bool _isRecord;
 
     private void Awake()
     {
         _dataGame = DataGame.Instance;
 
+        _gameUI.EventPause += OnPause;
+        _gameUI.EventPlay += OnPlay;
+        _gameUI.EventStart += GameStart;
+
+        _gameUI.ControlEnable = false;
+
         _gameArea.Initialize();
 
         _gameArea.EventScoreAdd += _dataGame.ScoreAdd;
 
-        _gameArea.EventEndBonusLevel += StartNextGameLevel;
         _gameArea.EventEndGameLevel += StartNextBonusLevel;
+        _gameArea.EventEndBonusLevel += StartNextGameLevel;
 
         _gameArea.EventGameLevelFail += ResetGame;
         _gameArea.EventGameOver += GameOver;
 
-        Initialize();
-
-        #region Local function
-        //======================
-        void Initialize()
-        {
-            _isMonochrome = false;
-            _isSimilar = true;
-            _currentSize = _startSize;
-            _currentSqrSize = _currentSize * _currentSize;
-            _currentTypes = _startTypes;
-            _maxTypes = _currentSqrSize / 2;
-        }
-        #endregion
+        Card.IsCheat = _isCheat;
     }
 
     private IEnumerator Start()
     {
-        yield return new WaitForSeconds(1f);
-        GameStart();
+        yield return new WaitForSecondsRealtime(_timePreStart);
+        _gameUI.ControlEnable = true;
+
+        if (_dataGame.IsGameLevel)
+            GameStart();
+        else
+            StartNextBonusLevel();
+
     }
 
     private void GameStart()
     {
-        _gameArea.StartGameLevel(new(_startTime, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1), 1);
+        _gameArea.StartGameLevel(_dataGame.StartGameLevel(), _dataGame.Level);
     }
 
     private void ResetGame()
     {
+        _gameUI.ControlEnable = false;
+
+        _isRecord = false;
+        if (_dataGame.IsRecord)
+            _gameUI.SetScore(_dataGame.Score, (b) => _isRecord = b);
+
         _dataGame.ResetGame();
-        Debug.Log("-= ResetGame =-");
+        _dataGame.Save();
     }
 
     private void GameOver()
     {
-        Debug.Log("-= GameOver =-");
+        _gameUI.ControlEnable = true;
+        _dataGame.Score = 0;
+        if (_isRecord)
+        {
+            _gameUI.OpenLeaderboard();
+            return;
+        }
+
+        GameStart();
     }
 
     private void StartNextGameLevel(float time)
     {
-        _dataGame.Level++;
-        _dataGame.Time = time;
-        //_dataGame.Save();
-
-        CalkGameLevelData();
-
-        _gameArea.StartGameLevel(new(time, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1), _dataGame.Level);
+        _gameArea.StartGameLevel(_dataGame.NextGameLevel(time), _dataGame.Level);
     }
 
     private void StartNextBonusLevel()
     {
-        //_dataGame.Save();
-
-        if(!_isSimilar)
-            _gameArea.StartBonusLevelSingle(new(_startTime, _currentSize, _currentTypes, _isMonochrome, _currentSize, new(_maxTypes - 1)));
+        if (_dataGame.IsBonusLevelSingle)
+            _gameArea.StartBonusLevelSingle(_dataGame.NextBonusLevel());
         else
-            _gameArea.StartBonusLevelPair(new(_startTime, _currentSize, _currentTypes * 2, _isMonochrome, 0, new(_maxTypes - 1)));
+            _gameArea.StartBonusLevelPair(_dataGame.NextBonusLevel());
     }
 
-    private void CalkGameLevelData()
+    private void OnPause()
     {
-        _isMonochrome = !_isMonochrome;
+        _gameArea.ControlEnable = false;
+        Time.timeScale = 0;
+    }
 
-        if (_isMonochrome)
-            return;
-
-        _isSimilar = !_isSimilar;
-
-        if (!_isSimilar)
-            return;
-
-        if ((_currentTypes += _stepTypes) <= _maxTypes)
-            return;
-
-        if (_currentSize == _maxSize)
-        {
-            _currentTypes = _maxTypes;
-            return;
-        }
-
-        _currentSize++;
-        _currentSqrSize = _currentSize * _currentSize;
-        _currentTypes = _startTypes;
-        _maxTypes = _currentSqrSize / 2;
+    private void OnPlay()
+    {
+        Time.timeScale = 1;
+        _gameArea.ControlEnable = true;
     }
 }

@@ -21,7 +21,9 @@ public class BonusLevels : MonoBehaviour
     private ABonusLevel _levelCurrent;
 
     private TimeCardsArea _cardsArea;
-    
+
+    public bool ControlEnable { set => _cardsArea.ForEach((c) => c.ControlEnable = value); }
+
     public event Action<float> EventSetTime { add { _levelSingle.EventSetTime += value; _levelPair.EventSetTime += value; } remove { _levelSingle.EventSetTime -= value; _levelPair.EventSetTime -= value; } }
     public event Action<float> EventAddTime { add { _levelSingle.EventAddTime += value; _levelPair.EventAddTime += value; } remove { _levelSingle.EventAddTime -= value; _levelPair.EventAddTime -= value; } }
 

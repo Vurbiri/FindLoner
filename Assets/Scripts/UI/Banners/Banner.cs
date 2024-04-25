@@ -37,7 +37,7 @@ public class Banner : APooledObject<Banner>
         layoutGroup.padding.bottom = iSize;
     }
 
-    public void Setup(string message, MessageType messageType, int time, bool isThrough)
+    public void Setup(string message, MessageType messageType, float time, bool isThrough)
     {
         _isThrough = isThrough;
         _text.text = message;
@@ -49,7 +49,7 @@ public class Banner : APooledObject<Banner>
         
         IEnumerator TimeShow()
         {
-            yield return new WaitForSecondsRealtime(time/1000f);
+            yield return new WaitForSecondsRealtime(time);
             Deactivate();
         }
     }

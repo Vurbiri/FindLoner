@@ -9,7 +9,7 @@ public abstract class ASaveLoadJsonTo
 
     public abstract bool IsValid { get; }
 
-    public abstract IEnumerator InitializeCoroutine(string key, Action<bool> callback);
+    public abstract IEnumerator Initialize_Coroutine(string key, Action<bool> callback);
 
     public virtual Return<T> Load<T>(string key) where T : class
     {
@@ -19,7 +19,7 @@ public abstract class ASaveLoadJsonTo
         return Return<T>.Empty;
     }
 
-    public abstract IEnumerator SaveCoroutine(string key, object data, Action<bool> callback);
+    public abstract IEnumerator Save_Coroutine(string key, object data, Action<bool> callback);
     protected virtual bool SaveToMemory(string key, object data)
     {
         try

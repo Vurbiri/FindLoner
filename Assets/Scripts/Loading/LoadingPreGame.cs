@@ -78,7 +78,7 @@ public class LoadingPreGame : MonoBehaviour
         IEnumerator CreateStoragesCoroutine()
         {
             if (!Storage.StoragesCreate())
-                Message.Banner(localization.GetText("ErrorStorage"), MessageType.Error, 7000);
+                Message.Banner(localization.GetText("ErrorStorage"), MessageType.Error, 7f);
             
             ProgressLoad(0.35f);
 
@@ -90,7 +90,7 @@ public class LoadingPreGame : MonoBehaviour
             IEnumerator InitializeStoragesCoroutine()
             {
                 WaitReturnData<bool> waitReturn = new(this);
-                yield return waitReturn.Start(Storage.InitializeCoroutine, _keySave);
+                yield return waitReturn.Start(Storage.Initialize_Coroutine, _keySave);
             
                 if (waitReturn.Return)
                     Message.Log("Storage initialize");

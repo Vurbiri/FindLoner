@@ -85,11 +85,26 @@ public class ScreenMessage : MonoBehaviour
         #endregion
     }
 
-    public void GameOver() => SimpleMessage(_gameOver);
+    public WaitActivate GameOver()
+    {
+        WaitActivate wait = new();
+        gameObject.SetActive(true);
+        StartCoroutine(GameOver_Coroutine());
+        return wait;
 
-    public void LevelComplete() => SimpleMessage(_levelComplete);
+        #region Local function
+        //=================================
+        IEnumerator GameOver_Coroutine()
+        {
+            yield return _gameOver.Send_Wait();
+            yield return _gameOver.Fide();
+            wait.Activate();
+            Clear();
+        }
+        #endregion
+    }
 
-    private void SimpleMessage(Message message)
+    public void LevelComplete()
     {
         gameObject.SetActive(true);
         StartCoroutine(GameOver_Coroutine());
@@ -98,8 +113,8 @@ public class ScreenMessage : MonoBehaviour
         //=================================
         IEnumerator GameOver_Coroutine()
         {
-            yield return message.Send_Wait();
-            yield return message.Fide();
+            yield return _levelComplete.Send_Wait();
+            yield return _levelComplete.Fide();
             Clear();
         }
         #endregion

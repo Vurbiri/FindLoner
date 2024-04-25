@@ -4,11 +4,11 @@ public static class Message
     public static void Log(string msg)=> UtilityJS.Log(msg);
     public static void Error(string msg) => UtilityJS.Error(msg);
 
-    public static void Banner(string message, MessageType type = MessageType.Normal, int time = 5000, bool isThrough = true)
+    public static void Banner(string message, MessageType type = MessageType.Normal, float time = 5f, bool isThrough = true)
     {
         Banners.Instance.Message(message, type, time, isThrough);
     }
-    public static void BannerKey(string key, MessageType type = MessageType.Normal, int time = 5000, bool isThrough = true)
+    public static void BannerKey(string key, MessageType type = MessageType.Normal, float time = 5f, bool isThrough = true)
     {
         Banners.Instance.Message(Localization.Instance.GetText(key), type, time, isThrough);
     }
@@ -21,9 +21,9 @@ public static class Message
     public static void Saving(string goodMSG, bool isSaving)
     {
         if (isSaving)
-            BannerKey(goodMSG, time: 2000);
+            BannerKey(goodMSG, time: 2f);
         else
-            BannerKey("ErrorSave", MessageType.Error, 5500);
+            BannerKey("ErrorSave", MessageType.Error);
     }
 }
 

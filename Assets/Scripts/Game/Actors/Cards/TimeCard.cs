@@ -22,13 +22,13 @@ public class TimeCard : ACard
     public bool IsNotZero => !_isFixed && _bonus.Value != 0;
     public int Value => _bonus.Value;
     public BonusTime Bonus => _bonus;
-    public override bool IsInteractable { get => _collider.enabled; set => _collider.enabled = value && !_isFixed; }
+    public override bool IsInteractable { set => base.IsInteractable = value && !_isFixed; }
     
     public void Setup(BonusTime bonus, Vector2 axis, Action<TimeCard> action, bool isFixed = false)
     {
         _bonus = bonus;
         _axis = axis;
-        _collider.enabled = false;
+        base.IsInteractable = false;
         _isFixed = isFixed;
 
         _cardText.Setup(bonus);
@@ -82,7 +82,7 @@ public class TimeCard : ACard
     {
         if (!_isShowShirt) yield break;
 
-        _collider.enabled = false;
+        base.IsInteractable = false;
 
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(-_axis, _speedRotation));
         yield return null;
@@ -99,7 +99,7 @@ public class TimeCard : ACard
     public void Fixed()
     {
         _isFixed = true;
-        _collider.enabled = false;
+        base.IsInteractable = false;
         _cardBackground.SetColorBorder(_colorBorderTrue);
     }
 
@@ -147,7 +147,9 @@ public class TimeCard : ACard
 
     protected override void OnMouseDown()
     {
-        _collider.enabled = false;
+        if (!ControlEnable) return;
+
+        base.IsInteractable = false;
         actionSelected?.Invoke(this);
     }
 }

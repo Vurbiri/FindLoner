@@ -7,6 +7,7 @@ public class SoundSingleton : ASingleton<SoundSingleton>
     [SerializeField] private AudioClip _clipLevelComplete;
     [SerializeField] private AudioClip _clipGameOver;
     [SerializeField] private AudioClip _clipSelect;
+    [SerializeField] private AudioClip _clipFixed;
     [SerializeField] private AudioClip _clipError;
     [SerializeField] private AudioClip _clipTurn;
     [SerializeField] private AudioClip _clipShuffle;
@@ -24,6 +25,7 @@ public class SoundSingleton : ASingleton<SoundSingleton>
     public void PlayLevelComplete() => _thisAudio.PlayOneShot(_clipLevelComplete);
     public void PlayGameOver() => _thisAudio.PlayOneShot(_clipGameOver);
     public void PlaySelect() => _thisAudio.PlayOneShot(_clipSelect);
+    public void PlayFixed() => _thisAudio.PlayOneShot(_clipFixed);
     public void PlayError() => _thisAudio.PlayOneShot(_clipError);
     public void PlayTurn() => _thisAudio.PlayOneShot(_clipTurn);
     public void PlayShuffle() => _thisAudio.PlayOneShot(_clipShuffle);

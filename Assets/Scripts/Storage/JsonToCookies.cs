@@ -8,7 +8,7 @@ public class JsonToCookies : ASaveLoadJsonTo
 
     public override bool IsValid => UtilityJS.IsCookies();
 
-    public override IEnumerator InitializeCoroutine(string key, Action<bool> callback)
+    public override IEnumerator Initialize_Coroutine(string key, Action<bool> callback)
     {
         _key = key;
 
@@ -39,7 +39,7 @@ public class JsonToCookies : ASaveLoadJsonTo
         callback?.Invoke(false);
     }
 
-    public override IEnumerator SaveCoroutine(string key, object data, Action<bool> callback)
+    public override IEnumerator Save_Coroutine(string key, object data, Action<bool> callback)
     {
         bool result = SaveToMemory(key, data);
         if (!result)

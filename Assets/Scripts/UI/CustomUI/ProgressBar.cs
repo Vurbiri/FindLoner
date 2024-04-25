@@ -2,12 +2,12 @@ using NaughtyAttributes;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
 
 public class ProgressBar : MonoBehaviour
 {
     [SerializeField] private RectTransform _fill;
     [Space]
-    [SerializeField, Dropdown("GetAxisValues")] private int _axe = 1;
     [SerializeField] private float _speedChangeValue = 0.6f;
     [Space]
     [SerializeField] private Color _colorNormal = Color.green;
@@ -21,6 +21,8 @@ public class ProgressBar : MonoBehaviour
     private Graphic _imageFill;
     private Vector2 _anchorMin = Vector2.zero, _anchorMax = Vector2.one;
     private Coroutine _coroutine;
+
+    private const int AXE = 1;
 
     public float MaxValue
     {
@@ -70,6 +72,23 @@ public class ProgressBar : MonoBehaviour
         SetProgress(0f);
     }
 
+    public void ClearSmooth()
+    {
+        if (_coroutine != null)
+            StopCoroutine(_coroutine);
+
+        _coroutine = StartCoroutine(ClearSmooth_Coroutine());
+
+        #region Local function
+        //======================
+        IEnumerator ClearSmooth_Coroutine()
+        {
+            yield return StartCoroutine(SetProgress_Coroutine(0)); ;
+            _maxValue = 0.01f;
+        }
+        #endregion
+    }
+
     private void SetProgress(float progressNew, bool staticColor = false)
     {
         _progress = progressNew;
@@ -77,8 +96,8 @@ public class ProgressBar : MonoBehaviour
         //Canvas.ForceUpdateCanvases();
 
         // Set anchor
-        _anchorMin[_axe] = 0.5f - progressNew * 0.5f;
-        _anchorMax[_axe] = 0.5f + progressNew * 0.5f;
+        _anchorMin[AXE] = 0.5f - progressNew * 0.5f;
+        _anchorMax[AXE] = 0.5f + progressNew * 0.5f;
 
         _fill.anchorMin = _anchorMin;
         _fill.anchorMax = _anchorMax;
@@ -111,15 +130,4 @@ public class ProgressBar : MonoBehaviour
         SetProgress(progressNew);
         _coroutine = null;
     }
-
-#if UNITY_EDITOR
-    private DropdownList<int> GetAxisValues()
-    {
-        return new DropdownList<int>()
-        {
-            { "X",  0 },
-            { "Y",  1 }
-        };
-    }
-#endif
 }

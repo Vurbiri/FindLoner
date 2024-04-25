@@ -22,15 +22,10 @@ public enum MessageType : byte
     FatalError
 }
 
-public enum GameModeStart : byte
+public enum GameMode : byte
 {
-    New,
-    Continue
-}
-public enum BonusLevelTypes : byte
-{
-    Single,
-    Pair
+    Game,
+    Bonus
 }
 
 public static class ExtensionsEnum

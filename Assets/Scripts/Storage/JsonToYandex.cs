@@ -14,7 +14,7 @@ public class JsonToYandex : ASaveLoadJsonTo
         _ysdk = YandexSDK.InstanceF;
     }
 
-    public override IEnumerator InitializeCoroutine(string key, Action<bool> callback)
+    public override IEnumerator Initialize_Coroutine(string key, Action<bool> callback)
     {
         _key = key;
         
@@ -32,6 +32,7 @@ public class JsonToYandex : ASaveLoadJsonTo
             {
                 _saved = d.Value;
                 callback?.Invoke(true);
+                yield break;
             }
         }
 
@@ -39,7 +40,7 @@ public class JsonToYandex : ASaveLoadJsonTo
         callback?.Invoke(false);
     }
 
-    public override IEnumerator SaveCoroutine(string key, object data, Action<bool> callback)
+    public override IEnumerator Save_Coroutine(string key, object data, Action<bool> callback)
     {
         bool result = SaveToMemory(key, data);
         if (!(result && _dictModified))

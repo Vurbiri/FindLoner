@@ -33,12 +33,17 @@ public class LeaderboardUI : MonoBehaviour
             StartCoroutine(InitializeCoroutine());
     }
 
-    public IEnumerator SetScore(long score)
+    public IEnumerator SetScore(long score, Action<bool> callback)
     {
-        if (!YSDK.IsLeaderboard) yield break;
+        if (!YSDK.IsLeaderboard)
+        {
+            callback?.Invoke(false);
+            yield break;
+        }
 
         WaitResult<bool> waitResult = YandexSDK.Instance.SetScore(score);
         yield return waitResult;
+        callback?.Invoke(waitResult.Result);
         if (!waitResult.Result) yield break;
 
         if (_rect.content.childCount != 0)

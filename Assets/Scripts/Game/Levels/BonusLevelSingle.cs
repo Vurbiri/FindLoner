@@ -84,8 +84,8 @@ public class BonusLevelSingle : ABonusLevel
         {
             yield return StartCoroutine(card.CardSelected_Coroutine());
 
-            if (card.Value > 0)  {  AddTime(card.Value); _sound.PlaySelect(); card.Fixed(); }
-            else { _sound.PlayError(); }
+            if (card.Value > 0)  { AddTime(card.Value); _sound.PlayFixed(); card.Fixed(); }
+            else { _sound.PlayError(); card.SetColorError(); }
 
             if (continueLevel)
             {

@@ -13,6 +13,7 @@ public class ProgressBars : MonoBehaviour
     {
         _timerGameLevel.EventSetTime += SetMaxValue;
         _timerGameLevel.EventTick += SetValue;
+        _timerGameLevel.EventEndTime += Clear;
         _timerGameLevel.EventStop += Clear;
 
         _timerBonusLevel.EventSetTime += SetMaxValue;
@@ -27,7 +28,7 @@ public class ProgressBars : MonoBehaviour
         void SetMaxValue(float value) => _progressBarRight.MaxValue = _progressBarLeft.MaxValue = value;
         void SetValue(float value) => _progressBarRight.Value = _progressBarLeft.Value = value;
         void SetSmoothValue(int value) => _progressBarRight.SmoothValue = _progressBarLeft.SmoothValue = value;
-        void Clear() => SetSmoothValue(0);
+        void Clear() { _progressBarRight.ClearSmooth(); _progressBarLeft.ClearSmooth(); }
         #endregion
     }
 }

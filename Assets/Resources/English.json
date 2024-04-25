@@ -14,11 +14,11 @@
   "Time": "Time",
 
   "Level": "Level {0}",
-  "LevelComment": "Choose a shape that is different from all other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time ({0}), the game is over.",
+  "LevelComment": "Choose a shape that is different from all other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time (<color=#FFFFFF>{0}</color>), the game is over.",
   "BonusS": "Bonus level A",
-  "BonusSComment": "Win bonus time by revealing any {0} cards.",
+  "BonusSComment": "Win bonus time by revealing any <color=#FFFFFF>{0}</color> cards.",
   "BonusP": "Bonus level B",
-  "BonusPComment": "Win bonus time by revealing pairs of cards with the same numbers in {0} attempts.",
+  "BonusPComment": "Win bonus time by revealing pairs of cards with the same numbers in <color=#FFFFFF>{0}</color> attempts.",
   "LevelComplete": "Level complete",
 
   "Game": "Game",
@@ -41,6 +41,7 @@
   "ErrorStorage": "Error! Saving progress is not available!",
   "ErrorSave": "Save error!",
   "GoodSaveSettings": "Settings is saved",
+  "GoodSave": "Game is saved",
   "WarningAuthorization": "Cloud save, personalization and leaderboard are not available without authorization",
 
   "Leaderboard": "Seekers",

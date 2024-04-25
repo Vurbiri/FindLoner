@@ -475,8 +475,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isNotDestroying: 1
   _keySave: gmd_test
-  _timeStart: 24
-  _timePerLevel: 1
   _scoreStart: 4
   _scorePerLevel: 1
 --- !u!4 &523976399
@@ -1240,9 +1238,10 @@ MonoBehaviour:
   _clipLevelComplete: {fileID: 8300000, guid: 88bcad178545109429cc8914c6b9878c, type: 3}
   _clipGameOver: {fileID: 8300000, guid: 7175a9b546ea88b4893a69824903074e, type: 3}
   _clipSelect: {fileID: 8300000, guid: 39e10db952d8a02408734b454274a772, type: 3}
+  _clipFixed: {fileID: 8300000, guid: db20cae43fc37fc46a2610a806ab8ff5, type: 3}
   _clipError: {fileID: 8300000, guid: f49e368a841bde24d8475e32aaa0dec0, type: 3}
   _clipTurn: {fileID: 8300000, guid: f9b81a11d5dbff440b3d4298670d970f, type: 3}
-  _clipShuffle: {fileID: 8300000, guid: 0a52b343da11a1442b1719f24e268ee2, type: 3}
+  _clipShuffle: {fileID: 8300000, guid: 08695dee322415b45aa74bf3a070a861, type: 3}
 --- !u!4 &1461806351
 Transform:
   m_ObjectHideFlags: 0

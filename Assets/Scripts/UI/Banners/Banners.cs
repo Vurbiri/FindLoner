@@ -14,7 +14,7 @@ public class Banners : ASingleton<Banners>
         _banners = new(_prefab, _repository, _sizePool);
     }
 
-    public void Message(string message, MessageType messageType, int time, bool isThrough)
+    public void Message(string message, MessageType messageType, float time, bool isThrough)
     {
         _banners.GetObject(_container).Setup(message, messageType, time, isThrough);
     }

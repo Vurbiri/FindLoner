@@ -15,6 +15,10 @@ public class GameArea : MonoBehaviour
     [Space]
     [SerializeField] private ScreenMessage _screenMessage;
 
+    private WaitActivate _waitMessageGameOver = null;
+
+    public bool ControlEnable { set => _gameLevel.ControlEnable = _bonusLevels.ControlEnable = value; }
+
     public event Action EventScoreAdd;
     public event Action EventGameLevelFail;
     public event Action EventEndGameLevel;
@@ -31,8 +35,7 @@ public class GameArea : MonoBehaviour
         _gameLevel.EventStartRound += () => _timerGameLevel.IsPause = false;
         _gameLevel.EventEndRound += OnEndRound;
         _gameLevel.EventEndLevel += OnEndGameLevel;
-
-
+                
         #region Local function
         //======================
         void OnEndTime()
@@ -40,7 +43,7 @@ public class GameArea : MonoBehaviour
             if (!_gameLevel.Stop())
             {
                 EventGameLevelFail?.Invoke();
-                _screenMessage.GameOver();
+                _waitMessageGameOver = _screenMessage.GameOver();
             }
             else
             {
@@ -59,16 +62,21 @@ public class GameArea : MonoBehaviour
             {
                 EventGameLevelFail?.Invoke();
                 _timerGameLevel.Stop();
-                _screenMessage.GameOver();
+                _waitMessageGameOver = _screenMessage.GameOver();
             }
         }
         //======================
         void OnEndGameLevel(bool isGameOver)
         {
             if (isGameOver)
-                EventGameOver?.Invoke();
+                StartCoroutine(GameOver_Coroutine());
             else
                 EventEndGameLevel?.Invoke();
+        }
+        IEnumerator GameOver_Coroutine()
+        {
+            yield return _waitMessageGameOver;
+            EventGameOver?.Invoke();
         }
         #endregion
     }

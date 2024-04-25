@@ -33,6 +33,7 @@ public class Card : ACard
     public void ReSetup(Shape shape, Vector3 axis, int idGroup)
     {
         IsInteractable = false;
+        ControlEnable = true;
 
         _idGroup = idGroup;
         _axis = axis;

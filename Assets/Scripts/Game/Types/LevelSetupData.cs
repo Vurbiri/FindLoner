@@ -10,7 +10,7 @@ public class LevelSetupData
     public Increment Range { get; }
     public int CountShuffle { get; }
 
-    public LevelSetupData(float startTime, int size, int countTypes, bool isMonochrome, int countShuffle)
+    public LevelSetupData(float startTime, int size, int countTypes, bool isMonochrome)
     {
         Time = startTime;
         Size = size;
@@ -18,10 +18,11 @@ public class LevelSetupData
         Count = countTypes;
         IsMonochrome = isMonochrome;
         Range = null;
-        CountShuffle = countShuffle;
+        CountShuffle = 0;
     }
-    public LevelSetupData(float startTime, int size, int attempts, bool isMonochrome, int countShuffle, Increment range) : this(startTime, size, attempts, isMonochrome, countShuffle)
+    public LevelSetupData(float startTime, int size, int attempts, bool isMonochrome, int countShuffle, Increment range) : this(startTime, size, attempts, isMonochrome)
     {
         Range = range;
+        CountShuffle = countShuffle;
     }
 }

@@ -6,6 +6,8 @@ public class GameUI : MonoBehaviour
 {
     [SerializeField] private LeaderboardUI _leaderboardUI;
     [Space]
+    [SerializeField] private Button _menuButton;
+    [Space]
     [SerializeField] private GameObject _background;
     [SerializeField] private GameObject _mainMenu;
     [Space]
@@ -22,6 +24,7 @@ public class GameUI : MonoBehaviour
 
     private void Start()
     {
+        _menuButton.onClick.AddListener(OnMenu);
         Off();
     }
 
@@ -55,15 +58,6 @@ public class GameUI : MonoBehaviour
             _isStartNewGame = false;
         }
     }
-    public void OnMenu()
-    {
-        if (!ControlEnable) return;
-
-        if (_isPause)
-            Close();
-        else
-            Open();
-    }
 
     public void SetScore(long score, Action<bool> callback) => StartCoroutine(_leaderboardUI.SetScore(score, callback));
 
@@ -74,11 +68,20 @@ public class GameUI : MonoBehaviour
         _settings.Enable = false;
         _leaderboard.Enable = false;
     }
-
     private void On()
     {
         _background.SetActive(true);
         _mainMenu.SetActive(true);
+    }
+
+    private void OnMenu()
+    {
+        if (!ControlEnable) return;
+
+        if (_isPause)
+            Close();
+        else
+            Open();
     }
 
 

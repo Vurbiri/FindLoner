@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +8,7 @@ public class CameraReSize : MonoBehaviour
     [SerializeField] private CanvasScaler _canvasScaler;
 
     private Camera _thisCamera;
-    private float aspectRatioOld = 0f;
+    private float _aspectRatioOld = 0f;
     private float _verticalHalfSizeMin = 500f;
     private float _horizontalHalfSizeMin = 800f;
 
@@ -22,17 +21,15 @@ public class CameraReSize : MonoBehaviour
 
     private void Update()
     {
-        if (aspectRatioOld == _thisCamera.aspect)
+        if (_aspectRatioOld == _thisCamera.aspect)
             return;
 
-        aspectRatioOld = _thisCamera.aspect;
-        float horizontalHalfSize = _verticalHalfSizeMin * aspectRatioOld;
+        _aspectRatioOld = _thisCamera.aspect;
+        float horizontalHalfSize = _verticalHalfSizeMin * _aspectRatioOld;
 
         if (horizontalHalfSize < _horizontalHalfSizeMin)
-            _thisCamera.orthographicSize = _horizontalHalfSizeMin / aspectRatioOld;
+            _thisCamera.orthographicSize = _horizontalHalfSizeMin / _aspectRatioOld;
         else
             _thisCamera.orthographicSize = _verticalHalfSizeMin;
-
-        //Debug.Log((_thisCamera.orthographicSize * aspectRatioOld * 2f) + " - " + (_thisCamera.orthographicSize * 2f));
     }
 }

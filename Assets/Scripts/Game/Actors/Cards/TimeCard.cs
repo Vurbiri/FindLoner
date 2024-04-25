@@ -26,9 +26,11 @@ public class TimeCard : ACard
     
     public void Setup(BonusTime bonus, Vector2 axis, Action<TimeCard> action, bool isFixed = false)
     {
+        base.IsInteractable = false;
+        ControlEnable = true;
+
         _bonus = bonus;
         _axis = axis;
-        base.IsInteractable = false;
         _isFixed = isFixed;
 
         _cardText.Setup(bonus);

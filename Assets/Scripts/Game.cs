@@ -85,6 +85,8 @@ public class Game : MonoBehaviour
 
     private void StartNextBonusLevel()
     {
+        _dataGame.CalkGameLevelData();
+
         if (_dataGame.IsBonusLevelSingle)
             _gameArea.StartBonusLevelSingle(_dataGame.NextBonusLevel());
         else

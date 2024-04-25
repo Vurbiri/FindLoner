@@ -6,7 +6,7 @@ using UnityEngine;
 public partial class YandexSDK : ASingleton<YandexSDK>
 {
     [Space]
-    [SerializeField] private string _lbName = "lbDBlocks";
+    [SerializeField] private string _lbName = "lbFindLoner";
 
 #if !UNITY_EDITOR
     public bool IsInitialize => IsInitializeJS();

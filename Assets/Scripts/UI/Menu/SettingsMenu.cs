@@ -15,17 +15,16 @@ public class SettingsMenu : MenuNavigation
     }
     private void OnDisable() 
     {
-        if (SettingsGame.Instance == null)
+        if (isSave || SettingsGame.Instance == null)
             return;
-        
-        if (isSave)
-            _settings.Save((b) => Message.Saving("GoodSaveSettings", b));
-        else
-            _settings.Cancel();
+
+        _settings.Cancel();
     }
 
     public void OnOk()
     {
         isSave = true;
+
+        _settings.Save((b) => Message.Saving("GoodSaveSettings", b));
     }
 }

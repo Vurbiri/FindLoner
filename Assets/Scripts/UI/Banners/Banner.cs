@@ -8,24 +8,22 @@ using UnityEngine.UI;
 public class Banner : APooledObject<Banner>
 {
     [SerializeField] private TMP_Text _text;
-    [SerializeField] private Color[] _colors;
-    [Space]
-    [SerializeField] private float _fontSizeDesktop = 14;
-    [SerializeField] private float _fontSizeMobile = 14;
+
+    private Banners _banners;
 
     private Image _image;
-
     private Coroutine _coroutine;
     private bool _isThrough;
 
     public override void Initialize()
     {
         base.Initialize();
-        
+
+        _banners = Banners.InstanceF;
         _image = GetComponent<Image>();
         HorizontalLayoutGroup layoutGroup = GetComponent<HorizontalLayoutGroup>();
 
-        float size = SettingsGame.InstanceF.IsDesktop ? _fontSizeDesktop : _fontSizeMobile;
+        float size = _banners.FontSize;
         _text.fontSize = size;
         size /= 2f;
         GetComponent<Outline>().effectDistance = Vector2.one * size;
@@ -41,7 +39,7 @@ public class Banner : APooledObject<Banner>
     {
         _isThrough = isThrough;
         _text.text = message;
-        _image.color = _colors[messageType.ToInt()];
+        _image.color = _banners.Colors[messageType.ToInt()];
 
         Activate();
         _coroutine = StartCoroutine(TimeShow());

@@ -120,7 +120,7 @@ public class GameLevel : MonoBehaviour
         //-----
         Stack<Shape> GetShapes()
         {
-            _creatorShapes.Create(_data.Count, _data.CountShuffle == 0);
+            _creatorShapes.Create(_data.Count);
             Stack<Shape> shs = new(_data.Count);
             Shape sh;
             Color color = Color.white; color.Randomize(_saturationMin, _brightnessMin);
@@ -188,10 +188,11 @@ public class GameLevel : MonoBehaviour
         private const int COUNT = 6;
         private const int COUNT_SPRITES = 9;
 
-        public void Create(int count, bool isSimilar)
+        public void Create(int count)
         {
+            bool isSimilar = Random.Range(0, 1000) < 500;
             _sprites.Clear();
-            int constId = Random.Range(0, 4); // в 3 из 4 случаев одно сотавляющая будет одинакова
+            int constId = Random.Range(0, 4); // в 3 из 4 случаев одно составляющее будет одинакова
             Sprite[] constElements = GetConstElement();
             Sprite temp = null;
             for (int i = 0; i < count; i++)

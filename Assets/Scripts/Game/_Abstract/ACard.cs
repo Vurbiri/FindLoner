@@ -15,7 +15,7 @@ public abstract class ACard : MonoBehaviour
     protected Vector3 _axis;
     protected Vector2 _currentSize;
 
-    public bool ControlEnable { get; set; }
+    public bool ControlEnable { get; set; } = true;
     public virtual bool IsInteractable { set => _collider.enabled = value; }
     public Vector3 LocalPosition { set => _thisTransform.localPosition = value; }
 

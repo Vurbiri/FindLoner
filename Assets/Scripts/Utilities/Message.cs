@@ -22,8 +22,6 @@ public static class Message
     {
         if (isSaving)
             BannerKey(goodMSG, time: 2f);
-        else
-            BannerKey("ErrorSave", MessageType.Error);
     }
 }
 

@@ -6,14 +6,14 @@ using UnityEngine;
 public class DataGame : ASingleton<DataGame>
 {
     [Space]
-    [SerializeField] private string _keySave = "gmd_test";
+    [SerializeField] private string _keySave = "gmd";
     [Space]
-    private float _timeStart = 5;
+    [SerializeField] private float _timeStart = 11;
     [Space]
-    private int _startSize = 3;
-    private int _startTypes = 4;
-    private int _stepTypes = 2;
-    private int _maxSize = 8;
+    [SerializeField] private int _startSize = 3;
+    [SerializeField] private int _startTypes = 4;
+    [SerializeField] private int _stepTypes = 2;
+    [SerializeField] private int _maxSize = 8;
     [Space]
     [SerializeField] private int _scoreStart = 4;
     [SerializeField] private int _scorePerLevel = 1;
@@ -21,10 +21,12 @@ public class DataGame : ASingleton<DataGame>
     private GameSave _data;
     private bool _isNewRecord = false;
     private int _currentSize, _currentSqrSize, _currentTypes, _maxTypes;
-    private bool _isMonochrome = false, _isSimilar = false;
+    private bool _isMonochrome = false, _isBonusLevelSingle = true;
+
+    private float TimeStart => _timeStart + _currentSize * 3;
 
     public bool IsGameLevel => _data.modeStart == GameMode.Game;
-    public bool IsBonusLevelSingle => !_isSimilar;
+    public bool IsBonusLevelSingle => _isBonusLevelSingle;
     public bool IsRecord => _data.score > _data.maxScore;
     public int Level => _data.level;
     public int Score { get => _data.score; set { _data.score = value; EventChangeScore?.Invoke(value); } }
@@ -35,8 +37,9 @@ public class DataGame : ASingleton<DataGame>
 
     public bool Initialize(bool isLoad)
     {
-        bool result = isLoad && Load();
+        ResetGameLevelData();
 
+        bool result = isLoad && Load();
         if (!result)
         {
             _data = new();
@@ -45,7 +48,7 @@ public class DataGame : ASingleton<DataGame>
 
         _isNewRecord = IsRecord;
 
-        ResetGameLevelData();
+        
         for (int i = 1; i < _data.level; i++)
             CalkGameLevelData();
 
@@ -62,7 +65,7 @@ public class DataGame : ASingleton<DataGame>
     }
     public void Save(Action<bool> callback = null) => StartCoroutine(Storage.Save_Coroutine(_keySave, _data, callback));
 
-    public LevelSetupData StartGameLevel() => new(_data.time, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1);
+    public LevelSetupData StartGameLevel() => new(_data.time, _currentSize, _currentTypes, _isMonochrome);
     public LevelSetupData NextGameLevel(float time)
     {
         _data.modeStart = GameMode.Game;
@@ -70,19 +73,17 @@ public class DataGame : ASingleton<DataGame>
         _data.time = time;
         Save(MessageSaving);
 
-        CalkGameLevelData();
-
-        return new(time, _currentSize, _currentTypes, _isMonochrome, _isSimilar ? 0 : 1);
+        return new(time, _currentSize, _currentTypes, _isMonochrome);
     }
     public LevelSetupData NextBonusLevel()
     {
         _data.modeStart = GameMode.Bonus;
         Save(MessageSaving);
 
-        if (IsBonusLevelSingle)
-            return new(_timeStart, _currentSize, _currentTypes - 1, _isMonochrome, _currentSize + 1, new(_maxTypes - 1));
+        if (_isBonusLevelSingle)
+            return new(TimeStart, _currentSize, Mathf.RoundToInt(0.5f * (_currentTypes + _currentSize)), !_isMonochrome, _currentSize + 2, new(_maxTypes - 1));
         else
-            return new(_timeStart, _currentSize, Mathf.RoundToInt(1.25f *_currentTypes), _isMonochrome, 0, new(_maxTypes - 1));
+            return new(TimeStart, _currentSize, Mathf.RoundToInt(0.65f * (_currentTypes + _maxTypes)), !_isMonochrome, 0, new(_maxTypes - 1));
     }
 
     public void ResetGame()
@@ -90,8 +91,8 @@ public class DataGame : ASingleton<DataGame>
         if (IsRecord)
             MaxScore = Score;
 
-        _data.Reset(_timeStart);
         ResetGameLevelData();
+        _data.Reset(TimeStart);
         _isNewRecord = false;
     }
 
@@ -107,21 +108,12 @@ public class DataGame : ASingleton<DataGame>
 
     public void CalkGameLevelData()
     {
-        //if(_currentSize <= 3)
-        //{
-        //    _currentSize = 4;
-        //    return;
-        //}
-
         _isMonochrome = !_isMonochrome;
 
         if (_isMonochrome)
             return;
 
-        _isSimilar = !_isSimilar;
-
-        if (_isSimilar)
-            return;
+        _isBonusLevelSingle = !_isBonusLevelSingle;
 
         if ((_currentTypes += _stepTypes) <= _maxTypes)
             return;
@@ -141,18 +133,14 @@ public class DataGame : ASingleton<DataGame>
     public void ResetGameLevelData()
     {
         _isMonochrome = false;
-        _isSimilar = false;
+        _isBonusLevelSingle = true;
         _currentSize = _startSize;
         _currentSqrSize = _currentSize * _currentSize;
         _currentTypes = _startTypes;
         _maxTypes = _currentSqrSize / 2;
     }
 
-    private void MessageSaving(bool result) 
-    { 
-        if(result)
-            Message.BannerKey("GoodSave", time: 2f); 
-    }
+    private void MessageSaving(bool result) => Message.Saving("GoodSave", result);
 
     #region Nested Classe
     //***********************************

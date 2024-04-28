@@ -19,7 +19,7 @@ public class TimeCard : ACard
 
     private Action<TimeCard> actionSelected;
 
-    public bool IsNotZero => !_isFixed && _bonus.Value != 0;
+    public bool IsValue => !_isFixed && _bonus.Value != 0;
     public int Value => _bonus.Value;
     public BonusTime Bonus => _bonus;
     public override bool IsInteractable { set => base.IsInteractable = value && !_isFixed; }
@@ -102,9 +102,16 @@ public class TimeCard : ACard
     {
         _isFixed = true;
         base.IsInteractable = false;
+    }
+
+    public void FixedAndSetColorTrue()
+    {
+        _isFixed = true;
+        base.IsInteractable = false;
         _cardBackground.SetColorBorder(_colorBorderTrue);
     }
 
+    public void SetColorTrue() => _cardBackground.SetColorBorder(_colorBorderTrue);
     public void SetColorError() => _cardBackground.SetColorBorder(_colorBorderError);
 
     public IEnumerator CardSelected_Coroutine()

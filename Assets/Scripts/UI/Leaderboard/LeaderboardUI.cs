@@ -21,6 +21,7 @@ public class LeaderboardUI : MonoBehaviour
     private readonly List<LeaderboardRecordUI> _records = new();
     private GameObject _separator;
     RectTransform _recordTransform = null;
+    private bool _setScore = false;
 
     private void OnEnable()
     {
@@ -29,30 +30,40 @@ public class LeaderboardUI : MonoBehaviour
 
     private void Start()
     {
-        if (_rect.content.childCount == 0)
-            StartCoroutine(InitializeCoroutine());
+        if (!_setScore && _rect.content.childCount == 0)
+            StartCoroutine(Initialize_Coroutine());
     }
 
-    public IEnumerator SetScore(long score, Action<bool> callback)
+    public void SetScore(long score, Action<bool> callback)
     {
-        if (!YSDK.IsLeaderboard)
+        _setScore = true;
+        gameObject.SetActive(true);
+        StartCoroutine(SetScore_Coroutine());
+
+        #region Local function
+        //=================================
+        IEnumerator SetScore_Coroutine()
         {
-            callback?.Invoke(false);
-            yield break;
+            if (!YSDK.IsLeaderboard)
+            {
+                callback?.Invoke(false);
+                yield break;
+            }
+
+            WaitResult<bool> waitResult = YandexSDK.Instance.SetScore(score);
+            yield return waitResult;
+            callback?.Invoke(waitResult.Result);
+            if (waitResult.Result)
+                StartCoroutine(ReInitialize_Coroutine());
+            _setScore = false;
         }
-
-        WaitResult<bool> waitResult = YandexSDK.Instance.SetScore(score);
-        yield return waitResult;
-        callback?.Invoke(waitResult.Result);
-        if (!waitResult.Result) yield break;
-
-        if (_rect.content.childCount != 0)
-            StartCoroutine(ReInitializeCoroutine());
+        #endregion
     }
 
-    private IEnumerator InitializeCoroutine()
+    private IEnumerator Initialize_Coroutine()
     {
-        if (!YSDK.IsLeaderboard) yield break;
+        if (!YSDK.IsLeaderboard || _rect.content.childCount != 0)
+            yield break;
 
         Leaderboard leaderboard = null;
         yield return StartCoroutine(GetLeaderboard((l) => leaderboard = l));
@@ -91,11 +102,11 @@ public class LeaderboardUI : MonoBehaviour
         #endregion
     }
 
-    private IEnumerator ReInitializeCoroutine()
+    private IEnumerator ReInitialize_Coroutine()
     {
         if (_rect.content.childCount == 0)
         {
-            yield return StartCoroutine(InitializeCoroutine());
+            yield return StartCoroutine(Initialize_Coroutine());
             yield break;
         }
 
@@ -188,7 +199,7 @@ public class LeaderboardUI : MonoBehaviour
 
     private void ScrollToPlayer()
     {
-        if (_recordTransform == null || !gameObject.activeInHierarchy)
+        if (_recordTransform == null || !gameObject.activeInHierarchy || _rect.content.childCount == 0)
             return;
 
         Canvas.ForceUpdateCanvases();
@@ -203,5 +214,4 @@ public class LeaderboardUI : MonoBehaviour
 
         content.localPosition = new Vector2(0, offset);
     }
-
 }

@@ -4,23 +4,35 @@ using UnityEngine.UI;
 
 public class GameUI : MonoBehaviour
 {
-    [SerializeField] private LeaderboardUI _leaderboardUI;
-    [Space]
     [SerializeField] private Button _menuButton;
     [Space]
-    [SerializeField] private GameObject _background;
-    [SerializeField] private GameObject _mainMenu;
+    [SerializeField] private MenuNavigation _mainMenu;
     [Space]
     [SerializeField] private MenuGroup _settings;
     [SerializeField] private MenuGroup _leaderboard;
+    [Space]
+    [SerializeField] private GameObject _shading;
+    [Space]
+    [SerializeField] private Vector3 _positionOff = new(-1000, -1000, 0);
 
     private bool _isPause = false, _isStartNewGame = false;
+    private Vector3 _thisPosition;
+    private Transform _thisTransform;
+    private LeaderboardUI _leaderboardUI;
 
     public bool ControlEnable { get; set; }
 
     public event Action EventPause;
     public event Action EventPlay;
     public event Action EventStart;
+
+    private void Awake()
+    {
+        _thisTransform = transform;
+        _thisPosition = _thisTransform.position;
+
+        _leaderboardUI = _leaderboard.GetComponent<LeaderboardUI>();
+    }
 
     private void Start()
     {
@@ -59,19 +71,18 @@ public class GameUI : MonoBehaviour
         }
     }
 
-    public void SetScore(long score, Action<bool> callback) => StartCoroutine(_leaderboardUI.SetScore(score, callback));
+    public void SetScore(long score, Action<bool> callback) => _leaderboardUI.SetScore(score, callback);
 
     private void Off()
     {
-        _background.SetActive(false);
-        _mainMenu.SetActive(false);
-        _settings.Enable = false;
-        _leaderboard.Enable = false;
+        _thisTransform.position = _positionOff;
+        _mainMenu.SetButtonsActive(false);
     }
     private void On()
     {
-        _background.SetActive(true);
-        _mainMenu.SetActive(true);
+        _mainMenu.SetButtonsActive(true);
+        _shading.SetActive(true);
+        _thisTransform.position = _thisPosition;
     }
 
     private void OnMenu()
@@ -102,6 +113,8 @@ public class GameUI : MonoBehaviour
                     _button.Select();
             } 
         }
+
+        public T GetComponent<T>() where T : Component => _menu.GetComponent<T>();
     }
     #endregion
 }

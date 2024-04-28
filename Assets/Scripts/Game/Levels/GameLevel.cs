@@ -166,6 +166,7 @@ public class GameLevel : MonoBehaviour
 
     private IEnumerator EndLevel_Coroutine(bool isGameOver)
     {
+        if (isGameOver) yield return _waitShowEndLevel;
         yield return _waitShowEndLevel;
         yield return _cardsArea.Turn90Random(_delayTurn / 2f);
 
@@ -247,6 +248,46 @@ public class GameLevel : MonoBehaviour
                 }
                 return elements;
             }
+            #endregion
+        }
+        
+        public void CreateNew(int count)
+        {
+            _sprites.Clear();
+            int constId = Random.Range(0, 4); // в 3 из 4 случаев одно составляющее будет одинакова
+            Sprite constElement = GetConstElement();
+            Sprite outElement = null;
+            for (int i = 0; i < count; i++)
+            {
+                Sprite[] sprites = new Sprite[COUNT];
+                do
+                {
+                    sprites[0] = constId == 0 ? constElement : _mainSprites[Random.Range(0, COUNT_SPRITES)];
+                    sprites[1] = constId == 1 ? constElement : _centerSprites[Random.Range(0, COUNT_SPRITES)];
+                    outElement = constId == 2 ? constElement : _outerSprites[Random.Range(0, COUNT_SPRITES)];
+                    for (int j = 2; j < COUNT; j++)
+                        sprites[j] = outElement;
+                }
+                while (_sprites.Contains(sprites, Comparison));
+                _sprites.Enqueue(sprites);
+            }
+
+            #region Local functions
+            //===============================
+            static bool Comparison(Sprite[] spritesA, Sprite[] spritesB)
+            {
+                for (int i = 0; i < COUNT; i++)
+                {
+                    if (spritesA[i] != spritesB[i])
+                        return false;
+                }
+                return true;
+            }
+            Sprite GetConstElement() => constId switch {
+                                        0 => _mainSprites[Random.Range(0, COUNT_SPRITES)],
+                                        1 => _centerSprites[Random.Range(0, COUNT_SPRITES)],
+                                        2 => _outerSprites[Random.Range(0, COUNT_SPRITES)],
+                                        _ => null };
             #endregion
         }
         #endregion

@@ -15,7 +15,7 @@ public class SettingsMenu : MenuNavigation
     }
     private void OnDisable() 
     {
-        if (isSave || SettingsGame.Instance == null)
+        if (isSave || SettingsGame.Instance == null || SoundSingleton.Instance == null || MusicSingleton.Instance == null)
             return;
 
         _settings.Cancel();

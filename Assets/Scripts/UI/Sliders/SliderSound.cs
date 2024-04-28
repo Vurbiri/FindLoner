@@ -4,7 +4,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Slider))]
 public class SliderSound : MonoBehaviour
 {
-    [SerializeField] private MixerGroup _audioMixerGroup;
+    [SerializeField] private AudioType _audioMixerGroup;
     [SerializeField] private TextLocalization _captionText;
 
     protected Slider _thisSlider;

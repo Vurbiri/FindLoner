@@ -44,11 +44,6 @@ public class BonusLevels : MonoBehaviour
 
         _levelSingle.Initialize(_cardsArea, timer, waitShowEndLevel);
         _levelPair.Initialize(_cardsArea, timer, waitShowEndLevel);
-
-        #region Local function
-        //======================
-
-        #endregion
     }
 
     public IEnumerator StartLevelSingle_Coroutine(LevelSetupData data) => StartLevel_Coroutine(_levelSingle, data);

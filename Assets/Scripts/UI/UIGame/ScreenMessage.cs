@@ -76,7 +76,7 @@ public class ScreenMessage : MonoBehaviour
         //=================================
         IEnumerator BonusLevel_Coroutine()
         {
-            yield return bonusLevel.SendFormatComment_Wait(attempts.ToString());
+            bonusLevel.SendFormatComment_Wait(attempts.ToString());
             yield return _waitActivate.Deactivate();
             yield return bonusLevel.Fide();
             wait.Activate();
@@ -169,7 +169,7 @@ public class ScreenMessage : MonoBehaviour
             if (_isSeparator)
                 _objects.SeparatorAppear(_appearDuration);
 
-            return new WaitForSeconds(Mathf.Max(_timeMessage, _appearDuration));
+            return new(Mathf.Max(_timeMessage, _appearDuration));
         }
 
         public WaitForSeconds SendFormat_Wait(string value1, string value2)
@@ -180,7 +180,7 @@ public class ScreenMessage : MonoBehaviour
             if (_isSeparator)
                 _objects.SeparatorAppear(_appearDuration);
 
-            return new WaitForSeconds(Mathf.Max(_timeMessage, _appearDuration));
+            return new(Mathf.Max(_timeMessage, _appearDuration));
         }
 
         public WaitForSeconds SendFormatCaption_Wait(string value)
@@ -191,7 +191,7 @@ public class ScreenMessage : MonoBehaviour
             if (_isSeparator)
                 _objects.SeparatorAppear(_appearDuration);
 
-            return new WaitForSeconds(Mathf.Max(_timeMessage, _appearDuration));
+            return new(Mathf.Max(_timeMessage, _appearDuration));
         }
 
         public WaitForSeconds SendFormatComment_Wait(string value)
@@ -202,7 +202,7 @@ public class ScreenMessage : MonoBehaviour
             if (_isSeparator)
                 _objects.SeparatorAppear(_appearDuration);
 
-            return new WaitForSeconds(Mathf.Max(_timeMessage, _appearDuration));
+            return new(Mathf.Max(_timeMessage, _appearDuration));
         }
 
         public WaitForSeconds Fide()
@@ -212,7 +212,7 @@ public class ScreenMessage : MonoBehaviour
             if (_isSeparator)
                 _objects.SeparatorFade(_fadeDuration);
 
-            return new WaitForSeconds(_fadeDuration);
+            return new(_fadeDuration);
         }
 
         public void OnDestroy()

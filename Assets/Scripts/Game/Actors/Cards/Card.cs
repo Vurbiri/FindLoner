@@ -10,6 +10,7 @@ public class Card : ACard
     [SerializeField] private Color _colorBorderNormal = Color.gray;
     [SerializeField] private Color _colorBorderTrue = Color.gray;
     [SerializeField] private Color _colorBorderError = Color.gray;
+    [SerializeField] private Color _colorBorderCheat = Color.gray;
 
     public int IdGroup => _idGroup;
     private int _idGroup;
@@ -24,7 +25,7 @@ public class Card : ACard
         ReSetup(shape, axis, idGroup);
 
         _cardShape.SetShape(shape);
-        _cardBackground.SetColorBorder(IsCheat && idGroup == 0 ? Color.white : _colorBorderNormal);
+        _cardBackground.SetColorBorder(IsCheat && idGroup == 0 ? _colorBorderCheat : _colorBorderNormal);
 
         _cardShape.ResetAngle();
         _cardBackground.Set90Angle(axis);
@@ -56,7 +57,7 @@ public class Card : ACard
 
         _cardShape.SetShape(_shape);
         _cardShape.Mirror(_axis);
-        _cardBackground.SetColorBorder(IsCheat && _idGroup == 0 ? Color.white : _colorBorderNormal);
+        _cardBackground.SetColorBorder(IsCheat && _idGroup == 0 ? _colorBorderCheat : _colorBorderNormal);
 
         yield return null;
         yield return StartCoroutine(_cardBackground.Rotation90Angle_Coroutine(_axis, _speedRotation));

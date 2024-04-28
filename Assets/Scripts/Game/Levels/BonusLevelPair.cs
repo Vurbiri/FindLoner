@@ -69,6 +69,7 @@ public class BonusLevelPair : ABonusLevel
         {
             _cardsArea.ForEach((c) => c.IsInteractable = false);
             isOne = false;
+
             Attempts--;
             if (!(isClose = _cardSelect.Value != card.Value))
                 AddTime(card.Value);
@@ -99,18 +100,25 @@ public class BonusLevelPair : ABonusLevel
                 _sound.PlayError();
                 card.SetColorError();
                 _cardSelect.SetColorError();
-                yield return _waitShowPair;
-                yield return new WaitAll(this, card.CardClose_Coroutine(), _cardSelect.CardClose_Coroutine());
+                if (Attempts > 0)
+                {
+                    yield return _waitShowPair;
+                    yield return new WaitAll(this, card.CardClose_Coroutine(), _cardSelect.CardClose_Coroutine());
+                }
+                else
+                {
+                    _countShapes -= 2;
+                }
             }
             else
             {
                 _sound.PlayFixed();
-                card.Fixed();
-                _cardSelect.Fixed();
+                card.FixedAndSetColorTrue();
+                _cardSelect.FixedAndSetColorTrue();
 
                 if(isContinue = (_countShapes -= 2) > 0)
                     foreach (var c in _cardsArea)
-                        if(isContinue = c.IsNotZero)
+                        if(isContinue = c.IsValue)
                             break;
             }
 

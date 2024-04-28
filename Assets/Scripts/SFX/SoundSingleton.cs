@@ -1,11 +1,12 @@
 using UnityEngine;
 
-public class SoundSingleton : ASingleton<SoundSingleton>
+public class SoundSingleton : ASingleton<SoundSingleton>, IVolume
 {
     [Space]
     [SerializeField] private AudioClip _clipNewLevel;
     [SerializeField] private AudioClip _clipLevelComplete;
     [SerializeField] private AudioClip _clipGameOver;
+    [SerializeField] private AudioClip _clipStart;
     [SerializeField] private AudioClip _clipSelect;
     [SerializeField] private AudioClip _clipFixed;
     [SerializeField] private AudioClip _clipError;
@@ -14,6 +15,18 @@ public class SoundSingleton : ASingleton<SoundSingleton>
 
     private AudioSource _thisAudio;
 
+    public float Volume 
+    { 
+        get => _thisAudio.volume;
+        set
+        {
+            _thisAudio.volume = value;
+            _notPlay = value < 0.001f;
+        }
+    }
+
+    private bool _notPlay = false;
+
     protected override void Awake()
     {
         base.Awake();
@@ -21,12 +34,20 @@ public class SoundSingleton : ASingleton<SoundSingleton>
         _thisAudio = GetComponent<AudioSource>();
     }
 
-    public void PlayNewLevel() => _thisAudio.PlayOneShot(_clipNewLevel);
-    public void PlayLevelComplete() => _thisAudio.PlayOneShot(_clipLevelComplete);
-    public void PlayGameOver() => _thisAudio.PlayOneShot(_clipGameOver);
-    public void PlaySelect() => _thisAudio.PlayOneShot(_clipSelect);
-    public void PlayFixed() => _thisAudio.PlayOneShot(_clipFixed);
-    public void PlayError() => _thisAudio.PlayOneShot(_clipError);
-    public void PlayTurn() => _thisAudio.PlayOneShot(_clipTurn);
-    public void PlayShuffle() => _thisAudio.PlayOneShot(_clipShuffle);
+    public void PlayNewLevel() => Play(_clipNewLevel);
+    public void PlayLevelComplete() => Play(_clipLevelComplete);
+    public void PlayGameOver() => Play(_clipGameOver);
+    public void PlayStart() => Play(_clipStart);
+    public void PlaySelect() => Play(_clipSelect);
+    public void PlayFixed() => Play(_clipFixed);
+    public void PlayError() => Play(_clipError);
+    public void PlayTurn() => Play(_clipTurn);
+    public void PlayShuffle() => Play(_clipShuffle);
+
+    private void Play(AudioClip clip)
+    {
+        if (_notPlay) return;
+
+        _thisAudio.PlayOneShot(clip);
+    }
 }

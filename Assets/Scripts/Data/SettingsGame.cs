@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
 
 public class SettingsGame : ASingleton<SettingsGame>
 {
@@ -12,9 +12,10 @@ public class SettingsGame : ASingleton<SettingsGame>
     [SerializeField] private int _qualityMobile = 0;
     [SerializeField] private Profile _profileMobile = new();
     [Space]
-    [SerializeField] private AudioMixer _audioMixer;
-    [SerializeField] private float _audioMinValue = 0.01f;
-    [SerializeField] private float _audioMaxValue = 1.5845f;
+    [SerializeField] private float _audioMinValue = 0.0f;
+    [SerializeField] private float _audioMaxValue = 1.0f;
+    //[SerializeField] private float _audioMinValue = 0.01f;
+    //[SerializeField] private float _audioMaxValue = 1.5845f;
 
     private Profile _profileCurrent = null;
 
@@ -26,6 +27,7 @@ public class SettingsGame : ASingleton<SettingsGame>
 
     private YandexSDK _ysdk;
     private Localization _localization;
+    private readonly Dictionary<AudioType, IVolume> _volumes = new(Enum<AudioType>.Count);
 
     protected override void Awake()
     {
@@ -35,6 +37,9 @@ public class SettingsGame : ASingleton<SettingsGame>
 
         _ysdk = YandexSDK.InstanceF;
         _localization = Localization.InstanceF;
+
+        _volumes[AudioType.Music] = MusicSingleton.InstanceF;
+        _volumes[AudioType.SFX] = SoundSingleton.InstanceF;
     }
 
     public void SetPlatform()
@@ -53,40 +58,17 @@ public class SettingsGame : ASingleton<SettingsGame>
         return result;
     }
 
-    public void SetVolume(MixerGroup type, float volume)
-    {
-        _audioMixer.SetFloat(type.ToString(), ConvertToDB(volume));
+    public void SetVolume(AudioType type, float volume) => _volumes[type].Volume = volume;
 
-        static float ConvertToDB(float volume)
-        {
-            volume = Mathf.Log10(volume) * 40f;
-            if (volume > 0) volume *= 2.5f;
-
-            return volume;
-        }
-    }
-    public float GetVolume(MixerGroup type) => _profileCurrent.volumes[type.ToInt()];
+    public float GetVolume(AudioType type) => _profileCurrent.volumes[type.ToInt()];
 
     public void Save(Action<bool> callback = null)
     {
         _profileCurrent.idLang = _localization.CurrentId;
-        foreach (var mixer in Enum<MixerGroup>.GetValues())
-        {
-            _audioMixer.GetFloat(mixer.ToString(), out float volumeDB);
-            _profileCurrent.volumes[mixer.ToInt()] = MathF.Round(ConvertFromDB(volumeDB), 3);
-        }
+        foreach (var type in Enum<AudioType>.GetValues())
+            _profileCurrent.volumes[type.ToInt()] = _volumes[type].Volume;
 
         StartCoroutine(Storage.Save_Coroutine(_profileCurrent.key, _profileCurrent, callback));
-
-        #region Local Function
-        static float ConvertFromDB(float dB)
-        {
-            if (dB > 0) dB /= 2.5f;
-            dB = Mathf.Pow(10, dB / 40f);
-
-            return dB;
-        }
-        #endregion
     }
     private bool Load()
     {
@@ -118,8 +100,8 @@ public class SettingsGame : ASingleton<SettingsGame>
     private void Apply()
     {
         _localization.SwitchLanguage(_profileCurrent.idLang);
-        foreach (var mixer in Enum<MixerGroup>.GetValues())
-            SetVolume(mixer, _profileCurrent.volumes[mixer.ToInt()]);
+        foreach (var type in Enum<AudioType>.GetValues())
+            _volumes[type].Volume = _profileCurrent.volumes[type.ToInt()];
     }
 
     #region Nested Classe
@@ -131,7 +113,7 @@ public class SettingsGame : ASingleton<SettingsGame>
         [JsonProperty("ilg")]
         public int idLang = 1;
         [JsonProperty("vls")]
-        public float[] volumes = { 0.75f, 0.75f };
+        public float[] volumes = { 0.6f, 0.6f };
 
         [JsonConstructor]
         public Profile(int idLang, float[] volumes)

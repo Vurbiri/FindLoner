@@ -19,6 +19,7 @@ public class BonusLevelSingle : ABonusLevel
     {
         yield return StartCoroutine(base.StartRound_Coroutine(values));
         yield return StartCoroutine(Shuffle_Coroutine());
+        _sound.PlayStart();
 
         #region Local function
         //=========================================================
@@ -49,7 +50,7 @@ public class BonusLevelSingle : ABonusLevel
 
                 yield return _waitShuffle;
             }
-
+                        
             yield return null;
         }
         #endregion
@@ -70,10 +71,17 @@ public class BonusLevelSingle : ABonusLevel
 
     protected override void OnCardSelected(TimeCard card)
     {
-        bool continueLevel;
-        //if(!(continueLevel = (card.Value > 0 || --Attempts > 0) && _countShapes > 0))
-        if (!(continueLevel = --Attempts > 0 && _countShapes > 0))
+        card.Fixed(); _countShapes--;
+        bool continueLevel = --Attempts > 0 && _countShapes > 0;
+        //bool continueLevel = (card.Value > 0 || --Attempts > 0) && _countShapes > 0;
+
+        if (continueLevel)
+            foreach (var c in _cardsArea)
+                if (continueLevel = c.IsValue) break;
+
+        if (!continueLevel)
             _cardsArea.ForEach((c) => c.IsInteractable = false);
+
 
         _sound.PlayTurn();
         
@@ -84,17 +92,13 @@ public class BonusLevelSingle : ABonusLevel
         {
             yield return StartCoroutine(card.CardSelected_Coroutine());
 
-            if (card.Value > 0)  { AddTime(card.Value); _sound.PlayFixed(); card.Fixed(); }
+            if (card.Value > 0)  { AddTime(card.Value); _sound.PlayFixed(); card.SetColorTrue(); }
             else { _sound.PlayError(); card.SetColorError(); }
 
-            if (continueLevel)
-            {
-                foreach (var c in _cardsArea)
-                    if (c.IsNotZero)
-                        yield break;
-            }
+            if (continueLevel) yield break;
 
             Attempts = 0;
+
             if (_countShapes > 0)
                 yield return _cardsArea.TurnToValueRandom(_delayTurn);
             yield return _waitShowEndLevel;

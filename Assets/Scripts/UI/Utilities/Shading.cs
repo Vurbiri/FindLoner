@@ -9,14 +9,27 @@ public class Shading : MonoBehaviour
     [SerializeField] float _prePause = 0f;
     [SerializeField] float _fadeDuration = 0.5f;
 
-    private IEnumerator Start()
+    private Image _thisImage;
+
+    private void Awake()
     {
-        Image image = GetComponent<Image>();
-        image.color = _defaultColor;
+        _thisImage = GetComponent<Image>();
+    }
+
+    private void OnEnable()
+    {
+        StartCoroutine(Run());
+    }
+
+    private IEnumerator Run()
+    {
+        _thisImage.color = _defaultColor;
         Color targetColor = _defaultColor;
         targetColor.a = 0f;
 
         yield return new WaitForSecondsRealtime(_prePause);
-        image.CrossFadeColor(targetColor, _fadeDuration, true, true);
+        yield return _thisImage.Fade(targetColor, _fadeDuration, true);
+        gameObject.SetActive(false);
+
     }
 }

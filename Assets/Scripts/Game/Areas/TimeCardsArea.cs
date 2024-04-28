@@ -39,6 +39,4 @@ public class TimeCardsArea : ACardsArea<TimeCard, Increment>
     private IEnumerator TurnToValue(TimeCard card) => card.TurnToValue_Coroutine();
     private IEnumerator TurnToShirt(TimeCard card) => card.TurnToShirt_Coroutine();
     private IEnumerator CardHideAndUnsubscribe(TimeCard card) => card.CardHideAndUnsubscribe_Coroutine();
-
-    
 }

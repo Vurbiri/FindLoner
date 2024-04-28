@@ -276,18 +276,17 @@ MonoBehaviour:
     key: std
     idLang: 1
     volumes:
-    - 0.75
-    - 0.75
+    - 0.6
+    - 0.6
   _qualityMobile: 0
   _profileMobile:
     key: stm
     idLang: 1
     volumes:
-    - 0.75
-    - 0.75
-  _audioMixer: {fileID: 24100000, guid: 9e32bed4354ee284785e950309e531f2, type: 2}
-  _audioMinValue: 0.01
-  _audioMaxValue: 1.5845
+    - 0.6
+    - 0.6
+  _audioMinValue: 0
+  _audioMaxValue: 1
 --- !u!1 &394035155
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,10 +328,10 @@ MonoBehaviour:
   - {r: 0.78039217, g: 0.68235296, b: 0.003921569, a: 1}
   - {r: 0.7607843, g: 0, b: 0, a: 1}
   - {r: 1, g: 0.18431373, b: 0, a: 1}
-  _fontSizeDesktop: 17
+  _fontSizeDesktop: 18
   _resolutionDesktop: {x: 1600, y: 1000}
   _matchModeDesktop: 1
-  _fontSizeMobile: 19
+  _fontSizeMobile: 20
   _resolutionMobile: {x: 1000, y: 1600}
   _matchModeMobile: 1
 --- !u!114 &394035157
@@ -434,7 +433,7 @@ MonoBehaviour:
   _isNotDestroying: 1
   _lbName: lbFindLonerTest
   _playerName: Best in the Best
-  _isDesktop: 0
+  _isDesktop: 1
   _isLogOn: 1
   _lang: ru
   _isInitialize: 1
@@ -486,11 +485,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isNotDestroying: 1
   _keySave: gmd
-  _timeStart: 11
-  _startSize: 8
-  _startTypes: 4
-  _stepTypes: 2
+  _timeStart: 16
+  _startSize: 3
   _maxSize: 8
+  _startTypes: 4
+  _stepTypesOne: 1
+  _stepTypesTwo: 2
+  _levelStepOneToTwo: 7
   _scoreStart: 4
   _scorePerLevel: 1
 --- !u!4 &523976399
@@ -632,7 +633,7 @@ AudioSource:
   m_GameObject: {fileID: 907229198}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -4224683327630618531, guid: 9e32bed4354ee284785e950309e531f2, type: 2}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 9e32bed4354ee284785e950309e531f2, type: 2}
   m_audioClip: {fileID: 8300000, guid: 6e555f95a27b58a47bc115a4cd66331e, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.9
@@ -732,7 +733,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isNotDestroying: 1
-  _timeStart: 10
 --- !u!4 &907229201
 Transform:
   m_ObjectHideFlags: 0
@@ -822,7 +822,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c915583dd8e761f4ab53c1ede6f5d067, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _keySave: FDL_test
+  _keySave: FDL_test2
   _sceneDesktop: 1
   _sceneMobile: 2
   _slider: {fileID: 8094356267688871992}
@@ -1135,7 +1135,7 @@ GameObject:
   - component: {fileID: 1461806350}
   - component: {fileID: 1461806349}
   m_Layer: 6
-  m_Name: SFXSingleton
+  m_Name: SoundsSingleton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1150,7 +1150,7 @@ AudioSource:
   m_GameObject: {fileID: 1461806348}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -4544399203513261525, guid: 9e32bed4354ee284785e950309e531f2, type: 2}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 9e32bed4354ee284785e950309e531f2, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -1253,6 +1253,7 @@ MonoBehaviour:
   _clipNewLevel: {fileID: 8300000, guid: 5b453b36844c7ac41af0c75c5ce0a337, type: 3}
   _clipLevelComplete: {fileID: 8300000, guid: 88bcad178545109429cc8914c6b9878c, type: 3}
   _clipGameOver: {fileID: 8300000, guid: 7175a9b546ea88b4893a69824903074e, type: 3}
+  _clipStart: {fileID: 8300000, guid: 3497d7b22dd26674da57f1c21449c3bf, type: 3}
   _clipSelect: {fileID: 8300000, guid: 39e10db952d8a02408734b454274a772, type: 3}
   _clipFixed: {fileID: 8300000, guid: db20cae43fc37fc46a2610a806ab8ff5, type: 3}
   _clipError: {fileID: 8300000, guid: f49e368a841bde24d8475e32aaa0dec0, type: 3}

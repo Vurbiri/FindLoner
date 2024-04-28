@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-public enum MixerGroup : byte
+public enum AudioType : byte
 {
     Music,
     SFX,
@@ -39,6 +39,6 @@ public static class ExtensionsEnum
 
 public class Enum<T> where T : Enum
 {
-    //public static int Count => Enum.GetNames(typeof(T)).Length;
+    public static int Count => Enum.GetNames(typeof(T)).Length;
     public static T[] GetValues() => Enum.GetValues(typeof(T)).Cast<T>().ToArray<T>();
 }

@@ -40,8 +40,8 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
 
     public void Shuffle() => _cardsRandom.Shuffle();
         
-    public Coroutine Turn90Random(float delay) => StartCoroutine(_funcTraversing[_indexFunc = UnityEngine.Random.Range(0, COUNT_FUNC)](delay, Turn90_Coroutine));
-    public Coroutine Turn90Repeat(float delay) => StartCoroutine(_funcTraversing[_indexFunc](delay, Turn90_Coroutine));
+    public Coroutine Turn90Random(float delay) => TraversingRandom(delay, Turn90_Coroutine);
+    public Coroutine Turn90Repeat(float delay) => TraversingRepeat(delay, Turn90_Coroutine);
     private IEnumerator Turn90_Coroutine(T card) => card.Turn90_Coroutine();
     
     public void CreateCards(int size, U obj)
@@ -114,12 +114,13 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
     private IEnumerator Traversing_FX_FY_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
+        WaitForSeconds delay = new(time);
         for (int x = 0; x < _countCellSide; x++)
         {
             for (int y = 0; y < _countCellSide; y++)
             {
                 coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
-                yield return new WaitForSeconds(time);
+                yield return delay;
             }
         }
         yield return coroutine;
@@ -128,12 +129,13 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
     private IEnumerator Traversing_FX_BY_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
+        WaitForSeconds delay = new(time);
         for (int x = 0; x < _countCellSide; x++)
         {
             for (int y = _countCellSide - 1; y >= 0; y--)
             {
                 coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
-                yield return new WaitForSeconds(time);
+                yield return delay;
             }
         }
         yield return coroutine;
@@ -142,12 +144,13 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
     private IEnumerator Traversing_BX_FY_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
+        WaitForSeconds delay = new(time);
         for (int x = _countCellSide - 1; x >= 0; x--)
         {
             for (int y = 0; y < _countCellSide; y++)
             {
                 coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
-                yield return new WaitForSeconds(time);
+                yield return delay;
             }
         }
         yield return coroutine;
@@ -156,12 +159,13 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
     private IEnumerator Traversing_BX_BY_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
+        WaitForSeconds delay = new(time);
         for (int x = _countCellSide - 1; x >= 0; x--)
         {
             for (int y = _countCellSide - 1; y >= 0; y--)
             {
                 coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
-                yield return new WaitForSeconds(time);
+                yield return delay;
             }
         }
         yield return coroutine;
@@ -170,12 +174,13 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
     private IEnumerator Traversing_FY_FX_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
+        WaitForSeconds delay = new(time);
         for (int y = 0; y < _countCellSide; y++)
         {
             for (int x = 0; x < _countCellSide; x++)
             {
                 coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
-                yield return new WaitForSeconds(time);
+                yield return delay;
             }
         }
         yield return coroutine;
@@ -184,12 +189,13 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
     private IEnumerator Traversing_FY_BX_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
+        WaitForSeconds delay = new(time);
         for (int y = 0; y < _countCellSide; y++)
         {
             for (int x = _countCellSide - 1; x >= 0; x--)
             {
                 coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
-                yield return new WaitForSeconds(time);
+                yield return delay;
             }
         }
         yield return coroutine;
@@ -198,12 +204,13 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
     private IEnumerator Traversing_BY_FX_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
+        WaitForSeconds delay = new(time);
         for (int y = _countCellSide - 1; y >= 0; y--)
         {
             for (int x = 0; x < _countCellSide; x++)
             {
                 coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
-                yield return new WaitForSeconds(time);
+                yield return delay;
             }
         }
         yield return coroutine;
@@ -212,12 +219,13 @@ public abstract class ACardsArea<T, U> : MonoBehaviour, IEnumerable<T> where T :
     private IEnumerator Traversing_BY_BX_Coroutine(float time, Func<T, IEnumerator> funcCoroutine)
     {
         Coroutine coroutine = null;
+        WaitForSeconds delay = new(time);
         for (int y = _countCellSide - 1; y >= 0; y--)
         {
             for (int x = _countCellSide - 1; x >= 0; x--)
             {
                 coroutine = StartCoroutine(funcCoroutine(_cardsActive[x, y]));
-                yield return new WaitForSeconds(time);
+                yield return delay;
             }
         }
         yield return coroutine;

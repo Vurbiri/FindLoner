@@ -57,8 +57,11 @@ public abstract class ABonusLevel : MonoBehaviour, ILevelPlay
 
         yield return _cardsArea.TurnToShirtRepeat(_delayOpen);
     }
-    
-    public void Run() => _cardsArea.ForEach((c) => c.IsInteractable = true);
+
+    public void Run()
+    {
+        _cardsArea.ForEach((c) => c.IsInteractable = true);
+    }
 
     protected void AddTime(float add) => EventAddTime?.Invoke(_time += add);
     protected void LevelEnd() => EventEndLevel?.Invoke(_time);

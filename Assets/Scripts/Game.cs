@@ -7,8 +7,6 @@ public class Game : MonoBehaviour
     [SerializeField] private GameArea _gameArea;
     [Space]
     [SerializeField] private float _timePreStart = 1.5f;
-    [Space]
-    [SerializeField] private bool _isCheat = false;
 
     private DataGame _dataGame;
     private bool _isRecord;
@@ -32,12 +30,11 @@ public class Game : MonoBehaviour
 
         _gameArea.EventGameLevelFail += ResetGame;
         _gameArea.EventGameOver += GameOver;
-
-        Card.IsCheat = _isCheat;
     }
 
     private IEnumerator Start()
     {
+        MusicSingleton.Instance.Play();
         yield return new WaitForSecondsRealtime(_timePreStart);
         _gameUI.ControlEnable = true;
 

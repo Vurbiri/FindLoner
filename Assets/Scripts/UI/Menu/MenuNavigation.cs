@@ -13,6 +13,12 @@ public class MenuNavigation : MonoBehaviour
             button.Setup(gameObject);
     }
 
+    public void SetButtonsActive(bool active)
+    {
+        foreach (var button in _buttons)
+            button.SetActive(active);
+    }
+
     [System.Serializable]
     private class Buttons
     {
@@ -36,5 +42,7 @@ public class MenuNavigation : MonoBehaviour
             });
    
         }
+
+        public void SetActive(bool active) => _button.gameObject.SetActive(active);
     }
 }

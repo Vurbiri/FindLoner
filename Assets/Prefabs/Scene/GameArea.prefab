@@ -346,9 +346,9 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 28a27a5ce878df146ac85c0dd9a9c6f7, type: 3}
     - {fileID: 21300000, guid: 40d56551265365941bc3a50b99993ead, type: 3}
   _timeShowEndRound: 1
-  _timeShowEndLevel: 3
+  _timeShowEndLevel: 2.5
   _timeTurnPerAll: 1.5
-  _saturationMin: 0.2
+  _saturationMin: 0.25
   _brightnessMin: 0.4
 --- !u!114 &2537878239320846446
 MonoBehaviour:
@@ -443,7 +443,7 @@ MonoBehaviour:
       _color: {r: 0.039215688, g: 0.87058824, b: 1, a: 1}
     _isButton: 1
     _timeMessage: 0
-    _appearDuration: 0.75
+    _appearDuration: 0.6
     _fadeDuration: 0.5
   _bonusLevelS:
     _caption:
@@ -455,7 +455,7 @@ MonoBehaviour:
       _color: {r: 0.039215688, g: 0.87058824, b: 1, a: 1}
     _isButton: 1
     _timeMessage: 0
-    _appearDuration: 0.75
+    _appearDuration: 0.6
     _fadeDuration: 0.5
   _bonusLevelP:
     _caption:
@@ -467,7 +467,7 @@ MonoBehaviour:
       _color: {r: 0.039215688, g: 0.87058824, b: 1, a: 1}
     _isButton: 1
     _timeMessage: 0
-    _appearDuration: 0.75
+    _appearDuration: 0.6
     _fadeDuration: 0.5
   _gameOver:
     _caption:
@@ -478,13 +478,13 @@ MonoBehaviour:
       _key: 
       _color: {r: 1, g: 1, b: 1, a: 0}
     _isButton: 0
-    _timeMessage: 6
-    _appearDuration: 1
-    _fadeDuration: 0.5
+    _timeMessage: 6.5
+    _appearDuration: 2
+    _fadeDuration: 1
   _levelComplete:
     _caption:
       _key: LevelComplete
-      _color: {r: 1, g: 0.9254902, b: 0.22745098, a: 1}
+      _color: {r: 0.007843138, g: 0.5882353, b: 0.53333336, a: 1}
     _isSeparator: 0
     _comment:
       _key: 
@@ -1044,8 +1044,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28d191ee5ac74414faf943f2bf95d32e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _timeShuffle: 1.1
-  _delayShuffle: 0.2
+  _timeShuffle: 1
+  _delayShuffle: 0.25
 --- !u!114 &5233702351039133125
 MonoBehaviour:
   m_ObjectHideFlags: 0

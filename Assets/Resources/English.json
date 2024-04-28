@@ -14,7 +14,7 @@
   "Time": "Time",
 
   "Level": "Level {0}",
-  "LevelComment": "Choose a shape that is different from all other shapes.\nIf you make a mistake or fail to choose a shape within the allotted time (<color=#FFFFFF>{0}</color>), the game is over.",
+  "LevelComment": "Choose a pattern that is different from all other patterns.\nIf you make a mistake or fail to choose a pattern within the allotted time (<color=#FFFFFF>{0}</color>), the game is over.",
   "BonusS": "Bonus level A",
   "BonusSComment": "Win bonus time by revealing any <color=#FFFFFF>{0}</color> cards.",
   "BonusP": "Bonus level B",

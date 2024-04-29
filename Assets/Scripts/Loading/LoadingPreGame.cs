@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class LoadingPreGame : MonoBehaviour
 {
-    [SerializeField] private string _keySave = "FDL_test";
+    [SerializeField] private string _keySave = "FDL";
     [Space]
     [SerializeField, Scene] private int _sceneDesktop = 0;
     [SerializeField, Scene] private int _sceneMobile = 0;

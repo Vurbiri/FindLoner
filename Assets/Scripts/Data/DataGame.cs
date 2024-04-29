@@ -26,7 +26,7 @@ public class DataGame : ASingleton<DataGame>
     private int _currentSize, _currentTypes, _maxTypes, _sqrCurrentSize;
     private bool _isMonochrome = false, _isBonusLevelSingle = true;
 
-    private float TimeStart => _timeStart + (_isMonochrome ? _sqrCurrentSize : _maxTypes);
+    private float TimeStart => _timeStart + _maxTypes + _currentTypes * (_isMonochrome ? 3.5f : 1.5f);
 
     public bool IsGameLevel => _data.modeStart == GameMode.Game;
     public bool IsBonusLevelSingle => _isBonusLevelSingle;
@@ -86,7 +86,7 @@ public class DataGame : ASingleton<DataGame>
         if (_isBonusLevelSingle)
             return new(TimeStart, _currentSize, Mathf.RoundToInt(0.64f * (_currentTypes + _currentSize)), !_isMonochrome, _currentSize + 2, new(_maxTypes - 1));
         else
-            return new(TimeStart, _currentSize, Mathf.RoundToInt(0.85f * (_currentTypes + _maxTypes)), !_isMonochrome, 0, new(_maxTypes - 1));
+            return new(TimeStart, _currentSize, _currentTypes + _maxTypes, !_isMonochrome, 0, new(_maxTypes - 1));
     }
 
     public void ResetGame()
@@ -130,7 +130,7 @@ public class DataGame : ASingleton<DataGame>
         _currentSize++;
         _sqrCurrentSize = _currentSize * _currentSize;
         _currentTypes = _startTypes;
-        _maxTypes = _sqrCurrentSize / 2;
+        _maxTypes = _sqrCurrentSize >> 1;
     }
 
     public void ResetGameLevelData()
@@ -140,7 +140,7 @@ public class DataGame : ASingleton<DataGame>
         _currentSize = _startSize;
         _sqrCurrentSize = _currentSize * _currentSize;
         _currentTypes = _startTypes;
-        _maxTypes = _sqrCurrentSize / 2;
+        _maxTypes = _sqrCurrentSize >> 1;
     }
 
     private void MessageSaving(bool result) => Message.Saving("GoodSave", result);

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-
 [RequireComponent(typeof(CardsArea))]
 public class GameLevel : MonoBehaviour
 {
@@ -178,46 +177,30 @@ public class GameLevel : MonoBehaviour
     [Serializable]
     private class CreatorShapes
     {
-        [SerializeField] private Sprite[] _mainSprites;
-        [SerializeField] private Sprite[] _centerSprites;
-        [SerializeField] private Sprite[] _outerSprites;
+        [SerializeField] private Sprites[] _sprites;
 
-        public Sprite[] Next => _sprites.Dequeue();
+        public Sprite[] Next => _spritesQueue.Dequeue();
 
-        private readonly Queue<Sprite[]> _sprites = new();
+        private readonly Queue<Sprite[]> _spritesQueue = new();
 
-        private const int COUNT = 6;
-        private const int COUNT_SPRITES = 9;
-
+        private const int COUNT = Shape.COUNT;
+        private const int COUNT_SPRITES = Sprites.COUNT;
+        
         public void Create(int count)
         {
-            bool isSimilar = Random.Range(0, 1000) < 500;
-            _sprites.Clear();
-            int constId = Random.Range(0, 4); // в 3 из 4 случаев одно составляющее будет одинакова
-            Sprite[] constElements = GetConstElement();
-            Sprite temp = null;
+            _spritesQueue.Clear();
+            int constId = Random.Range(0, COUNT << 1); // в 3 из 6 случаев одно составляющее будет одинакова
+            Sprite constElement = constId < COUNT ? _sprites[constId][Random.Range(0, COUNT_SPRITES)] : null;
             for (int i = 0; i < count; i++)
             {
                 Sprite[] sprites = new Sprite[COUNT];
                 do
                 {
-                    sprites[0] = constId == 0 ? constElements[0] : _mainSprites[Random.Range(0, COUNT_SPRITES)];
-                    sprites[1] = constId == 1 ? constElements[0] : _centerSprites[Random.Range(0, COUNT_SPRITES)];
-                    for (int j = 2, k = 0; j < COUNT; j++, k++)
-                    {
-                        if(constId == 2)
-                        {
-                            sprites[j] = constElements[k];
-                            continue;
-                        }
-                        
-                        if (!isSimilar || j == 2)
-                            temp = _outerSprites[Random.Range(0, COUNT_SPRITES)];
-                        sprites[j] = temp;
-                    }
+                    for (int j = 0; j < COUNT; j++)
+                        sprites[j] = constId == j ? constElement : _sprites[j][Random.Range(0, COUNT_SPRITES)];
                 }
-                while (_sprites.Contains(sprites, Comparison));
-                _sprites.Enqueue(sprites);
+                while (_spritesQueue.Contains(sprites, Comparison));
+                _spritesQueue.Enqueue(sprites);
             }
 
             #region Local functions
@@ -231,65 +214,18 @@ public class GameLevel : MonoBehaviour
                 }
                 return true;
             }
-            Sprite[] GetConstElement()
-            {
-                Sprite[] elements = null;
-                if (constId < 2)
-                {
-                    elements = new Sprite[1];
-                    elements[0] = constId == 0 ? _mainSprites[Random.Range(0, COUNT_SPRITES)] : _centerSprites[Random.Range(0, COUNT_SPRITES)];
-                }
-                else if (constId == 2)
-                {
-                    elements = new Sprite[4];
-                    elements[0] = _outerSprites[Random.Range(0, COUNT_SPRITES)];
-                    for (int j = 1; j < 4; j++)
-                        elements[j] = isSimilar ? elements[0] : _outerSprites[Random.Range(0, COUNT_SPRITES)];
-                }
-                return elements;
-            }
             #endregion
         }
-        
-        public void CreateNew(int count)
-        {
-            _sprites.Clear();
-            int constId = Random.Range(0, 4); // в 3 из 4 случаев одно составляющее будет одинакова
-            Sprite constElement = GetConstElement();
-            Sprite outElement = null;
-            for (int i = 0; i < count; i++)
-            {
-                Sprite[] sprites = new Sprite[COUNT];
-                do
-                {
-                    sprites[0] = constId == 0 ? constElement : _mainSprites[Random.Range(0, COUNT_SPRITES)];
-                    sprites[1] = constId == 1 ? constElement : _centerSprites[Random.Range(0, COUNT_SPRITES)];
-                    outElement = constId == 2 ? constElement : _outerSprites[Random.Range(0, COUNT_SPRITES)];
-                    for (int j = 2; j < COUNT; j++)
-                        sprites[j] = outElement;
-                }
-                while (_sprites.Contains(sprites, Comparison));
-                _sprites.Enqueue(sprites);
-            }
-
-            #region Local functions
-            //===============================
-            static bool Comparison(Sprite[] spritesA, Sprite[] spritesB)
-            {
-                for (int i = 0; i < COUNT; i++)
-                {
-                    if (spritesA[i] != spritesB[i])
-                        return false;
-                }
-                return true;
-            }
-            Sprite GetConstElement() => constId switch {
-                                        0 => _mainSprites[Random.Range(0, COUNT_SPRITES)],
-                                        1 => _centerSprites[Random.Range(0, COUNT_SPRITES)],
-                                        2 => _outerSprites[Random.Range(0, COUNT_SPRITES)],
-                                        _ => null };
-            #endregion
-        }
-        #endregion
+       
     }
+    [Serializable]
+    private class Sprites
+    {
+        [SerializeField] private Sprite[] _sprites;
+
+        public Sprite this[int index] { get => _sprites[index]; set => _sprites[index] = value; }
+
+        public const int COUNT = 9;
+    }
+    #endregion
 }

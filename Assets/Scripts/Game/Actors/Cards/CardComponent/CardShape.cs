@@ -2,41 +2,22 @@ using UnityEngine;
 
 public class CardShape : ACardComponent
 {
-    [SerializeField] private SpriteRenderer _centerSprite;
-    [SerializeField] private SpriteRenderer _topSprite;
-    [SerializeField] private SpriteRenderer _leftSprite;
-    [SerializeField] private SpriteRenderer _bottomSprite;
-    [SerializeField] private SpriteRenderer _rightSprite;
+    [SerializeField] private SpriteRenderer[] _sprites;
 
     public void SetShape(Shape shape)
     {
-        _thisSprite.sprite = shape.Main;
-        _thisSprite.color = shape.Color;
-
-        _centerSprite.sprite = shape.Center;
-        _centerSprite.color = shape.Color;
-
-        _topSprite.sprite = shape.Top;
-        _topSprite.color = shape.Color;
-
-        _leftSprite.sprite = shape.Left;
-        _leftSprite.color = shape.Color;
-
-        _bottomSprite.sprite = shape.Bottom;
-        _bottomSprite.color = shape.Color;
-
-        _rightSprite.sprite = shape.Right;
-        _rightSprite.color = shape.Color;
+        SpriteRenderer current;
+        for (int i = 0; i < Shape.COUNT; i++) 
+        {
+            (current = _sprites[i]).color = shape.Color;
+            current.sprite = shape.Value[i];
+        }
     }
 
     public override void SetSize(Vector2 size)
     {
-        _thisSprite.size = size;
-        _centerSprite.size = size;
-        _topSprite.size = size;
-        _leftSprite.size = size;
-        _bottomSprite.size = size;
-        _rightSprite.size = size;
+        for (int i = 0; i < Shape.COUNT; i++)
+            _sprites[i].size = size;
     }
 
     public void ResetAngle() => _thisTransform.localRotation = Quaternion.identity;

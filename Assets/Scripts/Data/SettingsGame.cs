@@ -68,7 +68,7 @@ public class SettingsGame : ASingleton<SettingsGame>
         foreach (var type in Enum<AudioType>.GetValues())
             _profileCurrent.volumes[type.ToInt()] = _volumes[type].Volume;
 
-        StartCoroutine(Storage.Save_Coroutine(_profileCurrent.key, _profileCurrent, callback));
+        Storage.Save(_profileCurrent.key, _profileCurrent);
     }
     private bool Load()
     {

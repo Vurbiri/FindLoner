@@ -66,7 +66,7 @@ public class DataGame : ASingleton<DataGame>
 
         return data.Result;
     }
-    public void Save(Action<bool> callback = null) => StartCoroutine(Storage.Save_Coroutine(_keySave, _data, callback));
+    public bool Save() => Storage.Save(_keySave, _data);
 
     public LevelSetupData StartGameLevel() => new(_data.time, _currentSize, _currentTypes, _isMonochrome);
     public LevelSetupData NextGameLevel(float time)
@@ -74,14 +74,14 @@ public class DataGame : ASingleton<DataGame>
         _data.modeStart = GameMode.Game;
         _data.level++;
         _data.time = time;
-        Save(MessageSaving);
+        SaveAndMessage();
 
         return new(time, _currentSize, _currentTypes, _isMonochrome);
     }
     public LevelSetupData NextBonusLevel()
     {
         _data.modeStart = GameMode.Bonus;
-        Save(MessageSaving);
+        SaveAndMessage();
 
         if (_isBonusLevelSingle)
             return new(TimeStart, _currentSize, Mathf.RoundToInt(0.64f * (_currentTypes + _currentSize)), !_isMonochrome, _currentSize + 2, new(_maxTypes - 1));
@@ -143,7 +143,7 @@ public class DataGame : ASingleton<DataGame>
         _maxTypes = _sqrCurrentSize >> 1;
     }
 
-    private void MessageSaving(bool result) => Message.Saving("GoodSave", result);
+    private void SaveAndMessage() => Message.Saving("GoodSave", Storage.Save(_keySave, _data));
 
     #region Nested Classe
     //***********************************

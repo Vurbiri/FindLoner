@@ -23,13 +23,14 @@ public class LoadScene
     }
 
     public LoadScene(int nextScene) => _nextScene = nextScene;
-    public LoadScene(int nextScene, Slider slider, bool isAddProgress = false) : this(nextScene)
+    public LoadScene(int nextScene, Slider slider, MonoBehaviour mono) : this(nextScene)
     {
         _slider = slider;
-        _isAddProgress = isAddProgress;
+        _isAddProgress = true;
+        mono.StartCoroutine(Start_Coroutine());
     }
 
-    public IEnumerator StartCoroutine()
+    public IEnumerator Start_Coroutine()
     {
         _asyncOperation = SceneManager.LoadSceneAsync(_nextScene);
         _asyncOperation.allowSceneActivation = false;
@@ -53,16 +54,11 @@ public class LoadScene
         if (_asyncOperation == null)
             return;
 
-        SetProgress(0.5f);
+        if (_slider != null)
+        {
+            _addProgress = 0.5f;
+            _slider.value = Progress;
+        }
         _asyncOperation.allowSceneActivation = true;
-    }
-
-    public void SetProgress(float progress)
-    {
-        if (!_isAddProgress || _asyncOperation == null || _slider == null)
-            return;
-
-        _addProgress = progress;
-        _slider.value = Progress;
     }
 }

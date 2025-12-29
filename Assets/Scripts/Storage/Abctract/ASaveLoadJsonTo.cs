@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 public abstract class ASaveLoadJsonTo
@@ -9,7 +8,7 @@ public abstract class ASaveLoadJsonTo
 
     public abstract bool IsValid { get; }
 
-    public abstract IEnumerator Initialize_Coroutine(string key, Action<bool> callback);
+    public abstract bool Initialize(string key);
 
     public virtual Return<T> Load<T>(string key) where T : class
     {
@@ -19,7 +18,7 @@ public abstract class ASaveLoadJsonTo
         return Return<T>.Empty;
     }
 
-    public abstract IEnumerator Save_Coroutine(string key, object data, Action<bool> callback);
+    public abstract bool Save(string key, object data);
     protected virtual bool SaveToMemory(string key, object data)
     {
         try

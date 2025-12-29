@@ -1,14 +1,17 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
-public class JsonToLocalStorage : ASaveLoadJsonTo
+sealed public class JsonToLocalStorage : ASaveLoadJsonTo
 {
     private string _key;
 
+#if UNITY_EDITOR
+    public override bool IsValid => false;
+#else
     public override bool IsValid => UtilityJS.IsStorage();
+#endif
 
-    public override IEnumerator Initialize_Coroutine(string key, Action<bool> callback)
+    public override bool Initialize(string key)
     {
         _key = key;
 
@@ -26,43 +29,37 @@ public class JsonToLocalStorage : ASaveLoadJsonTo
 
         if (!string.IsNullOrEmpty(json))
         {
-            Return<Dictionary<string, string>> d = Deserialize<Dictionary<string, string>>(json);
+            var d = Deserialize<Dictionary<string, string>>(json);
 
             if (d.Result)
             {
                 _saved = d.Value;
-                callback?.Invoke(true);
-                yield break;
+                return true;
             }
         }
 
         _saved = new();
-        callback?.Invoke(false);
+        return false;
     }
 
-    public override IEnumerator Save_Coroutine(string key, object data, Action<bool> callback)
+    public override bool Save(string key, object data)
     {
-        bool result = SaveToMemory(key, data);
-        if (!result)
-        {
-            callback?.Invoke(false);
-            yield break;
-        }
+        if (!SaveToMemory(key, data))
+            return false;
 
         try
         {
-            string json = Serialize(_saved);
-            result = UtilityJS.SetStorage(_key, json);
-
+            var json = Serialize(_saved);
+            if (UtilityJS.SetStorage(_key, json))
+            {
+                _dictModified = false;
+                return true;
+            }
         }
         catch (Exception ex)
         {
-            result = false;
             Message.Log(ex.Message);
         }
-        finally
-        {
-            callback?.Invoke(result);
-        }
+        return false;
     }
 }

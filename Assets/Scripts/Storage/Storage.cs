@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.UI;
 using static UnityEngine.Networking.UnityWebRequest;
 
 public static class Storage
@@ -14,14 +13,19 @@ public static class Storage
 
     public static bool StoragesCreate()
     {
-        if (Create<JsonToYandex>())
-            return true;
-
         if (Create<JsonToLocalStorage>())
             return true;
 
         if (Create<JsonToCookies>())
             return true;
+
+#if UNITY_EDITOR
+        if (Create<JsonToFile>())
+            return true;
+
+        if (Create<JsonToPlayerPrefs>())
+            return true;
+#endif
 
         Create<EmptyStorage>();
         return false;
@@ -37,8 +41,8 @@ public static class Storage
         }
         #endregion
     }
-    public static IEnumerator Initialize_Coroutine(string key, Action<bool> callback) => service.Initialize_Coroutine(key, callback);
-    public static IEnumerator Save_Coroutine(string key, object data, Action<bool> callback = null) => service.Save_Coroutine(key, data, callback);
+    public static bool Initialize(string key) => service.Initialize(key);
+    public static bool Save(string key, object data) => service.Save(key, data);
     public static Return<T> Load<T>(string key) where T : class => service.Load<T>(key);
 
     public static Return<T> Deserialize<T>(string json) where T : class

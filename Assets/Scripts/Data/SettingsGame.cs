@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,8 +24,7 @@ public class SettingsGame : ASingleton<SettingsGame>
     public bool IsDesktop { get; private set; } = true;
     public bool IsFirstStart { get; set; } = true;
 
-    private YandexSDK _ysdk;
-    private Localization _localization;
+
     private readonly Dictionary<AudioType, IVolume> _volumes = new(Enum<AudioType>.Count);
 
     protected override void Awake()
@@ -35,17 +33,13 @@ public class SettingsGame : ASingleton<SettingsGame>
 
         IsDesktop = !UtilityJS.IsMobile;
 
-        _ysdk = YandexSDK.InstanceF;
-        _localization = Localization.InstanceF;
-
         _volumes[AudioType.Music] = MusicSingleton.InstanceF;
         _volumes[AudioType.SFX] = SoundSingleton.InstanceF;
     }
 
     public void SetPlatform()
     {
-        if (_ysdk.IsPlayer)
-            IsDesktop = _ysdk.IsDesktop;
+        IsDesktop = !UtilityJS.IsMobile;
     }
 
     public bool Initialize(bool isLoad)
@@ -62,13 +56,13 @@ public class SettingsGame : ASingleton<SettingsGame>
 
     public float GetVolume(AudioType type) => _profileCurrent.volumes[type.ToInt()];
 
-    public void Save(Action<bool> callback = null)
+    public bool Save()
     {
-        _profileCurrent.idLang = _localization.CurrentId;
+        _profileCurrent.idLang = Localization.Instance.CurrentId;
         foreach (var type in Enum<AudioType>.GetValues())
             _profileCurrent.volumes[type.ToInt()] = _volumes[type].Volume;
 
-        Storage.Save(_profileCurrent.key, _profileCurrent);
+        return Storage.Save(_profileCurrent.key, _profileCurrent);
     }
     private bool Load()
     {
@@ -91,15 +85,11 @@ public class SettingsGame : ASingleton<SettingsGame>
     {
         QualitySettings.SetQualityLevel(IsDesktop ? _qualityDesktop : _qualityMobile);
         _profileCurrent = (IsDesktop ? _profileDesktop : _profileMobile).Clone();
-
-        if (_ysdk.IsInitialize)
-            if (_localization.TryIdFromCode(_ysdk.Lang, out int id))
-                _profileCurrent.idLang = id;
     }
 
     private void Apply()
     {
-        _localization.SwitchLanguage(_profileCurrent.idLang);
+        Localization.Instance.SwitchLanguage(_profileCurrent.idLang);
         foreach (var type in Enum<AudioType>.GetValues())
             _volumes[type].Volume = _profileCurrent.volumes[type.ToInt()];
     }

@@ -1,6 +1,6 @@
 <div align="center"> 
 <a href="https://play.unity.com/en/games/4f6c6852-92bd-49ff-998a-045ac81623cf/digitis" target="_blank" rel="noopener noreferrer">
-<img src="img/Cover_eng.png" alt="Cover" title="Find uniqueness" width="500" > 
+<img src="img/Cover_eng.png" alt="Cover" title="Find Uniqueness" width="500" > 
 </a>
 </div>
 

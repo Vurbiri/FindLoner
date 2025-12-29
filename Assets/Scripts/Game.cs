@@ -54,9 +54,7 @@ public class Game : MonoBehaviour
     {
         _gameUI.ControlEnable = false;
 
-        _isRecord = false;
-        if (_dataGame.IsRecord)
-            _gameUI.SetScore(_dataGame.Score, (b) => _isRecord = b);
+        _isRecord = _dataGame.IsRecord;
 
         _dataGame.ResetGame();
         _dataGame.Save();

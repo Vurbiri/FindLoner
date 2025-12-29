@@ -9,7 +9,6 @@ public class GameUI : MonoBehaviour
     [SerializeField] private MenuNavigation _mainMenu;
     [Space]
     [SerializeField] private MenuGroup _settings;
-    [SerializeField] private MenuGroup _leaderboard;
     [Space]
     [SerializeField] private GameObject _shading;
     [Space]
@@ -18,7 +17,6 @@ public class GameUI : MonoBehaviour
     private bool _isPause = false, _isStartNewGame = false;
     private Vector3 _thisPosition;
     private Transform _thisTransform;
-    private LeaderboardUI _leaderboardUI;
 
     public bool ControlEnable { get; set; }
 
@@ -30,8 +28,6 @@ public class GameUI : MonoBehaviour
     {
         _thisTransform = transform;
         _thisPosition = _thisTransform.position;
-
-        _leaderboardUI = _leaderboard.GetComponent<LeaderboardUI>();
     }
 
     private void Start()
@@ -47,7 +43,6 @@ public class GameUI : MonoBehaviour
 
         On();
         _settings.Enable = true;
-        _leaderboard.Enable = false;
     }
     public void OpenLeaderboard()
     {
@@ -56,7 +51,6 @@ public class GameUI : MonoBehaviour
 
         On();
         _settings.Enable = false;
-        _leaderboard.Enable = true;
     }
     public void Close()
     {
@@ -70,8 +64,6 @@ public class GameUI : MonoBehaviour
             _isStartNewGame = false;
         }
     }
-
-    public void SetScore(long score, Action<bool> callback) => _leaderboardUI.SetScore(score, callback);
 
     private void Off()
     {

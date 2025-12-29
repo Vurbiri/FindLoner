@@ -1,30 +1,22 @@
 public class SettingsMenu : MenuNavigation
 {
-    private SettingsGame _settings;
-    private bool isSave;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        _settings = SettingsGame.InstanceF;
-    }
+    private bool _isSave;
 
     private void OnEnable()
     {
-        isSave = false;
+        _isSave = false;
     }
     private void OnDisable() 
     {
-        if (isSave || SettingsGame.Instance == null || SoundSingleton.Instance == null || MusicSingleton.Instance == null)
+        if (_isSave || SettingsGame.Instance == null || SoundSingleton.Instance == null || MusicSingleton.Instance == null)
             return;
 
-        _settings.Cancel();
+        SettingsGame.Instance.Cancel();
     }
 
     public void OnOk()
     {
-        isSave = true;
-
-        _settings.Save((b) => Message.Saving("GoodSaveSettings", b));
+        _isSave = true;
+        Message.Saving("GoodSaveSettings", SettingsGame.Instance.Save());
     }
 }

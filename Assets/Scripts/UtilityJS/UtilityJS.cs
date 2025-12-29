@@ -4,14 +4,17 @@ public static class UtilityJS
 {
 #if UNITY_EDITOR
 	public static bool IsMobile => false;
+
+    public static void Log(string msg) => UnityEngine.Debug.Log(msg);
+    public static void Error(string msg) => UnityEngine.Debug.LogError(msg);
 #else
 	public static bool IsMobile => IsMobileUnityJS();
-#endif
 
 	public static void Log(string message) => LogJS(message);
 	public static void Error(string message) => ErrorJS(message);
+#endif
 
-	public static bool SetStorage(string key, string data) => SetStorageJS(key, data);
+    public static bool SetStorage(string key, string data) => SetStorageJS(key, data);
 	public static string GetStorage(string key) => GetStorageJS(key);
 	public static bool IsStorage() => IsStorageJS();
 
